@@ -140,8 +140,6 @@ class Pipeline:
         log.parent.mkdir(exist_ok=True)
         print(f'\n[{label}] {shlex.join(command)}\n로그: {log}', flush=True)
         env = {**os.environ, 'PYTHON':sys.executable, 'PYTHONUNBUFFERED':'1'}
-        if label == 'cpu-tests':
-            env['CUDA_VISIBLE_DEVICES'] = ''
         with log.open('x') as stream:
             stream.write('# ' + shlex.join(command) + '\n'); stream.flush()
             process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=stream,
@@ -227,7 +225,6 @@ class Pipeline:
 
     def execute(self, c, config, pilot_only):
         self.run('environment-lock', [sys.executable, '-m', 'pip', 'freeze'])
-        self.run('cpu-tests', [sys.executable, 'scripts/run_tests.py', '--require-no-skips'])
         self.cli('environment', 'preflight', config, '--environment-only', '--report',
                  self.session / 'logs' / f'environment-{time.time_ns()}.json')
         self.cli('download', 'download', config, '--only', 'all')

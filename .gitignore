@@ -4,7 +4,6 @@
 .first.lock
 .bootstrap-logs/
 __pycache__/
-.pytest_cache/
 *.pyc
 data/raw/
 data/converted/

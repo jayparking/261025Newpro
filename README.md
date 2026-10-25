@@ -17,7 +17,7 @@ bash first.sh
 | 순서 | first.sh가 수행하는 일 | 통과 조건 / 사용자가 확인할 것 |
 |---|---|---|
 | 1 | 별도 venv에 고정 의존성 설치, pip freeze 기록 | 설치 성공. 기존 로컬 venv 보존 |
-| 2 | CPU 테스트, GPU 환경 preflight | CPU 테스트는 CUDA 접근을 차단해 수행. 실패 **또는 skip이 있으면 중단**; GPU/BF16/UUID·설치 버전 검사 통과 |
+| 2 | GPU 환경 preflight | GPU/BF16/UUID·설치 버전 검사 통과 |
 | 3 | 두 원본 모델·두 데이터셋 다운로드/기존 receipt 검증 | 정확한 repo·revision·파일 hash |
 | 4 | 원천 변환, gold 감사, 중복 제거와 고정 split 준비 | MATH500 500개 유지; 실패는 보고 후 중단 |
 | 5 | 전체 preflight, smoke 1 update 후 종료·별도 프로세스로 재개 | 4조건 모두 3 updates, 저장/재개/평가 통과 |
@@ -68,7 +68,6 @@ PYTHON=/실제/서버/python bash first.sh --skip-install
 | `first.sh` | GPU 서버 단일 진입점. 서버 venv/의존성 설치, 중복 실행 lock, 전체 흐름 호출 |
 | `scripts/bootstrap_venv.py` | 불완전한 venv 복구, 격리된 interpreter 검증, ensurepip/pip 상세 설치 로그 |
 | `scripts/first_pipeline.py` | 설치 후 모든 단계 실행·로그·설정 선택·재개 관리. 부모는 GPU 모델을 올리지 않음 |
-| `scripts/run_tests.py` | CPU 테스트와 서버의 skip 0 통과 조건 |
 | `scripts/run.sh`, `grpo_order/cli.py` | 개별 작업 CLI 연결. 수동 실행/디버깅에도 사용 |
 | `grpo_order/assets.py`, `sources.py` | 지정 모델/데이터 다운로드, source ID·revision·receipt/hash 검증 |
 | `grpo_order/import_math.py`, `data.py` | MATH 원천 변환, 원래 level 보존, gold 검사·중복 제거·고정 split |
@@ -81,7 +80,6 @@ PYTHON=/실제/서버/python bash first.sh --skip-install
 | `grpo_order/launcher.py` | 같은 모델·seed의 Random/Curriculum pair 실행·대기. full 정확히 12회 |
 | `grpo_order/freeze.py`, `core.py` | 설정 불변 조건·hash·seed, 확정 전 full 차단 |
 | `grpo_order/analysis.py` | full 평가의 seed별 성능·조건 차이·곡선·그래프 |
-| `tests/` | CPU tensor/fixture와 오류 주입을 이용한 회귀 검증. 실제 GPU 성공을 대신하지 않음 |
 
 이하에는 실험 정의와 개별 CLI 명령을 상세히 정리했다. first.sh를 사용하면 이 명령들을 직접 순서대로 입력할 필요가 없다.
 
@@ -123,7 +121,6 @@ python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/
 python -m pip install -r requirements.txt
 python -m pip install -r requirements-assets.txt
 python -m pip freeze > environment.lock.txt
-bash scripts/run.sh test
 bash scripts/run.sh preflight --environment-only
 ```
 
@@ -393,10 +390,9 @@ bash scripts/run.sh analyze --config configs/final.json --mode full --output rep
 ## 검증과 남은 확인
 
 ```bash
-bash scripts/run.sh test
-python -m compileall -q grpo_order tests scripts
+python -m compileall -q grpo_order scripts
 ```
 
-CPU 테스트는 순서·동일 집합·zero variance·avg/pass·중복 제거/manifest 변조·배타 lock, microbatch 1/2/4의 실제 gradient 대조, AdamW/RNG/cursor의 중단-재개 대조, LoRA 초기 일치/동결 파라미터 불변, 실제 작은 HF 모델 평가의 RNG/weights 불변, 수식 채점 동치를 포함한다. 작은 HF 모델은 랜덤 초기화한 CPU fixture이며 공개 모델 다운로드를 하지 않는다. 의존성이 없으면 해당 테스트를 **skip으로 명시**한다. 서버에서는 설치 후 모든 테스트의 skip/실패 여부를 확인한다.
+요청에 따라 CPU 테스트 파일·실행 단계·test 명령·pytest 의존성을 제거했다. first.sh는 설치 후 바로 GPU 환경 preflight로 진행한다. 데이터 gold 감사, GPU preflight, smoke 중단·재개 검증은 그대로 수행한다.
 
-최신 CPU 검증은 58개 중 57 통과·1 skip(math-verify 설치 실패)이며, 실제 수행 결과와 환경 차이는 `VALIDATION.md`의 최신 절에 기록한다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.
+삭제 전 검증 기록과 환경 한계는 `VALIDATION.md`에 보존한다. 현재 실행 절차에는 해당 테스트가 없다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.

@@ -14,7 +14,6 @@
 #   train      one run in this process (set CUDA_VISIBLE_DEVICES)  -> grpo_order train
 #   evaluate   evaluate a retained checkpoint                      -> grpo_order evaluate
 #   analyze    seed contrasts, curves, plots                       -> grpo_order analyze
-#   test       CPU unit tests                                      -> unittest discover
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY="${PYTHON:-python}"
@@ -27,6 +26,5 @@ case "$cmd" in
   preflight|freeze|train|evaluate|analyze) exec "$PY" -m grpo_order "$cmd" "$@" ;;
   smoke|pilot|full) exec "$PY" -m grpo_order launch --mode "$cmd" "$@" ;;
   resume) exec "$PY" -m grpo_order launch --resume-failed "$@" ;;
-  test) exec "$PY" scripts/run_tests.py "$@" ;;
   *) sed -n '2,15p' "$0" >&2; exit 2 ;;
 esac

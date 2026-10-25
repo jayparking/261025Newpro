@@ -7,7 +7,7 @@ usage() {
   cat <<'EOF'
 사용: bash first.sh [--pilot-only] [--resume 실행폴더] [--config JSON] [--skip-install]
 
-  기본 실행       설치 → 테스트 → 다운로드 → 데이터 감사 → preflight → smoke/재개
+  기본 실행       설치 → 환경 검사 → 다운로드 → 데이터 감사 → preflight → smoke/재개
                   → plain/chat → 2048/4096 → LR 파일럿 → 설정 선택 → freeze → full 12회 → 분석
   --pilot-only    같은 파일럿과 설정 선택까지 수행하고 full 전에 종료
   --resume DIR    기존 실행을 검증하고 이어서 진행 (완료 결과를 덮어쓰지 않음)

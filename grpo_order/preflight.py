@@ -125,8 +125,6 @@ def dependency_errors():
             continue
         name, expected = line.split("==")
         name = name.split("[")[0]
-        if name == "pytest":
-            continue
         try:
             actual = importlib.metadata.version(name).split("+")[0]
         except importlib.metadata.PackageNotFoundError:

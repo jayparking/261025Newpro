@@ -115,14 +115,14 @@ def adapter_norms(model):
             for part in ("lora_A", "lora_B")}
 
 
-def load_model(path, config, lora_seed, device="cuda:0", *, cpu_test=False):
+def load_model(path, config, lora_seed, device="cuda:0"):
     import torch
     from transformers import AutoModelForCausalLM
     from transformers.pytorch_utils import Conv1D
     from peft import LoraConfig, get_peft_model
     model = AutoModelForCausalLM.from_pretrained(
         str(path), local_files_only=True, trust_remote_code=False,
-        torch_dtype=torch.float32 if cpu_test else torch.bfloat16,
+        torch_dtype=torch.bfloat16,
         attn_implementation="eager")
     supported = (torch.nn.Linear, Conv1D)
     explicit = config["lora"]["target_modules"]

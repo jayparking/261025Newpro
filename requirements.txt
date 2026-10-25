@@ -7,4 +7,3 @@ numpy==2.2.6
 matplotlib==3.10.3
 math-verify[antlr4_13_2]==0.8.0
 antlr4-python3-runtime==4.13.2
-pytest==8.3.5
