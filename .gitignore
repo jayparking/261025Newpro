@@ -2,6 +2,7 @@
 .venv-cpu/
 .venv-gpu/
 .first.lock
+.bootstrap-logs/
 __pycache__/
 .pytest_cache/
 *.pyc

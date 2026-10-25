@@ -10,6 +10,8 @@ bash first.sh
 
 필요한 것은 Linux, Python 3.11 또는 3.12의 venv, 설치된 NVIDIA 드라이버/nvidia-smi, 할당 GPU 두 장, 패키지·Hugging Face 다운로드 접근이다. 시스템 드라이버나 Python 자체는 스크립트가 설치하지 않는다. 로컬 macOS의 `.venv`를 복사해 사용하지 않는다. `first.sh`는 서버용 `.venv-gpu`를 생성하고 torch 2.7.1 CUDA 12.8 wheel 및 두 requirements 파일을 설치한다. 실제 GPU/드라이버 호환성은 preflight에서 검사한다.
 
+`ensurepip ... returned non-zero exit status 1`이 나왔던 경우에는 `git pull --ff-only` 후 `bash first.sh`를 다시 실행한다. 설치 단계이므로 아직 재개할 실험 세션은 없다. 현재 스크립트는 `.venv-gpu` 폴더 존재 여부만으로 성공을 판단하지 않고, 실제 격리된 Python과 pip를 확인한다. pip가 없으면 `ensurepip` → 기존 Python의 `pip --python` → 공식 PyPA `get-pip.py` 순으로 **가상환경 안에만** 복구를 시도한다. 기존 폴더를 삭제하지 않는다. 최초 생성도 `venv --without-pip`로 분리해 ensurepip 상세 오류가 숨겨지지 않게 했다. 로그는 `.bootstrap-logs/<번호>/`에 남는다. 공식 복구 경로도 실패하면 설치된 Python, wheel 누락, 디스크/권한, TLS/네트워크 등 상세 로그의 원인을 확인해야 한다. [pip 공식 설치 방법](https://pip.pypa.io/en/stable/installation/), [다른 가상환경에 pip 설치](https://pip.pypa.io/en/stable/topics/python-option/).
+
 이미 GPU 할당을 받은 환경의 `CUDA_VISIBLE_DEVICES`를 유지한다. 미설정이면 기존 launcher가 CUDA 0·1을 대상으로 검사한다. CUDA slot 0→Random, slot 1→Curriculum이며 검증한 UUID로 worker를 실행한다. 호스트 물리 번호를 추측하지 않는다.
 
 | 순서 | first.sh가 수행하는 일 | 통과 조건 / 사용자가 확인할 것 |
@@ -64,6 +66,7 @@ PYTHON=/실제/서버/python bash first.sh --skip-install
 | 파일 | 역할 |
 |---|---|
 | `first.sh` | GPU 서버 단일 진입점. 서버 venv/의존성 설치, 중복 실행 lock, 전체 흐름 호출 |
+| `scripts/bootstrap_venv.py` | 불완전한 venv 복구, 격리된 interpreter 검증, ensurepip/pip 상세 설치 로그 |
 | `scripts/first_pipeline.py` | 설치 후 모든 단계 실행·로그·설정 선택·재개 관리. 부모는 GPU 모델을 올리지 않음 |
 | `scripts/run_tests.py` | CPU 테스트와 서버의 skip 0 통과 조건 |
 | `scripts/run.sh`, `grpo_order/cli.py` | 개별 작업 CLI 연결. 수동 실행/디버깅에도 사용 |
@@ -396,4 +399,4 @@ python -m compileall -q grpo_order tests scripts
 
 CPU 테스트는 순서·동일 집합·zero variance·avg/pass·중복 제거/manifest 변조·배타 lock, microbatch 1/2/4의 실제 gradient 대조, AdamW/RNG/cursor의 중단-재개 대조, LoRA 초기 일치/동결 파라미터 불변, 실제 작은 HF 모델 평가의 RNG/weights 불변, 수식 채점 동치를 포함한다. 작은 HF 모델은 랜덤 초기화한 CPU fixture이며 공개 모델 다운로드를 하지 않는다. 의존성이 없으면 해당 테스트를 **skip으로 명시**한다. 서버에서는 설치 후 모든 테스트의 skip/실패 여부를 확인한다.
 
-최신 CPU 검증은 52개 중 51 통과·1 skip(math-verify 설치 실패)이며, 실제 수행 결과와 환경 차이는 `VALIDATION.md`의 최신 절에 기록한다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.
+최신 CPU 검증은 58개 중 57 통과·1 skip(math-verify 설치 실패)이며, 실제 수행 결과와 환경 차이는 `VALIDATION.md`의 최신 절에 기록한다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.

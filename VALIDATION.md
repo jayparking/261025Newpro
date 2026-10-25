@@ -121,3 +121,13 @@ python3 -m compileall -q grpo_order tests scripts
 로그와 요약: `reports/first_three_pass_1792914026068237000/`의 `pass1_shell.log`, `pass2_workflow.log`, `pass3_all_tests.log`, `strict_skip_gate.log`, `audit_summary.json`.
 
 macOS CPU 환경에서 검사했다. 설치 명령/실행 순서 검증에 쓰인 대역은 실제 GPU 서버·패키지 다운로드·공개 모델 학습의 성공 증거가 아니다. math-verify는 네트워크 제한으로 설치되지 않아 실제 채점 테스트 1개는 여전히 skip이다. 서버에서는 first.sh가 이를 허용하지 않으므로 설치 오류가 남아 있으면 학습을 시작하지 않는다. GPU 드라이버/UUID/BF16/실제 EOS/gold 데이터/메모리/실측 소요 시간은 서버 preflight와 smoke/pilot에서 확인해야 한다. 전체 12회 본실험은 로컬에서 실행하지 않았다.
+
+
+## 2026-10-25 서버 ensurepip 실패 복구
+
+실제 서버에서 venv 생성 도중 ensurepip가 exit 1로 실패했다는 보고를 받았다. 기존 first.sh는 폴더 유무만 검사하여 불완전한 가상환경을 다음 실행에서 건너뛰었고, 세션 생성 전에도 --resume을 안내했다. 이를 수정했다.
+
+- 새 `scripts/bootstrap_venv.py`: venv 생성과 pip seeding 분리, 실제 sys.prefix/버전으로 격리 검증, 기존 디렉터리 보존, ensurepip → base pip --python → 공식 PyPA get-pip.py 복구. 시스템 Python에는 패키지를 설치하지 않는다. 단계별 상세 로그는 `.bootstrap-logs/<번호>/`에 저장한다.
+- 기존 정상 pip가 있으면 재설치/다운로드하지 않는다. pip 없는 환경을 실제로 생성하고 로컬 ensurepip 복구가 성공하는 것도 확인했다. 서버와 같은 ensurepip 실패/기본 pip 부재/네트워크 실패는 오류 주입 테스트로 검사했다.
+- 전체 CPU 테스트 **58개 중 57 통과, math-verify 미설치 1 skip, 실패 0**. bash -n 및 compileall 통과. 로그: `reports/ensurepip_fix_1792917196450894000/`.
+- 서버 원인의 구체적 traceback은 아직 받지 못했다. 누락된 wheel인지, Python 배포/권한/네트워크 문제인지는 이 한 줄의 오류로 확정하지 않는다. 서버에서 수정본을 받아 재실행해야 하며 GPU 실행 성공을 주장하지 않는다.

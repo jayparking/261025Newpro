@@ -185,7 +185,7 @@ class FirstTests(unittest.TestCase):
 from pathlib import Path
 with open(os.environ['FIRST_TEST_LOG'], 'a') as f:
     f.write(json.dumps({'args':sys.argv[1:], 'cuda':os.environ.get('CUDA_VISIBLE_DEVICES')})+'\\n')
-if sys.argv[1:3] == ['-m','venv']:
+if sys.argv[1:3] == ['scripts/bootstrap_venv.py','--venv']:
     dst=Path(sys.argv[3])/'bin'/'python'; dst.parent.mkdir(parents=True)
     dst.write_text(Path(__file__).read_text()); dst.chmod(0o755)
 ''')

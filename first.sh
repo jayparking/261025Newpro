@@ -57,7 +57,7 @@ fi
 command -v flock >/dev/null || { echo 'util-linux의 flock이 필요합니다.' >&2; exit 2; }
 exec 9>.first.lock
 flock -n 9 || { echo '다른 first.sh가 실행 중입니다.' >&2; exit 2; }
-trap 'echo "first.sh 오류: ${LINENO}행, 종료 코드 $? (기존 결과 보존). 표시된 실행 폴더로 --resume 하세요." >&2' ERR
+trap 'echo "first.sh 설치/환경 오류: ${LINENO}행, 종료 코드 $? (기존 결과 보존). 아직 새 실험 세션을 시작하지 않았습니다. 원인 해결 후 같은 명령으로 다시 실행하세요." >&2' ERR
 
 if ((skip_install)); then
   server_python="${PYTHON:-$PWD/.venv-gpu/bin/python}"
@@ -72,7 +72,7 @@ else
   fi
   [[ -n "$bootstrap" ]] || { echo 'Python 3.11 또는 3.12와 venv가 필요합니다.' >&2; exit 2; }
   "$bootstrap" -c 'import sys; assert sys.version_info[:2] in ((3,11),(3,12)), "Python 3.11/3.12 required"'
-  if [[ ! -d .venv-gpu ]]; then "$bootstrap" -m venv .venv-gpu; fi
+  "$bootstrap" scripts/bootstrap_venv.py --venv .venv-gpu
   server_python="$PWD/.venv-gpu/bin/python"
   "$server_python" -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu128
   "$server_python" -m pip install -r requirements.txt -r requirements-assets.txt
