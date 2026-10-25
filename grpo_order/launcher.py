@@ -7,6 +7,7 @@ import time
 from .core import atomic_json, code_hash, digest, packages, read_json
 from .data import load_prepared
 from .freeze import verify_freeze
+from .integrity import validate_completion
 from .storage import run_path
 
 
@@ -22,7 +23,9 @@ def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=No
     probe_config = report_path.with_name(f"config-{stamp}.json")
     atomic_json(probe_config, config)
     probe_env = os.environ.copy()
-    probe_env.setdefault("CUDA_VISIBLE_DEVICES", "0,1")
+    slots = config["runtime"]["allocated_gpu_slots"]
+    single_gpu = slots == [0]
+    probe_env.setdefault("CUDA_VISIBLE_DEVICES", ",".join(map(str, slots)))
     probe_env["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     probe = subprocess.run([sys.executable, "-m", "grpo_order", "preflight", "--config", str(probe_config),
                             "--report", str(report_path)], env=probe_env)
@@ -34,19 +37,21 @@ def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=No
     if mode == "full":
         verify_freeze(config, report["models"])
     mapping = report["hardware"]["uuid_mapping"]
-    if [m["allocated_slot"] for m in mapping] != [0, 1]:
-        raise ValueError("Preflight must resolve allocated CUDA slots 0 and 1 to UUIDs")
+    if [m["allocated_slot"] for m in mapping] != slots:
+        raise ValueError(f"Preflight must resolve allocated CUDA slots {slots} to UUIDs")
     seeds = [seed] if mode in ("pilot", "smoke") else config["seeds"]["training"]
     failed = []
     for s in seeds:
         for role in ("base", "rl"):
             processes, handles = [], []
             try:
-                for slot, order in ((0, "random"), (1, "curriculum")):
+                for slot, order in ((0, "random"), (0 if single_gpu else 1, "curriculum")):
                     root = run_path(config, mode, role, order, s)
                     if (root / "complete.json").exists() and resume_failed:
                         # Finished jobs are never retrained. Refuse changed identity even here.
                         metadata = read_json(root / "metadata.json")
+                        expected_updates = 300 if mode == "full" else (3 if mode == "smoke" else config["pilot"]["updates"])
+                        validate_completion(metadata, read_json(root / "complete.json"), expected_updates)
                         manifest, _ = load_prepared(config)
                         contract = metadata["contract"]
                         if (contract["config"] != digest(config) or contract["data"] != manifest["hash"]
@@ -72,11 +77,29 @@ def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=No
                         cmd.append("--resume")
                     if stop_after is not None:
                         cmd.extend(["--stop-after", str(stop_after)])
-                    processes.append((root, subprocess.Popen(cmd, env=env, stdout=log, stderr=subprocess.STDOUT)))
-                for root, p in processes:
-                    code = p.wait()
-                    if code:
-                        failed.append({"run": str(root), "returncode": code})
+                    print(f"Start {role}/{order}/seed{s} on {uuid}; log: {log.name}", flush=True)
+                    # One GPU: wait and release its exclusive lock before starting the next run.
+                    # Stream the active worker so evaluation/training progress is visible.
+                    p = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE if single_gpu else log,
+                                         stderr=subprocess.STDOUT, text=True, bufsize=1)
+                    processes.append((root, p))
+                    if single_gpu:
+                        try:
+                            for line in p.stdout:
+                                log.write(line)
+                                log.flush()
+                                print(line, end="", flush=True)
+                        finally:
+                            p.stdout.close()
+                        code = p.wait()
+                        if code:
+                            failed.append({"run": str(root), "returncode": code})
+                            break
+                if not single_gpu:
+                    for root, p in processes:
+                        code = p.wait()
+                        if code:
+                            failed.append({"run": str(root), "returncode": code})
             except BaseException:
                 for _, p in processes:
                     if p.poll() is None:
@@ -92,4 +115,4 @@ def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=No
         if failed:
             break
     if failed:
-        raise RuntimeError(f"Stopped after failed pair; use --resume-failed: {failed}")
+        raise RuntimeError(f"Stopped after failed run; use --resume-failed: {failed}")

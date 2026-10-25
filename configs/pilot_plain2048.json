@@ -184,7 +184,9 @@
       300
     ],
     "length_finalized": false,
-    "step0_cache": true
+    "step0_cache": true,
+    "problem_batch_size": 4,
+    "step0_share_across_seeds": true
   },
   "runtime": {
     "min_free_vram_gib": 8,
@@ -194,11 +196,11 @@
     "local_files_only": true,
     "trust_remote_code": false,
     "allocated_gpu_slots": [
-      0,
-      1
+      0
     ],
     "top_p_determinism": "scoped_warn_only",
-    "generation_batching": "one_problem_num_return_sequences"
+    "generation_batching": "one_problem_num_return_sequences",
+    "attention_implementation": "sdpa"
   },
   "pilot": {
     "updates": 0,

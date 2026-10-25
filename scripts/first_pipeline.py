@@ -1,4 +1,4 @@
-"""first.sh workflow. All GPU work stays in child processes; this parent is CPU only."""
+"""Legacy tuning workflow and helpers shared by staged_pipeline; no CUDA in this parent."""
 import argparse
 import copy
 import os
@@ -142,9 +142,14 @@ class Pipeline:
         env = {**os.environ, 'PYTHON':sys.executable, 'PYTHONUNBUFFERED':'1'}
         with log.open('x') as stream:
             stream.write('# ' + shlex.join(command) + '\n'); stream.flush()
-            process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=stream,
-                                       stderr=subprocess.STDOUT, start_new_session=True)
+            process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT, start_new_session=True,
+                                       text=True, bufsize=1)
             try:
+                for line in process.stdout:
+                    stream.write(line)
+                    stream.flush()
+                    print(line, end='', flush=True)
                 returncode = process.wait()
             except BaseException:
                 # Stop the launcher AND its workers, leaving committed checkpoints intact.
@@ -158,6 +163,8 @@ class Pipeline:
                     process.wait()
                 print(f'중단된 단계: {label}; {log}', flush=True)
                 raise
+            finally:
+                process.stdout.close()
         if returncode:
             print(log.read_text()[-10000:], flush=True)
             raise RuntimeError(f'{label} failed ({returncode}); inspect {log}')

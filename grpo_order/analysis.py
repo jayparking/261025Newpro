@@ -4,7 +4,9 @@ from pathlib import Path
 import random
 import statistics
 
-from .core import atomic_json, digest, read_json
+from .core import atomic_json, digest, ordered_problems, read_json, seed_plan
+from .data import load_prepared
+from .integrity import validate_completion, validate_evaluation, validate_steps
 from .storage import run_path
 
 
@@ -41,13 +43,16 @@ def bootstrap_question_means(seed_maps, seed, repeats=2000):
 
 
 def analyze(c, mode, output, allow_incomplete=False, plots=True, bootstrap_repeats=2000):
-    if mode == "smoke":
-        raise ValueError("Smoke results are not scientific experiments")
+    if mode != "full":
+        raise ValueError("This analysis requires full MATH500 results; smoke/pilot are validation only")
+    manifest, splits = load_prepared(c)
+    if len(splits["train"]) != 300 or len(splits["math500"]) != 500:
+        raise ValueError("Full analysis requires 300 training and 500 benchmark questions")
     out = Path(output)
     if out.exists():
         raise FileExistsError(f"Refusing to overwrite analysis {out}")
-    out.mkdir(parents=True)
     all_runs, missing, curves, costs = {}, [], [], []
+    initial_adapters = {}
     signatures = set()
     role_models = {"base": set(), "rl": set()}
     selected_seeds = c["seeds"]["training"] if mode == "full" else [s for s in c["seeds"]["training"]
@@ -61,23 +66,37 @@ def analyze(c, mode, output, allow_incomplete=False, plots=True, bootstrap_repea
                     continue
                 metadata = read_json(root / "metadata.json")
                 completion = read_json(root / "complete.json")
-                if completion["skipped_steps"]:
-                    raise ValueError(f"{root} has skipped optimizer steps; inspect before drawing protocol conclusions")
+                validate_completion(metadata, completion, 300)
+                contract = metadata["contract"]
+                if any(contract[k] != v for k, v in {"role": role, "order": order, "seed": seed,
+                                                     "mode": mode, "data": manifest["hash"]}.items()):
+                    raise ValueError(f"Run identity/condition mismatch: {root}")
+                pair = (role, seed)
+                initial = metadata["lora"]["initial_adapter_hash"]
+                if initial_adapters.setdefault(pair, initial) != initial:
+                    raise ValueError("Random/Curriculum started from different adapters")
                 if metadata["contract"]["config"] != digest(c):
                     raise ValueError(f"Analysis config differs from {root}")
                 signatures.add((metadata["contract"]["data"], metadata["contract"]["config"], metadata["contract"]["code"], digest(metadata["contract"]["packages"])))
                 role_models[role].add(metadata["contract"]["model"])
-                evaluation = read_json(root / "eval" / "math500_step-000300.json")
-                if evaluation["contract"] != metadata["contract"]:
-                    raise ValueError(f"Evaluation contract differs from run: {root}")
+                evaluations = {}
+                for split, schedule in (("diagnostic", c["evaluation"]["diagnostic_steps"]),
+                                        ("math500", c["evaluation"]["math500_steps"])):
+                    for step in schedule:
+                        result = read_json(root / "eval" / f"{split}_step-{step:06d}.json")
+                        validate_evaluation(result, contract, splits[split], split, step)
+                        evaluations[split, step] = result
+                evaluation = evaluations["math500", 300]
                 all_runs[role, seed, order] = evaluation
-                for path in sorted((root / "eval").glob("diagnostic_step-*.json")):
-                    result = read_json(path)
+                for step in c["evaluation"]["diagnostic_steps"]:
+                    result = evaluations["diagnostic", step]
                     for difficulty, m in {"All": result["metrics"], **result["by_difficulty"]}.items():
                         curves.append({"model": role, "seed": seed, "order": order, "step": result["step"],
                                        "difficulty": difficulty, **m})
-                for p in sorted((root / "steps").glob("*.json")):
-                    r = read_json(p)
+                steps = [read_json(p) for p in sorted((root / "steps").glob("*.json"))]
+                expected_rows = ordered_problems(splits["train"], order, seed_plan(c, seed)["order"])
+                validate_steps(c, metadata, steps, expected_rows)
+                for r in steps:
                     costs.append({"model": role, "seed": seed, "order": order, "step": r["exposure"],
                                   "reward": r["reward_mean"], "mixed_fraction": r["cumulative_group_fractions"]["mixed"],
                                   "truncation_fraction": sum(x["truncated"] for x in r["responses"]) / 4,
@@ -90,6 +109,8 @@ def analyze(c, mode, output, allow_incomplete=False, plots=True, bootstrap_repea
         raise ValueError("Cannot pool runs with different data/config/code/package identities")
     if any(len(values) > 1 for values in role_models.values()):
         raise ValueError("Original model contents changed between conditions/seeds for the same role")
+    if role_models["base"] & role_models["rl"]:
+        raise ValueError("Base and RL use the same original model")
     seeds = sorted({s for _, s, _ in all_runs if all((role, s, order) in all_runs for role in ("base", "rl") for order in ("random", "curriculum"))})
     if not seeds:
         raise ValueError("Need at least one completed seed with all four conditions")
@@ -114,6 +135,7 @@ def analyze(c, mode, output, allow_incomplete=False, plots=True, bootstrap_repea
                               "seed_min": min(values), "seed_max": max(values),
                               "question_bootstrap_ci_low": lo, "question_bootstrap_ci_high": hi,
                               "bootstrap_repeats": bootstrap_repeats})
+    out.mkdir(parents=True)
     write_csv(out / "seed_contrasts.csv", seed_rows)
     write_csv(out / "summary.csv", summaries)
     write_csv(out / "diagnostic_curves.csv", curves)

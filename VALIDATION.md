@@ -1,6 +1,27 @@
 # 구현 및 검증 기록
 
-> 현재 상태: 사용자 요청으로 CPU 테스트 파일·자동 실행 단계·test CLI·pytest 의존성을 제거했다. 아래 테스트 개수와 명령은 **삭제 전의 과거 기록**이며 현재 실행 절차가 아니다. 기존 실험 결과와 보고서는 보존했다. 현재 first.sh는 설치 후 GPU 환경 preflight부터 진행한다.
+> 현재 서버 실행은 `1.setup.sh` → `2.SMOKE.sh` → `3.runreal.sh`다. 사용자 요청에 따라 CPU 테스트 자동 실행·test CLI·pytest 의존성은 추가하지 않았다. 이번 수정 검증은 임시 파일로 실행했고 아래 로그를 남겼다. 이전 검증 기록은 이력이며 현재 서버 실행 명령이 아니다.
+
+## 2026-10-26 선택 단계 2.1presmoke.sh
+
+- setup 후 `2.1presmoke.sh`로 Base/random/seed1 한 조건만 실행한다. 학습 1문제 × 4응답으로 optimizer 1회, 별도 진단 1문제 × 8샘플+greedy, 출력 상한 32다. 초기 평가·MATH500·RL 모델·강제 중단/재개 검사는 수행하지 않는다. 실제 학습·채점·평가·checkpoint 코드는 기존 trainer를 사용한다.
+- 별도 `configs/presmoke.json`, `runs/presmoke/base_seed1_random/`에 저장하며 실제 두 문항·응답·점수·gradient·가중치 변경·시간은 `summary.json`으로 제공한다. 같은 점수 4개로 advantage가 0이면 첫 optimizer 호출 후 가중치가 그대로일 수 있음을 표시한다. 정답률 향상이나 가중치 변경을 성공 조건으로 조작하지 않는다.
+- setup은 필요하지만 기존 SMOKE 완료는 요구하지 않는다. presmoke 완료는 SMOKE 완료로 표시되지 않으며 본실험의 SMOKE 조건을 해제하지 않는다. 준비된 세션의 코드 identity와 데이터 검증은 유지한다.
+- 임시 검증 40개 통과: 새 presmoke 10개, 기존 텐서 검사 14개, 단계/셸 검사 16개. 새 검사는 실제 작은 Qwen2/LoRA CPU 텐서로 한 번의 업데이트와 단일 진단 평가, mixed reward의 실제 가중치 변경, all-wrong의 정상 무변경, 평가 실패 후 재개 시 중복 학습 방지, 완료 후 모델 재로딩 생략, 손상된 집계 거절, 설정 격리와 고정 선택, benchmark 금지, setup 요구 및 SMOKE 미해제, CLI/셸 연결을 확인했다.
+- 모든 Python 문법·셸 `bash -n`·설정 세 개 로딩 통과. 기록: `reports/presmoke/checks.json`, `tensor_regression.log`, `stage_regression.log`. 기존 서버 단계에 CPU 테스트 자동 실행을 추가하지 않았다. GPU·math-verify·공개 모델은 로컬에서 실행하지 않았으며 CUDA 통계와 채점기는 대역을 사용했다.
+
+## runreal 성능·결과 무결성 재점검
+
+- 평가를 고정된 4문제 배치로 처리하고 기본 attention을 SDPA로 설정했다. 왼쪽 padding과 명시적 attention mask를 사용한다. 중단된 배치는 원래 구성 그대로 재생성해 이미 저장한 응답과 일치하는지 확인한다. 평가 전후 학습 RNG·모델 모드를 복원한다.
+- 실제 LoRA B가 모두 0이고 원본 모델이 동결되어 있는지 검증한 뒤, adapter를 비활성화한 초기 평가를 같은 원본 모델의 seed 간 공유한다. Base/RL은 별도 원본 hash로 분리한다. 캐시의 최초 생성 seed와 현재 seed가 달라도 재개·영수증 복구가 가능하며, 이번 시도의 생성량을 중복 집계하지 않는다.
+- 학습 12회 × 300 updates, 문제당 4응답, 평가 8+greedy, 출력 상한 2048, 기존 데이터·LR·순서 비교는 유지했다. 진단 150문제 기준 평가 응답은 캐시 확인 생성을 제외하고 137,700 → 114,300개다. 기본 배치의 초기 확인 864응답은 별도다. 실제 준비된 split 기준 `workload.json`을 저장한다.
+- 채점기 예외는 오답으로 숨기지 않고 중단한다. NaN/Inf loss·entropy·gradient는 optimizer/cursor 반영 전에 중단한다. 최종 분석은 완료 상태뿐 아니라 모든 학습 기록·순서·응답·advantage, 조건별 초기 adapter, 평가 시점별 문항·응답·집계값을 검사한다.
+- 임시 검증 **38개 모두 통과, 실패/skip 0**: 실제 작은 Qwen2+LoRA CPU 텐서 및 오류 검사 14개(`reports/real_audit/tensor_checks.log`), 12개 full run의 합성 기록 분석 8개(`reports/real_audit/analysis_checks.log`), 한 GPU launcher·단계 분리·셸 흐름 16개(`reports/real_audit/stage_checks.log`). 코드 hash와 검증 환경은 `reports/real_audit/summary.json`에 기록했다.
+- 텐서 검증은 샘플 배치 매핑·가변 길이·EOS/pad·평가 RNG 복원·부분 배치 재개·캐시 공유·비정상 B 거절·microbatch gradient·zero-advantage AdamW momentum·NaN 중단·학습 중단/재개의 가중치와 응답 일치를 포함한다. 분석 검증은 알려진 차이값의 산출과 학습/평가 누락·잘못된 초기값/순서/advantage/집계 거절을 포함한다.
+- 로컬 환경은 Python 3.11.11, torch 2.14.0, transformers 5.15.0, peft 0.21.0이다. math-verify는 없으므로 채점기 대역을 사용했다. 실제 공개 1.5B 모델·데이터·Linux 고정 버전·NVIDIA GPU 검증이 아니다. GPU 처리량, 2048토큰 평가의 최대 메모리와 정답률은 서버 실측이 필요하다. 32토큰 SMOKE만으로 이 값들을 보장하지 않는다.
+- 평가 배치·수치 경로·채점기 identity가 변경되므로 **새 setup/SMOKE 세션**을 사용한다. 기존 결과를 섞어 재개하거나 삭제하지 않는다. 원하는 조건의 우세 여부는 실제 관측값으로 판단한다.
+
+아래는 이전 작업의 기록이다.
 
 검증일: 2026-10-23. 작업 디렉터리는 처음에 비어 있었고 기존 결과/설정을 덮어쓰지 않았다.
 
@@ -133,3 +154,15 @@ macOS CPU 환경에서 검사했다. 설치 명령/실행 순서 검증에 쓰�
 - 기존 정상 pip가 있으면 재설치/다운로드하지 않는다. pip 없는 환경을 실제로 생성하고 로컬 ensurepip 복구가 성공하는 것도 확인했다. 서버와 같은 ensurepip 실패/기본 pip 부재/네트워크 실패는 오류 주입 테스트로 검사했다.
 - 전체 CPU 테스트 **58개 중 57 통과, math-verify 미설치 1 skip, 실패 0**. bash -n 및 compileall 통과. 로그: `reports/ensurepip_fix_1792917196450894000/`.
 - 서버 원인의 구체적 traceback은 아직 받지 못했다. 누락된 wheel인지, Python 배포/권한/네트워크 문제인지는 이 한 줄의 오류로 확정하지 않는다. 서버에서 수정본을 받아 재실행해야 하며 GPU 실행 성공을 주장하지 않는다.
+
+
+## 2026-10-25 GPU 한 장 / setup·SMOKE·runreal 분리
+
+- `1.setup.sh`, `2.SMOKE.sh`, `3.runreal.sh`와 공통 `scripts/stage.sh`, `scripts/staged_pipeline.py`를 추가했다. `first.sh`는 단계 안내와 명시적 단계 연결만 수행한다.
+- 기본 설정 세 개는 GPU slot `[0]`을 사용한다. preflight·직접 worker 배정·launcher에서 한 GPU를 지원하며 Random/Curriculum 및 seed를 순차 처리한다. 기존 `[0,1]` 두 GPU 모드도 지원한다.
+- setup은 설치·자산·데이터·preflight 후 종료한다. SMOKE는 네 조건을 조건당 1 update에서 중단한 뒤 3 updates까지 재개하고 checkpoint 재로딩을 검사한다. runreal은 기존 12개 run × 300 updates와 기존 평가 설계를 유지하며 설정 탐색 파일럿 없이 저장된 설정으로 freeze·full·분석을 수행한다.
+- 단계별 로그를 화면과 파일에 함께 기록한다. 학습 생성·채점·최적화 시간과 메모리, 평가 진행률을 표시한다. runreal 종료/처리된 중단 시 `performance.json`에 실제 관측된 실행별 시간·정답률·메모리를 저장한다.
+- Python 3.11.11에서 검증용 임시 테스트 16개 모두 통과, 실패/skip 0. 로그: `reports/single_gpu_stages/checks.log`. 서버 실행 단계에 CPU 테스트를 추가하지 않았다.
+- 검증 범위: 한 GPU 검사와 외부 GPU 프로세스 차단, 비기본 물리 번호/UUID 배정, 12개 작업의 단일 동시성, 기존 두 GPU 동시성, 실패 시 후속 작업 차단, 완료 작업 건너뛰기, 단계 분리·재개·identity 변경 차단, 설정 보존, 실패 시 부분 성능 보고, 실제 subprocess 로그·오류 전달, 셸 인자/공백 경로, 새 setup에서만 설치.
+- 모든 Python 파일 문법, 모든 셸 파일 `bash -n`, 설정 세 개 로딩, 각 진입점 help/dry-run 통과.
+- GPU/설치 도구를 대역으로 사용한 흐름 검사이며 NVIDIA GPU 학습 성공이나 실측 tok/s의 증거는 아니다. 실제 공개 모델·고정 패키지·GPU 메모리·처리량은 Linux GPU 서버에서 세 단계 실행으로 확인해야 한다. 본실험은 로컬에서 실행하지 않았다.

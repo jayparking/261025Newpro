@@ -1,73 +1,114 @@
 # 261025Newpro — Qwen2.5-1.5B Base / SimpleRL-Zoo 추가 GRPO 순서 실험
 
-## GPU 서버에서 한 번에 실행: first.sh
+## GPU 한 장에서 3단계 실행
 
-프로젝트 전체를 GPU 서버로 복사한 뒤 루트에서 **`bash first.sh` 하나를 실행**한다. 스크립트는 설치·준비·검증·파일럿을 진행하고, 터미널에서 validation 결과로 공통 설정을 선택하면 freeze → 본실험 12회 → 분석까지 이어진다. 소스 파일을 하나씩 직접 실행할 필요는 없다.
-
-```bash
-bash first.sh
-```
-
-필요한 것은 Linux, Python 3.11 또는 3.12의 venv, 설치된 NVIDIA 드라이버/nvidia-smi, 할당 GPU 두 장, 패키지·Hugging Face 다운로드 접근이다. 시스템 드라이버나 Python 자체는 스크립트가 설치하지 않는다. 로컬 macOS의 `.venv`를 복사해 사용하지 않는다. `first.sh`는 서버용 `.venv-gpu`를 생성하고 torch 2.7.1 CUDA 12.8 wheel 및 두 requirements 파일을 설치한다. 실제 GPU/드라이버 호환성은 preflight에서 검사한다.
-
-`ensurepip ... returned non-zero exit status 1`이 나왔던 경우에는 `git pull --ff-only` 후 `bash first.sh`를 다시 실행한다. 설치 단계이므로 아직 재개할 실험 세션은 없다. 현재 스크립트는 `.venv-gpu` 폴더 존재 여부만으로 성공을 판단하지 않고, 실제 격리된 Python과 pip를 확인한다. pip가 없으면 `ensurepip` → 기존 Python의 `pip --python` → 공식 PyPA `get-pip.py` 순으로 **가상환경 안에만** 복구를 시도한다. 기존 폴더를 삭제하지 않는다. 최초 생성도 `venv --without-pip`로 분리해 ensurepip 상세 오류가 숨겨지지 않게 했다. 로그는 `.bootstrap-logs/<번호>/`에 남는다. 공식 복구 경로도 실패하면 설치된 Python, wheel 누락, 디스크/권한, TLS/네트워크 등 상세 로그의 원인을 확인해야 한다. [pip 공식 설치 방법](https://pip.pypa.io/en/stable/installation/), [다른 가상환경에 pip 설치](https://pip.pypa.io/en/stable/topics/python-option/).
-
-이미 GPU 할당을 받은 환경의 `CUDA_VISIBLE_DEVICES`를 유지한다. 미설정이면 기존 launcher가 CUDA 0·1을 대상으로 검사한다. CUDA slot 0→Random, slot 1→Curriculum이며 검증한 UUID로 worker를 실행한다. 호스트 물리 번호를 추측하지 않는다.
-
-| 순서 | first.sh가 수행하는 일 | 통과 조건 / 사용자가 확인할 것 |
-|---|---|---|
-| 1 | 별도 venv에 고정 의존성 설치, pip freeze 기록 | 설치 성공. 기존 로컬 venv 보존 |
-| 2 | GPU 환경 preflight | GPU/BF16/UUID·설치 버전 검사 통과 |
-| 3 | 두 원본 모델·두 데이터셋 다운로드/기존 receipt 검증 | 정확한 repo·revision·파일 hash |
-| 4 | 원천 변환, gold 감사, 중복 제거와 고정 split 준비 | MATH500 500개 유지; 실패는 보고 후 중단 |
-| 5 | 전체 preflight, smoke 1 update 후 종료·별도 프로세스로 재개 | 4조건 모두 3 updates, 저장/재개/평가 통과 |
-| 6 | plain/chat 각각 step 0 validation 비교 | 출력된 두 모델의 결과를 보고 **plain/chat 중 하나 입력** |
-| 7 | 선택한 prompt에서 2048/4096 각각 30 update 비교 | 정확도·잘림·실측 학습 시간/메모리를 보고 **2048/4096 입력** |
-| 8 | 선택한 조건에서 LR 5e-6, 300 update 파일럿 | validation 변화·reward group·LoRA norm 확인. LR 추가 비교 불필요하면 Enter |
-| 9 | 필요할 때만 명시적으로 선택한 LR 후보를 300 update 비교 | 비교했으면 validation 결과로 최종 LR 선택. 기본은 5e-6 |
-| 10 | 최종 설정 저장, preflight와 freeze, full | 결정된 코드·설정·데이터로 **Base/RL × Random/Curriculum × seed 1·2·3 = 12회** |
-| 11 | full 결과 분석 | seed별 성능·차이·곡선·그래프 저장 |
-
-MATH500 성능은 파일럿 선택에서 읽지 않는다. prompt 단계의 Random/Curriculum step 0는 같은 초기 모델의 중복 확인이며 독립 표본으로 해석하지 않는다. smoke/pilot은 별도의 검증 실행이고, S0/S1/S2를 만드는 18회 설계가 아니다.
-
-**설정 선택이 끝나면 기본 실행은 본실험으로 계속 진행된다.** 파일럿까지 확인하고 멈추고 싶으면 처음부터 `bash first.sh --pilot-only`를 사용한다. 입력할 터미널이 없으면 설정을 자동으로 추측하지 않고 해당 선택 단계에서 종료하며 재개 명령을 표시한다. 긴 실행 중에는 터미널 세션을 유지한다. 단계별 상세 출력은 화면에 표시되는 `logs/*.log`에서 확인한다.
+Linux NVIDIA GPU 서버에서 아래 세 파일을 차례로 실행한다. 각 단계는 완료 후 종료하며 다음 단계를 자동 시작하지 않는다. 기본 GPU는 0이고, 이미 지정한 `CUDA_VISIBLE_DEVICES`는 유지한다. GPU를 두 개 이상 지정하면 한 개를 고르라는 오류로 중단한다.
 
 ```bash
-# 명령 설명만 표시: 설치/파일 생성/실험 실행 없음
-bash first.sh --dry-run
-
-# 같은 파일럿·설정 선택까지 진행하되 full 전 종료
-bash first.sh --pilot-only
-
-# 중단된 실행 또는 pilot-only 이후 full을 이어서 진행
-# 아래 경로는 처음 실행할 때 출력된 실제 실행 폴더로 바꾼다.
-bash first.sh --resume runs/server_sessions/실제실행번호
-
-# 서버 환경이 이미 준비되어 있으면 설치만 생략할 수 있다. 모든 검사는 그대로 수행한다.
-PYTHON=/실제/서버/python bash first.sh --skip-install
+bash 1.setup.sh
+bash 2.SMOKE.sh
+bash 3.runreal.sh
 ```
 
-최초 실행은 `runs/server_sessions/<고유번호>/`를 새로 만든다. 모델과 raw 데이터는 기존 검증된 자산을 재사용하고, 변환 데이터·prepared split·각 파일럿·full 결과는 이 실행 폴더 안에 따로 저장한다. 설치 중 실패해 실행 폴더가 아직 없다면 `bash first.sh`를 다시 실행한다. 실행 폴더가 만들어진 뒤에는 출력된 `--resume` 명령을 사용한다. 코드/패키지/설정 또는 선택 근거가 달라졌으면 재개를 거절한다. 실행 도중에도 단계별로 코드/패키지를 재검사하고 본실험 전에 원본 자산 receipt가 바뀌지 않았는지 확인한다. 새 실행으로 옮겨야 하며 기존 결과를 덮어쓰지 않는다.
+setup 후 더 작은 확인만 먼저 하려면 **선택 단계**인 `bash 2.1presmoke.sh`를 실행한다. 파일 번호와 관계없이 SMOKE 전에 실행할 수 있다. Base 모델 하나(seed 1)에서 Easy 우선으로 고정 선택한 학습 1문제 × 4응답으로 optimizer를 한 번 실행한 뒤, 별도 진단 1문제를 8샘플+greedy로 평가한다. 출력 상한은 32토큰이며 초기 평가·RL 모델·4조건 반복·중단/재개 검증 절차를 실행하지 않는다. GPU 한 장을 사용하고 설치/다운로드를 반복하지 않는다. 모델 로딩과 파일 검증 시간은 필요하다.
 
-| 실행 폴더 내부 | 내용 |
+```bash
+bash 2.1presmoke.sh
+# 실행 없이 범위 확인
+bash 2.1presmoke.sh --dry-run
+# 특정 setup 세션에서 실행하거나 중단 후 이어가기
+bash 2.1presmoke.sh --session runs/single_gpu_sessions/실제실행번호
+```
+
+문제·실제 답변·채점·학습 시간·가중치 변경 여부는 세션의 `runs/presmoke/base_seed1_random/summary.json`에 저장된다. 같은 세션에서 다시 실행하면 완료 결과를 검증하고 유지한다. 실패했다면 마지막 checkpoint에서 이어간다. 네 응답의 reward가 모두 같으면 GRPO advantage가 0이므로 첫 optimizer 호출에도 가중치가 바뀌지 않을 수 있다. 짧은 출력이 잘리거나 오답이어도 실행 성공과 구분해서 기록한다. 모델 품질/본실험 메모리 검증이 아니며, presmoke 결과는 본실험에 포함되지 않는다. **presmoke는 `2.SMOKE.sh`를 대체하거나 3번의 SMOKE 완료 조건을 해제하지 않는다.** 코드가 바뀐 이전 세션은 기존 identity 규칙에 따라 새 setup이 필요하다.
+
+| 파일 | 실행 범위 |
 |---|---|
-| `configs/smoke.json`, `configs/prompt_*.json`, `configs/length_*.json`, `configs/lr_*.json` | 단계별 실제 설정 |
-| `configs/final.json`, `selection.json` | 확정 설정과 validation 선택 기록 |
-| `data/converted/`, `data/prepared/` | 원본 변환·고정 split·gold 감사·제외 사유 |
-| `logs/` | 각 명령/종료 결과, pip freeze, preflight 보고서. 재개 시 새 로그 추가 |
-| `summaries/` | 파일럿의 모델·순서별 validation 성능, 추출 실패, 학습 시간/peak 메모리, 그룹 수, LoRA norm |
-| `runs/` | smoke/각 파일럿/full의 LoRA·optimizer·RNG·cursor·평가·학습 로그 |
-| `runs/final/protocol-freeze.json` | 확정 코드·설정·데이터·모델·패키지 identity |
-| `analysis/` | full 완료 후 생성한 분석 결과 |
-| `state.json`, `failure-*.json`, `finished.json` | 단계/선택 진행 상태, 실패 기록, 전체 완료 표시 |
+| `1.setup.sh` | Python venv·고정 패키지 설치 → GPU 1장 환경 검사 → 모델/데이터 다운로드 → 변환·gold 감사·split 준비 → 전체 preflight |
+| `2.1presmoke.sh` | 선택 단계: Base 한 조건, 학습 1문제 1 update → 별도 진단 1문제 평가, 출력 상한 32 |
+| `2.SMOKE.sh` | 준비된 자산 사용 → Base/RL × Random/Curriculum 네 조건 순차 실행 → 조건당 1 update에서 중단 → 재개하여 총 3 updates → checkpoint 재로딩 검증. 출력 상한 32 |
+| `3.runreal.sh` | setup/SMOKE 완료 확인 → 저장한 설정 확정·freeze → 기존 12 run을 한 GPU에서 순차 실행 → 최종 평가·분석·성능 보고 |
+
+`runreal`은 **실제 본실험**이다. 기본 설정은 run당 학습 300문제·4응답·출력 상한 2048, diagnostic step 0/100/200/300, MATH500 step 0/300, 평가 8샘플+greedy를 유지한다. 초기 평가가 먼저 실행된다. 별도의 plain/chat·2048/4096·LR 탐색 파일럿이나 선택 질문은 없다. setup 시 지정한 설정의 prompt·학습/평가 길이·LR을 그대로 확정하므로 다른 설정을 원하면 setup 전에 `--config`로 지정한다. vLLM은 사용하지 않는다. 이 분리는 생성 엔진 가속이나 5시간 완료를 보장하지 않는다.
+
+```bash
+# 다른 GPU를 쓰려면 세 명령 모두 같은 GPU를 지정한다.
+export CUDA_VISIBLE_DEVICES=2
+bash 1.setup.sh
+bash 2.SMOKE.sh
+bash 3.runreal.sh
+
+# 파일 생성·설치·GPU 실행 없이 범위 확인 (Mac에서도 가능)
+bash 3.runreal.sh --dry-run
+
+# 다른 설정으로 새 setup. 새 세션의 GPU 수는 항상 1로 저장한다.
+bash 1.setup.sh --config configs/experiment.json --gpu 0
+
+# 설치된 환경 사용: Python 3.11/3.12 및 고정 패키지는 검사한다.
+PYTHON=/실제/서버/python bash 1.setup.sh --skip-install
+```
+
+필요한 것은 Linux, Python 3.11 또는 3.12, 설치된 NVIDIA 드라이버/nvidia-smi, GPU 한 장, 모델·패키지 다운로드 접근이다. `1.setup.sh`만 `.venv-gpu`를 준비하고 torch 2.7.1 CUDA 12.8 wheel 및 requirements를 설치한다. `PYTHON_BOOTSTRAP=python3.11`로 venv 생성용 Python을 지정할 수 있다. `ensurepip` 복구는 `scripts/bootstrap_venv.py`가 기존 환경을 삭제하지 않고 수행하며 `.bootstrap-logs/`에 기록한다. smoke/runreal 및 setup 재개는 패키지를 설치하지 않는다.
+
+최초 setup은 `runs/single_gpu_sessions/<고유번호>/`를 만들고, 완료하면 `runs/single_gpu_sessions/latest.json`에 위치를 저장한다. 이후 SMOKE/runreal은 최근 완료 setup을 자동 선택한다. 다른 세션을 선택하거나 실패 후 재개하려면 실행 중 출력된 경로를 지정한다.
+
+```bash
+bash 1.setup.sh --resume runs/single_gpu_sessions/실제실행번호
+bash 2.SMOKE.sh --session runs/single_gpu_sessions/실제실행번호
+bash 3.runreal.sh --resume runs/single_gpu_sessions/실제실행번호
+```
+
+같은 명령으로 재개하면 완료 run은 건너뛰고, 중단된 run의 checkpoint·문제별 평가를 이어간다. 코드·설정·패키지·자산 identity가 달라지면 재개를 거절한다. 기존 두 GPU용 `server_sessions`는 이 새 흐름에서 재개하지 않으며 기존 결과는 보존한다. `first.sh`는 이제 실행 순서 안내 및 `first.sh setup|smoke|runreal` 연결만 제공한다.
+
+긴 본실험은 서버의 tmux 세션에서 실행하면 터미널 연결을 끊어도 계속 진행할 수 있다(서버에 tmux가 설치되어 있어야 한다).
+
+```bash
+tmux new -s grpo
+bash 3.runreal.sh
+# Ctrl-b, d로 분리. 다시 접속: tmux attach -t grpo
+```
+
+학습 진행 시 update당 초, 학습 전체 tok/s, peak allocated GiB를 화면과 로그에 출력한다. 평가도 문항 진행률과 누적 avg@8·pass@8을 표시한다. `performance.json`은 runreal 완료 또는 처리된 중단 시 갱신하며, 실행 중 최신 개별 수치는 worker 로그와 `steps/`에서 확인한다. GPU 한 장에서 Random과 Curriculum은 같은 GPU UUID를 사용하고, 이전 worker가 종료한 뒤 다음 worker를 시작한다.
+
+| 세션 폴더 | 내용 |
+|---|---|
+| `configs/session.json`, `configs/real.json`, `selection.json` | 준비/SMOKE 설정, 본실험 설정과 선택 방식 |
+| `data/converted/`, `data/prepared/` | 변환 원천·고정 split·감사 기록 |
+| `logs/` | 단계별 명령·실시간 로그, 환경·preflight 보고서 |
+| `runs/smoke/`, `runs/real/` | 네 조건 SMOKE, 12개 본실험의 checkpoint·응답·평가·worker 로그 |
+| `runs/presmoke/base_seed1_random/` | 선택 단계의 학습·평가·checkpoint와 `summary.json` |
+| `performance.json` | run별 정답률, update당 초, 생성/채점/학습 시간, tok/s, GPU peak 메모리 |
+| `workload.json` | 실제 split 개수와 캐시 정책에 따른 예정 학습·평가 응답 수 |
+| `analysis/<번호>/` | 12회 완료 후 조건별 비교·CSV·그래프 |
+| `state.json`, `failure-*.json`, `finished.json` | 단계 상태·재개 정보·완료 표시 |
+
+학습 tok/s는 생성·채점·backward/optimizer를 포함하며 checkpoint 저장·평가·초기 로딩을 제외한다. 생성만의 tok/s는 별도로 기록한다. 평가 파일의 시간은 마지막 시도 기준이므로 중단 이전 비용을 모두 포함하지 않는다. 측정값은 로컬에서 추정해 채우지 않는다.
+
+## runreal 성능·결과 재점검 반영
+
+기본 설정은 HF 생성 유지, `runtime.attention_implementation="sdpa"`, `evaluation.problem_batch_size=4`, `evaluation.step0_share_across_seeds=true`다. 평가 한 호출에 4문제 × 8샘플을 처리하고 greedy 4개는 별도 호출한다. 12회·run당 300 updates·학습 4응답·평가 8+greedy·2048 출력 상한·LR·난도 순서·데이터 split은 유지한다.
+
+초기 LoRA B 텐서가 실제로 모두 0이고 원본 모델이 동결되어 있는지 확인한 뒤, 초기 평가 중에만 adapter를 비활성화해 같은 원본 모델의 seed별 공통 초기값을 계산한다. Base와 RL은 원본 hash가 달라 캐시를 공유하지 않는다. 각 실행의 학습 adapter A 초기화와 학습 seed는 그대로 독립적이다.
+
+진단이 150문제이고 초기 캐시가 적중하면 평가 응답 수는 137,700개에서 114,300개로 줄어든다(별도 초기 확인 생성 제외). 기본 배치 4에서는 초기 확인 864응답이 추가된다. 실제 prepared 개수로 계산한 `workload.json`을 runreal 시작 시 저장한다. GPU 한 장에서 12 run은 순차 실행하므로 가속 폭과 완료 시간은 서버 실측이 필요하다. 32토큰 SMOKE는 실제 2048토큰 평가의 peak 메모리를 보장하지 않는다.
+
+평가 배치와 SDPA는 수치·난수 소비를 바꾸므로 과거 출력과 동일하다고 가정하지 않는다. 설정은 같은 12조건 전체에 고정한다. OOM 때 자동으로 배치를 줄여 결과를 섞지 않는다. 서버에서 메모리가 부족하면 새 setup 전에 `evaluation.problem_batch_size`를 2 또는 1로 조정한다. SDPA 환경 문제가 있다면 새 설정에서 `attention_implementation="eager"`를 선택할 수 있다.
+
+채점기 내부 예외는 오답으로 바꾸지 않고 중단한다. NaN/Inf loss·entropy·gradient도 optimizer와 cursor 저장 전에 중단한다. 마지막 정상 checkpoint는 유지된다. 최종 분석은 실제 300개 학습 기록의 순서·응답·advantage·정상 update, Random/Curriculum 초기값, 모든 평가 시점의 문항·8+1응답·집계 정답률을 검사한다. 누락되거나 불일치하는 결과는 정상 분석으로 통과하지 않는다.
+
+이번 변경은 코드·평가 정책·채점기 identity를 바꾸므로 기존 setup/SMOKE/full 세션에 덮어써 재개하지 않는다. 새 `1.setup.sh` → `2.SMOKE.sh` → `3.runreal.sh` 세션을 사용한다. 모델/raw 데이터는 영수증을 검증해 재사용하며 기존 결과를 삭제하지 않는다.
 
 ## 어떤 소스가 어떤 일을 하는가
 
 | 파일 | 역할 |
 |---|---|
-| `first.sh` | GPU 서버 단일 진입점. 서버 venv/의존성 설치, 중복 실행 lock, 전체 흐름 호출 |
+| `1.setup.sh`, `2.1presmoke.sh`, `2.SMOKE.sh`, `3.runreal.sh` | GPU 1장용 독립 실행 단계(presmoke는 선택) |
+| `first.sh`, `scripts/stage.sh` | 단계 안내·연결, 공통 환경·GPU 선택·설치 |
 | `scripts/bootstrap_venv.py` | 불완전한 venv 복구, 격리된 interpreter 검증, ensurepip/pip 상세 설치 로그 |
-| `scripts/first_pipeline.py` | 설치 후 모든 단계 실행·로그·설정 선택·재개 관리. 부모는 GPU 모델을 올리지 않음 |
+| `scripts/staged_pipeline.py` | 단계별 세션·재개·freeze·실험·분석 관리 |
+| `scripts/first_pipeline.py` | 기존 설정 탐색 흐름과 새 단계에서 재사용하는 검증·로그 도우미 |
+| `grpo_order/performance.py` | 실제 본실험의 품질·처리량·메모리 보고 |
+| `grpo_order/presmoke.py` | 한 문제 확인용 설정·고정 문항 선택·실행 결과 검증과 요약 |
 | `scripts/run.sh`, `grpo_order/cli.py` | 개별 작업 CLI 연결. 수동 실행/디버깅에도 사용 |
 | `grpo_order/assets.py`, `sources.py` | 지정 모델/데이터 다운로드, source ID·revision·receipt/hash 검증 |
 | `grpo_order/import_math.py`, `data.py` | MATH 원천 변환, 원래 level 보존, gold 검사·중복 제거·고정 split |
@@ -77,11 +118,12 @@ PYTHON=/실제/서버/python bash first.sh --skip-install
 | `grpo_order/objective.py`, `train.py` | 한 문제 4응답 advantage, microbatch backward, AdamW 한 번, 중간 평가 후 학습 지속 |
 | `grpo_order/evaluation.py`, `step0.py` | 평가 RNG 격리, 8개 샘플+greedy, 초기 상태 검증 캐시 |
 | `grpo_order/storage.py` | 배타 lock, 원자적 checkpoint, optimizer/RNG/cursor 저장·복원 |
-| `grpo_order/launcher.py` | 같은 모델·seed의 Random/Curriculum pair 실행·대기. full 정확히 12회 |
+| `grpo_order/launcher.py` | 한 GPU에서는 순차 실행, 두 GPU 설정에서는 pair 동시 실행. full 정확히 12회 |
 | `grpo_order/freeze.py`, `core.py` | 설정 불변 조건·hash·seed, 확정 전 full 차단 |
 | `grpo_order/analysis.py` | full 평가의 seed별 성능·조건 차이·곡선·그래프 |
+| `grpo_order/integrity.py` | 정상 update·학습 순서·응답·평가 집계 검증 |
 
-이하에는 실험 정의와 개별 CLI 명령을 상세히 정리했다. first.sh를 사용하면 이 명령들을 직접 순서대로 입력할 필요가 없다.
+이하에는 실험 정의와 개별 CLI 명령을 정리했다. 새 3단계 실행은 위 절을 따른다. 아래 두 GPU 배정·설정 탐색 파일럿 예제는 수동 선택 경로이며 기본 실행이 아니다.
 
 
 **확정 모델·데이터와 프로젝트 상대 경로** — 설정도 `./configs/experiment.json` 맨 위에서 확인한다.
@@ -111,7 +153,7 @@ Base와 **이미 RL 후학습된 공개 모델** 각각에서 Random/Curriculum�
 
 ## 서버 설치와 사전 검사
 
-Linux, Python 3.11 또는 3.12, 할당된 CUDA GPU 두 장(논리 slot 0·1)을 대상으로 한다. 호스트 물리 번호는 가정하지 않는다. 프로젝트 루트에서 실행한다.
+Linux, Python 3.11 또는 3.12, 기본 CUDA GPU 한 장(논리 slot 0)을 대상으로 한다. 수동 두 GPU 실행은 runtime.allocated_gpu_slots=[0,1] 설정을 사용한다. 호스트 물리 번호는 가정하지 않는다. 프로젝트 루트에서 실행한다.
 
 ```bash
 python3.11 -m venv .venv
@@ -255,9 +297,9 @@ Random은 고정 300개를 한 번 shuffle한다. Curriculum은 난도별 내부
 
 ## GPU 할당과 실행
 
-실행기는 부모의 `CUDA_VISIBLE_DEVICES` 할당을 보존한다(없으면 `0,1`). `CUDA_DEVICE_ORDER=PCI_BUS_ID`를 설정하고 실제 `torch.cuda.get_device_properties(i).uuid`와 nvidia-smi UUID를 대조한다. 할당 slot 0=Random, slot 1=Curriculum이며 worker에는 검증한 **UUID**를 전달한다. 컨테이너 내부 0·1과 호스트 nvidia-smi 0·1이 같다고 가정하지 않는다. UUID를 얻거나 대조할 수 없으면 실행을 막는다. 같은 모델·seed의 두 실행이 모두 끝나야 다음 조합으로 진행한다. seed 1→2→3, 각 seed에서 Base→RL이므로 full은 정확히 12회다.
+실행기는 부모의 `CUDA_VISIBLE_DEVICES` 할당을 보존한다(없으면 설정에 따라 한 GPU는 `0`, 두 GPU는 `0,1`). `CUDA_DEVICE_ORDER=PCI_BUS_ID`를 설정하고 실제 `torch.cuda.get_device_properties(i).uuid`와 nvidia-smi UUID를 대조한다. 기본 한 GPU 설정에서는 두 조건 모두 slot 0에서 순차 실행한다. 두 GPU 설정에서는 slot 0=Random, slot 1=Curriculum이며 worker에는 검증한 **UUID**를 전달한다. 컨테이너 내부 0·1과 호스트 nvidia-smi 0·1이 같다고 가정하지 않는다. UUID를 얻거나 대조할 수 없으면 실행을 막는다. 같은 모델·seed의 두 실행이 모두 끝나야 다음 조합으로 진행한다. seed 1→2→3, 각 seed에서 Base→RL이므로 full은 정확히 12회다.
 
-GPU UUID별 lock과 실행별 lock이 학습/별도 평가의 충돌을 막는다. compute process 검사도 UUID로 필터링한다. 컨테이너 PID namespace 때문에 자기 PID를 확인할 수 없으면 보수적으로 중단한다. 서버에서 필요하면 호스트 PID namespace로 실행하여 확인한다. 임의로 process 검사를 끄지 않는다. 두 순서가 서로 다른 GPU 개체에 고정되므로 시간·처리량 비교에는 GPU 개체 차이가 포함된다.
+GPU UUID별 lock과 실행별 lock이 학습/별도 평가의 충돌을 막는다. compute process 검사도 UUID로 필터링한다. 컨테이너 PID namespace 때문에 자기 PID를 확인할 수 없으면 보수적으로 중단한다. 서버에서 필요하면 호스트 PID namespace로 실행하여 확인한다. 임의로 process 검사를 끄지 않는다. 두 GPU 모드를 선택하면 두 순서가 서로 다른 GPU 개체에 고정되므로 시간·처리량 비교에 GPU 개체 차이가 포함된다. 기본 한 GPU 모드에서는 같은 GPU를 순차 사용한다.
 
 ```bash
 # 원본 모델/데이터 준비 뒤; 기존 prepared v1/results는 덮어쓰지 않음
@@ -323,27 +365,27 @@ bash scripts/run.sh full --config configs/final.json
 bash scripts/run.sh resume --config configs/final.json --mode full
 ```
 
-직접 worker를 실행할 때는 preflight에서 확인한 UUID를 사용한다. 예를 들어 Random은 `CUDA_VISIBLE_DEVICES="$RANDOM_GPU_UUID" GRPO_ALLOCATED_SLOT=0 GRPO_ASSIGNED_GPU_UUID="$RANDOM_GPU_UUID" bash scripts/run.sh train --config configs/experiment.json --model base --order random --seed 1 --mode pilot`이다. Curriculum은 slot=1과 해당 UUID를 쓴다. 두 변수의 실제 UUID는 서버 preflight 결과에서 확인해야 한다. 일반 실행에는 위 launcher 명령을 권장한다.
+직접 worker를 실행할 때는 preflight에서 확인한 UUID를 사용한다. 예를 들어 Random은 `CUDA_VISIBLE_DEVICES="$RANDOM_GPU_UUID" GRPO_ALLOCATED_SLOT=0 GRPO_ASSIGNED_GPU_UUID="$RANDOM_GPU_UUID" bash scripts/run.sh train --config configs/experiment.json --model base --order random --seed 1 --mode pilot`이다. 기본 한 GPU 설정의 Curriculum도 slot=0과 같은 UUID를 쓴다. 두 GPU 설정에서만 slot=1과 두 번째 UUID를 쓴다. 두 변수의 실제 UUID는 서버 preflight 결과에서 확인해야 한다. 일반 실행에는 위 launcher 명령을 권장한다.
 
 ## 생성 정책과 step 0 공유
 
-한 문제의 학습 응답 4개는 `num_return_sequences=4`, 평가 샘플링 8개는 `num_return_sequences=8`로 각각 **한 번의 generate 호출**에서 생성한다. greedy는 별도의 1개 호출이다. 문제끼리 합치지 않으며 학습 forward/backward microbatch 1/2/4 설정과 생성 배치는 구분한다. 하나의 4응답 그룹으로 advantage를 계산한 뒤 optimizer.step은 한 번 수행한다. 첫 EOS까지(해당 EOS 포함)만 보관하여 후속 padding이 길이·채점 text·loss에 들어가지 않는다.
+한 문제의 학습 응답 4개는 `num_return_sequences=4`, 평가 샘플링 8개는 `num_return_sequences=8`로 각각 **한 번의 generate 호출**에서 생성한다. greedy는 별도의 1개 호출이다. 평가는 기본 4문제씩 합치며 학습 forward/backward microbatch 1/2/4 설정과 평가 문제 배치는 구분한다. 하나의 4응답 그룹으로 advantage를 계산한 뒤 optimizer.step은 한 번 수행한다. 첫 EOS까지(해당 EOS 포함)만 보관하여 후속 padding이 길이·채점 text·loss에 들어가지 않는다.
 
-학습 RNG는 연속된 process RNG를 사용한다. 평가는 `SHA256(평가 seed, split, 문제 ID)`에서 정한 seed로 8응답 배치와 greedy를 실행하고 바깥 Python/NumPy/CPU/CUDA RNG를 예외 발생 시에도 복구한다. 이 배치 정책은 과거 순차 생성과 RNG 소비가 다르므로 과거 출력과 섞지 않는다. `metadata.json` 및 평가 파일에 정책을 기록한다.
+학습 RNG는 연속된 process RNG를 사용한다. 평가는 `SHA256(배치 정책, 평가 seed, split, 순서 있는 배치 문항 ID들)`로 고정한 seed(배치 1은 기존 문제별 seed)로 8응답 배치와 greedy를 실행하고 바깥 Python/NumPy/CPU/CUDA RNG를 예외 발생 시에도 복구한다. 이 배치 정책은 과거 순차 생성과 RNG 소비가 다르므로 과거 출력과 섞지 않는다. `metadata.json` 및 평가 파일에 정책을 기록한다.
 
 기본 결정론은 strict다. 샘플링 `top_p<1`인 **generate 호출 전체**에서만 `torch.use_deterministic_algorithms(True, warn_only=True)`를 사용하고 `finally`에서 enabled/warn_only 두 상태를 복구한다. 이 구간의 **모든 지원되지 않는 비결정론 연산**이 경고 대상이며 cumsum만 예외가 아니다. CUDA 전체의 비트 단위 재현성을 보장하지 않는다. 실패한 생성에 자동 retry나 silent 설정 변경을 하지 않는다. 학습 backward 구간에는 이 완화가 적용되지 않는다. [PyTorch 공식 동작 정의](https://docs.pytorch.org/docs/main/generated/torch.use_deterministic_algorithms.html).
 
 EOS는 실제 tokenizer EOS·generation_config EOS와, 실제 vocab에 존재하는 `<|im_end|>`의 합집합이다. 모든 EOS가 special token이며 1개 토큰으로 round-trip하는지 검사한다. generation_config가 없으면 model config를 사용했다는 사실도 기록한다. 임의의 numeric token ID는 설정하지 않는다. preflight와 metadata에서 모델별 resolved ID/문자열/출처를 확인한다.
 
-step 0 공유는 원본 model/tokenizer hash, **동일한 초기 adapter hash**, 전체 문제/정답/프롬프트 token IDs, 평가 seed·배치·생성 설정·EOS·채점기·코드·패키지·수치 설정·GPU 종류가 모두 같고 첫 문제의 실제 8+1 초기 출력 확인값도 같을 때만 허용한다. 다른 LoRA seed는 B=0이어도 공유하지 않는 보수적 정책이다. 따라서 기본적으로 같은 모델·seed의 Random/Curriculum 사이에서 공유한다. 일부 문항의 확인값만으로 서로 다른 모델의 동치를 추정하지 않는다. cache key별 대기 lock, 결과 checksum, atomic commit으로 동시 실행 및 중단을 처리한다. cache hit도 초기 출력 확인 생성 비용이 들며 실제 이번 시도의 tokens/time과 원본 평가 비용을 구분해 저장한다. 기존 run 결과는 재작성하지 않는다.
+step 0 공유는 원본 model/tokenizer hash, 전체 문항·프롬프트·평가 seed·배치·생성 설정·EOS·채점기·코드·패키지·수치 설정·GPU 종류와 첫 배치의 출력 확인값을 사용한다. 기본 seed 간 공유는 실제 LoRA B=0과 파라미터 유한값을 검증하고 adapter를 일시 비활성화한 동일 원본 모델 경로에서만 수행한다. `step0_share_across_seeds=false`이면 초기 adapter hash까지 같아야 공유한다. 캐시 lock·checksum·atomic receipt를 유지하며, 캐시 원본을 복사할 때 현재 run의 adapter hash와 evaluation ID를 기록한다. 캐시 적중에도 첫 배치 출력 확인 비용이 있다.
 
 ## 체크포인트와 평가
 
-step은 **노출/예정 update 번호**다. snapshot 0·100·200·300을 보존하고, 정확한 실패 복구를 위해 매 update의 최신 restart state도 저장한다. 실제 optimizer step/비정상 gradient로 생략된 step은 별도 누적한다. BF16에는 FP16 GradScaler overflow skip이 없으며 nonfinite gradient skip을 기록한다. skipped step이 있는 실행은 기본 주 분석에서 거절한다.
+step은 **노출/예정 update 번호**다. snapshot 0·100·200·300을 보존하고, 정확한 실패 복구를 위해 매 update의 최신 restart state도 저장한다. 실제 optimizer step은 별도 누적하며, 비정상 loss·entropy·gradient는 해당 노출을 commit하기 전에 중단한다. BF16에는 FP16 GradScaler overflow skip이 없다. 과거 skipped-step checkpoint는 계속 학습하지 않는다. skipped step이 있는 실행은 기본 주 분석에서 거절한다.
 
 checkpoint는 LoRA, AdamW moments/step, Python·NumPy·CPU/CUDA RNG, 데이터 cursor, 누적 비용, 마지막 event를 포함한다. 임시 디렉터리에 쓴 후 원자적으로 commit한다. 재개 시 가장 최신 완료 commit만 사용하고 hash를 검사한다. checkpoint commit과 로그 저장 사이에 실패해도 마지막 event를 복구한다. 다음 문제는 `rows[cursor]`이다. 미완료 update는 RNG를 되돌려 다시 계산할 수 있으므로 장애 전 실제 GPU 사용 비용까지 exactly-once인 것은 아니지만 **완료한 노출/학습 step에는 중복·누락이 없다**. 장애 시 남은 `.pending-*` 디렉터리는 무시되며 디스크 정리가 필요할 수 있다.
 
-full은 0·100·200·300에서 diagnostic, 0·300에서 MATH500을 평가한다. pilot은 validation만 평가한다. 100/200 이후 같은 모델·optimizer·RNG를 이어간다. 평가는 전체 루프(채점 포함)를 RNG 보존 문맥으로 감싸고 문제별 평가 seed를 사용한다. 평가 전후 LoRA hash도 비교한다. 응답 8개는 temperature=0.6, top-p=0.95, top-k=0이며 별도 greedy 1개를 생성한다. 생성 기본값을 새 GenerationConfig로 명시하여 모델 기본 penalty를 상속하지 않는다.
+full은 0·100·200·300에서 diagnostic, 0·300에서 MATH500을 평가한다. pilot은 validation만 평가한다. 100/200 이후 같은 모델·optimizer·RNG를 이어간다. 평가는 전체 루프(채점 포함)를 RNG 보존 문맥으로 감싸고 고정 배치별 평가 seed를 사용한다. 문제별 commit을 유지하되 중단된 배치는 원래 전체 문항을 다시 생성한다. 이미 저장된 형제 문항의 token IDs와 일치해야 재개하며, 완전히 저장된 배치는 생성하지 않는다. 평가 전후 LoRA hash도 비교한다. 응답 8개는 temperature=0.6, top-p=0.95, top-k=0이며 별도 greedy 1개를 생성한다. 생성 기본값을 새 GenerationConfig로 명시하여 모델 기본 penalty를 상속하지 않는다.
 
 - avg@8: 문제별 `정답 응답 수 / 8`의 문제 평균.
 - pass@8: 문제별 `8개 중 하나 이상 정답`의 문제 평균. 추정식으로 보정하지 않는다.
@@ -354,7 +396,7 @@ full은 0·100·200·300에서 diagnostic, 0·300에서 MATH500을 평가한다.
 
 ```bash
 CUDA_VISIBLE_DEVICES="$RANDOM_GPU_UUID" GRPO_ALLOCATED_SLOT=0 GRPO_ASSIGNED_GPU_UUID="$RANDOM_GPU_UUID" bash scripts/run.sh evaluate --config configs/pilot_train.json --model base --order random --seed 1 --mode pilot --step 100 --split validation
-CUDA_VISIBLE_DEVICES="$CURRICULUM_GPU_UUID" GRPO_ALLOCATED_SLOT=1 GRPO_ASSIGNED_GPU_UUID="$CURRICULUM_GPU_UUID" bash scripts/run.sh evaluate --config configs/final.json --model rl --order curriculum --seed 1 --mode full --step 300 --split math500
+CUDA_VISIBLE_DEVICES="$RANDOM_GPU_UUID" GRPO_ALLOCATED_SLOT=0 GRPO_ASSIGNED_GPU_UUID="$RANDOM_GPU_UUID" bash scripts/run.sh evaluate --config configs/final.json --model rl --order curriculum --seed 1 --mode full --step 300 --split math500
 ```
 
 동일 평가 결과가 이미 있으면 입력 identity 확인 후 재사용한다. 평가 설정을 바꾸어 기존 파일을 덮어쓰거나 변경된 config로 checkpoint를 조용히 로딩하지 않는다. `state.pt`는 이 파이프라인이 생성한 신뢰할 수 있는 파일만 로드한다.
@@ -393,6 +435,6 @@ bash scripts/run.sh analyze --config configs/final.json --mode full --output rep
 python -m compileall -q grpo_order scripts
 ```
 
-요청에 따라 CPU 테스트 파일·실행 단계·test 명령·pytest 의존성을 제거했다. first.sh는 설치 후 바로 GPU 환경 preflight로 진행한다. 데이터 gold 감사, GPU preflight, smoke 중단·재개 검증은 그대로 수행한다.
+요청에 따라 CPU 테스트 파일·실행 단계·test 명령·pytest 의존성을 제거했다. 1.setup.sh는 설치 후 GPU 환경 preflight로 진행한다. 데이터 gold 감사, GPU preflight, smoke 중단·재개 검증은 그대로 수행한다.
 
 삭제 전 검증 기록과 환경 한계는 `VALIDATION.md`에 보존한다. 현재 실행 절차에는 해당 테스트가 없다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.

@@ -77,7 +77,7 @@ def uuid_mapping(h):
 def gpu_errors(h, config, single=False):
     errors = []
     devices = h.get("devices", [])
-    expected = 1 if single else 2
+    expected = 1 if single else len(config["runtime"]["allocated_gpu_slots"])
     if len(devices) != expected:
         errors.append(f"Expected {expected} visible CUDA device(s), found {len(devices)}")
     if h["nvidia_smi"].get("returncode") != 0:

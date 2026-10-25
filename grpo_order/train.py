@@ -11,7 +11,9 @@ from .freeze import verify_freeze
 from .grading import gold_parse, grade
 from .model import GENERATION_POLICY, adapter_hash, adapter_norms, generate, load_model, load_tokenizer, prompt_ids, validate_context
 from .objective import accumulate_group
+from .integrity import validate_completion
 from .preflight import dependency_errors, gpu_errors, hardware, resolve_model
+from .presmoke import select_one
 from .storage import (checkpoints, exclusive_lock, load_checkpoint, reconcile_event,
                       run_path, save_checkpoint)
 
@@ -38,9 +40,11 @@ def check_pair_initialization(root, role, seed, mode, c, contract, lora_meta):
 
 
 def train(c, role, order, seed, mode="pilot", resume=False, stop_after=None):
+    if mode == "presmoke" and (role, order, seed) != ("base", "random", 1):
+        raise ValueError("presmoke runs only Base/random/seed1; use smoke for four conditions")
     if stop_after is not None and (mode != "smoke" or stop_after not in (1, 2)):
         raise ValueError("--stop-after is only for smoke at exposure 1 or 2")
-    validate_assignment(order)
+    validate_assignment(order, c)
     if int(os.getenv("WORLD_SIZE", "1")) != 1:
         raise ValueError("DDP is not supported: launch one independent process per physical GPU")
     if mode == "full":
@@ -62,12 +66,13 @@ def train(c, role, order, seed, mode="pilot", resume=False, stop_after=None):
             raise
 
 
-def validate_assignment(order):
-    slot = "0" if order == "random" else "1"
+def validate_assignment(order, config):
+    single_gpu = config["runtime"]["allocated_gpu_slots"] == [0]
+    slot = "0" if single_gpu or order == "random" else "1"
     visible = os.getenv("CUDA_VISIBLE_DEVICES", "")
     if os.getenv("GRPO_ALLOCATED_SLOT", slot) != slot or not visible or "," in visible:
         raise ValueError(f"{order} requires allocated slot {slot} and exactly one visible GPU; use launch")
-    if visible.isdecimal() and visible != slot:
+    if not single_gpu and visible.isdecimal() and visible != slot:
         raise ValueError(f"{order} requires allocated slot {slot}; prefer launch for UUID mapping")
     return slot
 
@@ -91,6 +96,8 @@ def check_environment(c):
 
 def select_rows(splits, order, plan, mode, c=None):
     rows = splits["train"]
+    if mode == "presmoke":
+        return select_one(rows)
     if mode == "smoke":
         # Same 3 problems for both orders; smoke is never included in scientific analysis.
         rows = [next(r for r in rows if r["difficulty"] == d) for d in DIFFICULTIES]
@@ -112,6 +119,11 @@ def open_run(c, role, order, seed, mode):
     if Path(c["output_dir"]).resolve().is_relative_to(path.resolve()):
         raise ValueError("output_dir must be outside the immutable original model directory")
     manifest, splits = load_prepared(c)
+    if mode == "presmoke":
+        # Validate and tokenize only the two questions actually used by this check.
+        splits = {name: select_one(splits[name]) for name in ("train", "diagnostic")}
+        if splits["train"][0]["id"] == splits["diagnostic"][0]["id"]:
+            raise ValueError("presmoke train and diagnostic questions must be distinct")
     for rows in splits.values():
         for row in rows:
             gold_parse(row["answer"])
@@ -130,6 +142,7 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
     if metadata_path.exists() and read_json(metadata_path)["contract"] != contract:
         raise ValueError("Existing run configuration/data/model/code/package identity changed; refusing resume")
     if (root / "complete.json").exists():
+        validate_completion(read_json(metadata_path), read_json(root / "complete.json"), len(rows))
         print(f"Already complete and identity verified: {root}", flush=True)
         return read_json(root / "complete.json")
     tok, context = load_tokenizer(path, c["models"][role])
@@ -163,7 +176,9 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
         optimizer.load_state_dict(state["optimizer"])
         restore_rng(state["rng"])
         reconcile_event(root, state)
-    milestones = sorted(set([0, len(rows)] + ([] if mode == "smoke" else t["checkpoints"])))
+        if state["skipped_steps"]:
+            raise ValueError("Checkpoint contains skipped updates; refusing to continue an invalid experiment")
+    milestones = sorted(set([0, len(rows)] + ([] if mode in ("presmoke", "smoke") else t["checkpoints"])))
 
     def commit():
         state.update(adapter={k: v.detach().cpu().clone() for k, v in get_peft_model_state_dict(model).items()},
@@ -171,6 +186,10 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
         return save_checkpoint(root, state, milestones)
 
     def evaluate_due(step):
+        if mode == "presmoke":
+            if step == len(rows):
+                evaluate(model, tok, c, splits["diagnostic"], "diagnostic", step, root, contract, subset=1)
+            return
         if mode == "pilot":
             if step in c["evaluation"]["diagnostic_steps"] or step == len(rows):
                 evaluate(model, tok, c, splits["validation"], "validation", step, root, contract)
@@ -191,18 +210,21 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
         ids = prompt_ids(tok, c, row["problem"])
         responses = generate(model, tok, ids, count=4, max_new_tokens=t["max_new_tokens"],
                              temperature=t["temperature"], top_p=t["top_p"])
+        torch.cuda.synchronize()
+        generated_at = time.monotonic()
         for r in responses:
             r.update(grade(r["text"], row["answer"]))
         mean, std, adv, kind = advantages([r["reward"] for r in responses], t["advantage_epsilon"])
+        graded_at = time.monotonic()
         optimizer.zero_grad(set_to_none=True)
         metrics = accumulate_group(model, ids, responses, adv, t, tok.pad_token_id)
         grad_norm = torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], t["max_grad_norm"])
         finite = bool(torch.isfinite(grad_norm))
-        if finite:
-            optimizer.step()  # Exactly one call, even for zero-advantage groups.
-            state["optimizer_steps"] += 1
-        else:
-            state["skipped_steps"] += 1
+        if not finite or not all(math.isfinite(metrics[k]) for k in ("loss", "token_entropy_nats")):
+            raise FloatingPointError(f"Non-finite loss/entropy/gradient at exposure {index + 1}; "
+                                     "stopped before optimizer/cursor commit. Inspect before resuming.")
+        optimizer.step()  # Exactly one call, even for zero-advantage groups.
+        state["optimizer_steps"] += 1
         optimizer.zero_grad(set_to_none=True)
         torch.cuda.synchronize()
         elapsed = time.monotonic() - started
@@ -211,10 +233,6 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
         state["generated_tokens"] += sum(r["generated_tokens"] for r in responses)
         state["training_seconds"] += elapsed
         state["group_counts"][kind] += 1
-        # Non-finite loss/norm remains visible via explicit flags; JSON never emits invalid NaN.
-        for key in ("loss", "token_entropy_nats"):
-            if not math.isfinite(metrics[key]):
-                metrics[key] = None
         state["last_record"] = {"exposure": index + 1, "problem_id": row["id"], "difficulty": row["difficulty"],
                                 "prompt_tokens": len(ids), "responses": responses, "origin": origin_metadata(row),
                                 "reward_mean": mean, "reward_std_population": std, "advantages": adv,
@@ -227,10 +245,17 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
                                 "gpu_peak_allocated_bytes": torch.cuda.max_memory_allocated(),
                                 "gpu_peak_reserved_bytes": torch.cuda.max_memory_reserved(),
                                 "gpu_free_bytes": torch.cuda.mem_get_info()[0], "seconds": elapsed,
+                                "generation_seconds": generated_at - started,
+                                "grading_seconds": graded_at - generated_at,
+                                "optimization_seconds": started + elapsed - graded_at,
                                 "cumulative_training_seconds": state["training_seconds"],
                                 "cumulative_generated_tokens": state["generated_tokens"]}
         commit()
-        print(f"{role}/{order}/seed{seed}: exposure {index + 1}/{len(rows)}, reward={mean:.2f}, optimizer_steps={state['optimizer_steps']}", flush=True)
+        tokens = sum(r["generated_tokens"] for r in responses)
+        print(f"{role}/{order}/seed{seed}: exposure {index + 1}/{len(rows)}, reward={mean:.2f}, "
+              f"optimizer_steps={state['optimizer_steps']}, {elapsed:.1f}s/update, "
+              f"{tokens / elapsed:.1f} training tok/s, "
+              f"peak={state['last_record']['gpu_peak_allocated_bytes'] / 1024**3:.2f} GiB", flush=True)
         evaluate_due(state["cursor"])
         if stop_after is not None and state["cursor"] == stop_after:
             evaluate(model, tok, c, splits["diagnostic"], "smoke_pause", state["cursor"], root, contract, subset=1)

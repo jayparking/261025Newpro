@@ -7,6 +7,7 @@
 #   prepare    fixed train/diagnostic/validation/MATH500 manifest  -> grpo_order prepare-data
 #   preflight  GPU/package/model/data checks                       -> grpo_order preflight
 #   freeze     lock code/config/data/model identities; no training -> grpo_order freeze
+#   presmoke   Base only: 1 training problem + 1 diagnostic       -> grpo_order train --mode presmoke
 #   smoke      3 problems per condition, 32-token outputs          -> grpo_order launch --mode smoke
 #   pilot      one seed, four conditions                           -> grpo_order launch --mode pilot
 #   full       2 models x 2 orders x 3 seeds                       -> grpo_order launch --mode full
@@ -24,7 +25,8 @@ case "$cmd" in
   import) exec "$PY" -m grpo_order.import_math "$@" ;;
   prepare) exec "$PY" -m grpo_order prepare-data "$@" ;;
   preflight|freeze|train|evaluate|analyze) exec "$PY" -m grpo_order "$cmd" "$@" ;;
+  presmoke) exec "$PY" -m grpo_order train --model base --order random --seed 1 --mode presmoke --resume "$@" ;;
   smoke|pilot|full) exec "$PY" -m grpo_order launch --mode "$cmd" "$@" ;;
   resume) exec "$PY" -m grpo_order launch --resume-failed "$@" ;;
-  *) sed -n '2,15p' "$0" >&2; exit 2 ;;
+  *) sed -n '2,16p' "$0" >&2; exit 2 ;;
 esac

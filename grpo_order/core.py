@@ -95,11 +95,15 @@ def load_config(path):
         "MATH500 schedule": c["evaluation"]["math500_steps"] == [0, 300],
         "LoRA dropout/initialization": c["lora"]["dropout"] == 0 and c["lora"]["init"] == "kaiming_uniform_A_zero_B",
         "offline models without remote code": c["runtime"]["local_files_only"] and not c["runtime"]["trust_remote_code"],
-        "allocated CUDA slots 0/1": c["runtime"]["allocated_gpu_slots"] == [0, 1],
+        "one or two allocated CUDA slots": c["runtime"]["allocated_gpu_slots"] in ([0], [0, 1]),
         "scoped top-p determinism policy": c["runtime"]["top_p_determinism"] == "scoped_warn_only",
         "deterministic baseline": c["runtime"]["deterministic_algorithms"] is True,
         "validation-only pilot": c["pilot"]["selection_split"] == "validation",
         "batched generation": c["runtime"]["generation_batching"] == "one_problem_num_return_sequences",
+        "supported attention backend": c["runtime"].get("attention_implementation", "eager") in ("eager", "sdpa"),
+        "positive evaluation problem batch size": type(c["evaluation"].get("problem_batch_size", 1)) is int
+            and 1 <= c["evaluation"].get("problem_batch_size", 1) <= 32,
+        "step0 seed sharing flag": type(c["evaluation"].get("step0_share_across_seeds", False)) is bool,
         "pilot updates 0..300": isinstance(c["pilot"]["updates"], int) and 0 <= c["pilot"]["updates"] <= 300,
         "training seeds 1/2/3": c["seeds"]["training"] == [1, 2, 3],
         "positive output budgets": t["max_new_tokens"] > 0 and c["evaluation"]["max_new_tokens"] > 0,
@@ -197,9 +201,15 @@ def per_question_seed(base, split, question_id):
     return int(digest([base, split, question_id])[:8], 16)
 
 
+def evaluation_batch_seed(base, split, question_ids):
+    if len(question_ids) == 1:
+        return per_question_seed(base, split, question_ids[0])
+    return int(digest(["evaluation_batch_v1", base, split, question_ids])[:8], 16)
+
+
 def code_hash():
     root = Path(__file__).resolve().parents[1]
     files = list((root / "grpo_order").glob("*.py")) + list((root / "scripts").glob("*.py"))
     files += list((root / "scripts").glob("*.sh")) + list(root.glob("requirements*.txt"))
-    files += list(root.glob("first.sh"))
+    files += list(root.glob("*.sh"))
     return digest({str(p.relative_to(root)): file_hash(p) for p in sorted(files)})

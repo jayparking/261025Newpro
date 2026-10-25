@@ -5,10 +5,10 @@ from .core import digest, isolated_rng
 
 
 GENERATION_POLICY = {
-    "batch": "one_problem_num_return_sequences", "train_samples": 4,
+    "batch": "training: one problem; evaluation: fixed contiguous problem batches from config", "train_samples": 4,
     "evaluation_samples": 8, "greedy_separate": True,
     "training_rng": "continuous process RNG; checkpoint restores all RNG states",
-    "evaluation_rng": "SHA256(evaluation seed, split, question ID); one seed per 8-sample batch then greedy; outer RNG restored even on error",
+    "evaluation_rng": "batch size 1: per-question seed; otherwise SHA256(evaluation seed, split, ordered batch question IDs); regenerate entire partial batch on resume; outer RNG restored",
     "determinism": "strict outside sampled top_p<1 generation; warn_only=True within that entire generate call, for ALL unsupported nondeterministic operations, not just cumsum; restore enabled and warn_only flags in finally",
     "padding": "retain first EOS; discard every subsequent token; EOS counts in loss",
 }
@@ -101,7 +101,7 @@ def adapter_hash(model):
     import hashlib
     h = hashlib.sha256()
     for name, p in sorted(model.named_parameters()):
-        if p.requires_grad:
+        if p.requires_grad or "lora_" in name:
             h.update(name.encode())
             h.update(str(tuple(p.shape)).encode())
             h.update(p.detach().float().cpu().contiguous().numpy().tobytes())
@@ -123,7 +123,7 @@ def load_model(path, config, lora_seed, device="cuda:0"):
     model = AutoModelForCausalLM.from_pretrained(
         str(path), local_files_only=True, trust_remote_code=False,
         torch_dtype=torch.bfloat16,
-        attn_implementation="eager")
+        attn_implementation=config["runtime"].get("attention_implementation", "eager"))
     supported = (torch.nn.Linear, Conv1D)
     explicit = config["lora"]["target_modules"]
     targets = explicit or [name for name, module in model.named_modules()
@@ -160,6 +160,7 @@ def load_model(path, config, lora_seed, device="cuda:0"):
     model.config.use_cache = False
     model.grpo_initial_adapter_hash = adapter_hash(model)
     return model, {"targets": targets, "trainable_parameters": trainable,
+                   "attention_implementation": model.config._attn_implementation,
                    "trainable_count": sum(p.numel() for p in model.parameters() if p.requires_grad),
                    "trainable_dtypes": sorted({str(p.dtype) for p in model.parameters() if p.requires_grad}),
                    "frozen_dtypes": sorted({str(p.dtype) for p in model.parameters() if not p.requires_grad}),
@@ -168,10 +169,18 @@ def load_model(path, config, lora_seed, device="cuda:0"):
 
 
 def generate(model, tok, ids, *, count, max_new_tokens, temperature, top_p, greedy=False):
+    return generate_batch(model, tok, [ids], count=count, max_new_tokens=max_new_tokens,
+                          temperature=temperature, top_p=top_p, greedy=greedy)[0]
+
+
+def generate_batch(model, tok, prompts, *, count, max_new_tokens, temperature, top_p, greedy=False):
+    """Left-pad prompts; HF returns count consecutive responses per input prompt."""
     import torch
     from transformers import GenerationConfig
     was_training = model.training
-    results = []
+    if not prompts or any(not ids for ids in prompts):
+        raise ValueError("Generation requires nonempty tokenized prompts")
+    results = [[] for _ in prompts]
     eos_meta = getattr(tok, "grpo_eos", None) or resolve_eos(tok, model.generation_config)
     eos_ids = set(eos_meta["eos_token_ids"])
     if greedy and count != 1:
@@ -185,13 +194,20 @@ def generate(model, tok, ids, *, count, max_new_tokens, temperature, top_p, gree
         kwargs.update(temperature=temperature, top_p=top_p, top_k=0)
     gc = GenerationConfig(**kwargs)
     device = next(model.parameters()).device
-    x = torch.tensor([ids], dtype=torch.long, device=device)
+    width = max(map(len, prompts))
+    x = torch.full((len(prompts), width), tok.pad_token_id, dtype=torch.long, device=device)
+    mask = torch.zeros_like(x)
+    for i, ids in enumerate(prompts):
+        x[i, -len(ids):] = torch.tensor(ids, dtype=torch.long, device=device)
+        mask[i, -len(ids):] = 1
     model.eval()
     try:
         with torch.inference_mode(), generation_determinism(top_p, greedy):
-            sequences = model.generate(input_ids=x, attention_mask=torch.ones_like(x), generation_config=gc)
+            sequences = model.generate(input_ids=x, attention_mask=mask, generation_config=gc)
+            if len(sequences) != len(prompts) * count:
+                raise ValueError("Generation returned an unexpected number of responses")
             for i, sequence in enumerate(sequences):
-                tokens = sequence[len(ids):].tolist()
+                tokens = sequence[width:].tolist()
                 end = next((j for j, token in enumerate(tokens) if token in eos_ids), None)
                 stopped = end is not None
                 if stopped:
@@ -200,7 +216,7 @@ def generate(model, tok, ids, *, count, max_new_tokens, temperature, top_p, gree
                     raise ValueError("Empty token generation")
                 if not stopped and len(tokens) != max_new_tokens:
                     raise ValueError("Generation ended without EOS before the configured length limit")
-                results.append({"sample_index": i, "text": tok.decode(tokens, skip_special_tokens=True),
+                results[i // count].append({"sample_index": i % count, "text": tok.decode(tokens, skip_special_tokens=True),
                                 "token_ids": tokens, "generated_tokens": len(tokens),
                                 "finish_reason": "eos" if stopped else "length",
                                 "truncated": not stopped, "hit_token_budget": len(tokens) == max_new_tokens})

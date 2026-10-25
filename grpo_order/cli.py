@@ -12,6 +12,7 @@ from .freeze import freeze
 from .launcher import launch
 from .model import adapter_hash, load_model, load_tokenizer, validate_context
 from .preflight import check
+from .presmoke import quick_config
 from .storage import exclusive_lock, load_checkpoint, run_path
 from .train import check_environment, configure_torch, open_run, train, validate_assignment
 
@@ -30,7 +31,8 @@ def main():
             p.add_argument("--order", choices=("random", "curriculum"), required=True)
             p.add_argument("--seed", type=int, choices=(1, 2, 3), default=1)
         if command in ("train", "launch", "evaluate", "analyze"):
-            p.add_argument("--mode", choices=("smoke", "pilot", "full"), default="pilot")
+            modes = ("presmoke", "smoke", "pilot", "full") if command == "train" else ("smoke", "pilot", "full")
+            p.add_argument("--mode", choices=modes, default="pilot")
         if command == "train":
             p.add_argument("--resume", action="store_true")
         if command in ("train", "launch"):
@@ -51,10 +53,12 @@ def main():
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if args.command in ("launch", "preflight", "freeze"):
-        os.environ.setdefault("CUDA_VISIBLE_DEVICES", "0,1")
+        os.environ.setdefault("CUDA_VISIBLE_DEVICES", ",".join(map(str, c["runtime"]["allocated_gpu_slots"])))
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    if args.command == "train" and args.mode == "presmoke":
+        c = quick_config(c)
     if args.command in ("train", "launch", "evaluate") and args.mode == "smoke":
         c = copy.deepcopy(c)
         c["train"]["max_new_tokens"] = 32
@@ -86,7 +90,7 @@ def main():
 
 def evaluate_saved(c, args):
     """Evaluate one retained checkpoint of an existing run; shares setup with training."""
-    validate_assignment(args.order)
+    validate_assignment(args.order, c)
     if args.mode != "full" and args.split == "math500":
         raise ValueError("MATH500 evaluation is only allowed for frozen full runs")
     root = run_path(c, args.mode, args.model, args.order, args.seed)

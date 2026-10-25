@@ -16,7 +16,7 @@ class GoldIssue(ValueError):
 
 def grader_identity():
     versions = packages()
-    return {"policy": "math_verify_no_fallback_v2", "packages": {
+    return {"policy": "math_verify_no_fallback_v3_fail_on_grader_exception", "packages": {
         k: versions[k] for k in ("math-verify", "sympy", "latex2sympy2_extended", "antlr4-python3-runtime")}}
 
 
@@ -65,5 +65,4 @@ def grade(response, answer):
         return {"reward": int(correct), "extracted_answer": [str(x) for x in extracted],
                 "failure_reason": None if correct else "incorrect_answer"}
     except Exception as e:
-        return {"reward": 0, "extracted_answer": None,
-                "failure_reason": f"grader_error:{type(e).__name__}:{str(e)[:200]}"}
+        raise GraderEnvironmentError(f"Unexpected grader failure; refusing to label it incorrect: {type(e).__name__}: {e}") from e
