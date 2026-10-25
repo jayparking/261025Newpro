@@ -1,0 +1,399 @@
+# 261025Newpro — Qwen2.5-1.5B Base / SimpleRL-Zoo 추가 GRPO 순서 실험
+
+## GPU 서버에서 한 번에 실행: first.sh
+
+프로젝트 전체를 GPU 서버로 복사한 뒤 루트에서 **`bash first.sh` 하나를 실행**한다. 스크립트는 설치·준비·검증·파일럿을 진행하고, 터미널에서 validation 결과로 공통 설정을 선택하면 freeze → 본실험 12회 → 분석까지 이어진다. 소스 파일을 하나씩 직접 실행할 필요는 없다.
+
+```bash
+bash first.sh
+```
+
+필요한 것은 Linux, Python 3.11 또는 3.12의 venv, 설치된 NVIDIA 드라이버/nvidia-smi, 할당 GPU 두 장, 패키지·Hugging Face 다운로드 접근이다. 시스템 드라이버나 Python 자체는 스크립트가 설치하지 않는다. 로컬 macOS의 `.venv`를 복사해 사용하지 않는다. `first.sh`는 서버용 `.venv-gpu`를 생성하고 torch 2.7.1 CUDA 12.8 wheel 및 두 requirements 파일을 설치한다. 실제 GPU/드라이버 호환성은 preflight에서 검사한다.
+
+이미 GPU 할당을 받은 환경의 `CUDA_VISIBLE_DEVICES`를 유지한다. 미설정이면 기존 launcher가 CUDA 0·1을 대상으로 검사한다. CUDA slot 0→Random, slot 1→Curriculum이며 검증한 UUID로 worker를 실행한다. 호스트 물리 번호를 추측하지 않는다.
+
+| 순서 | first.sh가 수행하는 일 | 통과 조건 / 사용자가 확인할 것 |
+|---|---|---|
+| 1 | 별도 venv에 고정 의존성 설치, pip freeze 기록 | 설치 성공. 기존 로컬 venv 보존 |
+| 2 | CPU 테스트, GPU 환경 preflight | CPU 테스트는 CUDA 접근을 차단해 수행. 실패 **또는 skip이 있으면 중단**; GPU/BF16/UUID·설치 버전 검사 통과 |
+| 3 | 두 원본 모델·두 데이터셋 다운로드/기존 receipt 검증 | 정확한 repo·revision·파일 hash |
+| 4 | 원천 변환, gold 감사, 중복 제거와 고정 split 준비 | MATH500 500개 유지; 실패는 보고 후 중단 |
+| 5 | 전체 preflight, smoke 1 update 후 종료·별도 프로세스로 재개 | 4조건 모두 3 updates, 저장/재개/평가 통과 |
+| 6 | plain/chat 각각 step 0 validation 비교 | 출력된 두 모델의 결과를 보고 **plain/chat 중 하나 입력** |
+| 7 | 선택한 prompt에서 2048/4096 각각 30 update 비교 | 정확도·잘림·실측 학습 시간/메모리를 보고 **2048/4096 입력** |
+| 8 | 선택한 조건에서 LR 5e-6, 300 update 파일럿 | validation 변화·reward group·LoRA norm 확인. LR 추가 비교 불필요하면 Enter |
+| 9 | 필요할 때만 명시적으로 선택한 LR 후보를 300 update 비교 | 비교했으면 validation 결과로 최종 LR 선택. 기본은 5e-6 |
+| 10 | 최종 설정 저장, preflight와 freeze, full | 결정된 코드·설정·데이터로 **Base/RL × Random/Curriculum × seed 1·2·3 = 12회** |
+| 11 | full 결과 분석 | seed별 성능·차이·곡선·그래프 저장 |
+
+MATH500 성능은 파일럿 선택에서 읽지 않는다. prompt 단계의 Random/Curriculum step 0는 같은 초기 모델의 중복 확인이며 독립 표본으로 해석하지 않는다. smoke/pilot은 별도의 검증 실행이고, S0/S1/S2를 만드는 18회 설계가 아니다.
+
+**설정 선택이 끝나면 기본 실행은 본실험으로 계속 진행된다.** 파일럿까지 확인하고 멈추고 싶으면 처음부터 `bash first.sh --pilot-only`를 사용한다. 입력할 터미널이 없으면 설정을 자동으로 추측하지 않고 해당 선택 단계에서 종료하며 재개 명령을 표시한다. 긴 실행 중에는 터미널 세션을 유지한다. 단계별 상세 출력은 화면에 표시되는 `logs/*.log`에서 확인한다.
+
+```bash
+# 명령 설명만 표시: 설치/파일 생성/실험 실행 없음
+bash first.sh --dry-run
+
+# 같은 파일럿·설정 선택까지 진행하되 full 전 종료
+bash first.sh --pilot-only
+
+# 중단된 실행 또는 pilot-only 이후 full을 이어서 진행
+# 아래 경로는 처음 실행할 때 출력된 실제 실행 폴더로 바꾼다.
+bash first.sh --resume runs/server_sessions/실제실행번호
+
+# 서버 환경이 이미 준비되어 있으면 설치만 생략할 수 있다. 모든 검사는 그대로 수행한다.
+PYTHON=/실제/서버/python bash first.sh --skip-install
+```
+
+최초 실행은 `runs/server_sessions/<고유번호>/`를 새로 만든다. 모델과 raw 데이터는 기존 검증된 자산을 재사용하고, 변환 데이터·prepared split·각 파일럿·full 결과는 이 실행 폴더 안에 따로 저장한다. 설치 중 실패해 실행 폴더가 아직 없다면 `bash first.sh`를 다시 실행한다. 실행 폴더가 만들어진 뒤에는 출력된 `--resume` 명령을 사용한다. 코드/패키지/설정 또는 선택 근거가 달라졌으면 재개를 거절한다. 실행 도중에도 단계별로 코드/패키지를 재검사하고 본실험 전에 원본 자산 receipt가 바뀌지 않았는지 확인한다. 새 실행으로 옮겨야 하며 기존 결과를 덮어쓰지 않는다.
+
+| 실행 폴더 내부 | 내용 |
+|---|---|
+| `configs/smoke.json`, `configs/prompt_*.json`, `configs/length_*.json`, `configs/lr_*.json` | 단계별 실제 설정 |
+| `configs/final.json`, `selection.json` | 확정 설정과 validation 선택 기록 |
+| `data/converted/`, `data/prepared/` | 원본 변환·고정 split·gold 감사·제외 사유 |
+| `logs/` | 각 명령/종료 결과, pip freeze, preflight 보고서. 재개 시 새 로그 추가 |
+| `summaries/` | 파일럿의 모델·순서별 validation 성능, 추출 실패, 학습 시간/peak 메모리, 그룹 수, LoRA norm |
+| `runs/` | smoke/각 파일럿/full의 LoRA·optimizer·RNG·cursor·평가·학습 로그 |
+| `runs/final/protocol-freeze.json` | 확정 코드·설정·데이터·모델·패키지 identity |
+| `analysis/` | full 완료 후 생성한 분석 결과 |
+| `state.json`, `failure-*.json`, `finished.json` | 단계/선택 진행 상태, 실패 기록, 전체 완료 표시 |
+
+## 어떤 소스가 어떤 일을 하는가
+
+| 파일 | 역할 |
+|---|---|
+| `first.sh` | GPU 서버 단일 진입점. 서버 venv/의존성 설치, 중복 실행 lock, 전체 흐름 호출 |
+| `scripts/first_pipeline.py` | 설치 후 모든 단계 실행·로그·설정 선택·재개 관리. 부모는 GPU 모델을 올리지 않음 |
+| `scripts/run_tests.py` | CPU 테스트와 서버의 skip 0 통과 조건 |
+| `scripts/run.sh`, `grpo_order/cli.py` | 개별 작업 CLI 연결. 수동 실행/디버깅에도 사용 |
+| `grpo_order/assets.py`, `sources.py` | 지정 모델/데이터 다운로드, source ID·revision·receipt/hash 검증 |
+| `grpo_order/import_math.py`, `data.py` | MATH 원천 변환, 원래 level 보존, gold 검사·중복 제거·고정 split |
+| `grpo_order/grading.py` | math-verify 파싱·정오답 채점, 설치/파서/문항 문제 구분 |
+| `grpo_order/preflight.py` | 의존성·UUID·GPU/BF16·모델·tokenizer·context·데이터 검사 |
+| `grpo_order/model.py` | 모델/LoRA/EOS 검증, 응답 4/8개 배치 생성, 생성 중 결정론 설정 복구 |
+| `grpo_order/objective.py`, `train.py` | 한 문제 4응답 advantage, microbatch backward, AdamW 한 번, 중간 평가 후 학습 지속 |
+| `grpo_order/evaluation.py`, `step0.py` | 평가 RNG 격리, 8개 샘플+greedy, 초기 상태 검증 캐시 |
+| `grpo_order/storage.py` | 배타 lock, 원자적 checkpoint, optimizer/RNG/cursor 저장·복원 |
+| `grpo_order/launcher.py` | 같은 모델·seed의 Random/Curriculum pair 실행·대기. full 정확히 12회 |
+| `grpo_order/freeze.py`, `core.py` | 설정 불변 조건·hash·seed, 확정 전 full 차단 |
+| `grpo_order/analysis.py` | full 평가의 seed별 성능·조건 차이·곡선·그래프 |
+| `tests/` | CPU tensor/fixture와 오류 주입을 이용한 회귀 검증. 실제 GPU 성공을 대신하지 않음 |
+
+이하에는 실험 정의와 개별 CLI 명령을 상세히 정리했다. first.sh를 사용하면 이 명령들을 직접 순서대로 입력할 필요가 없다.
+
+
+**확정 모델·데이터와 프로젝트 상대 경로** — 설정도 `./configs/experiment.json` 맨 위에서 확인한다.
+
+| 용도 | 정확한 Hugging Face ID | 저장 경로 |
+|---|---|---|
+| Base | `Qwen/Qwen2.5-1.5B` | `./models/Qwen2.5-1.5B/` |
+| 공개 RL | `hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo` | `./models/Qwen-2.5-1.5B-SimpleRL-Zoo/` |
+| 학습 원천 | `EleutherAI/hendrycks_math` 전체 7과목 | `./data/raw/hendrycks_math/` |
+| 최종 평가 | `HuggingFaceH4/MATH-500` | `./data/raw/MATH-500/` |
+| 통합·변환 JSONL | 원본 split·과목·level·안정적인 ID 보존 | `./data/converted/hendrycks_math/` |
+| 고정 학습·진단·validation·평가 | 문제 집합과 hash | `./data/prepared/qwen15b_math_order_v2/` |
+| 본실험 결과 | 2모델 × 2순서 × 3 seed = **12회** | `./runs/qwen15b_math_order_v2/full/` |
+| 다운로드 revision lock | 모델·토크나이저·데이터 commit | `./assets.lock.json` |
+
+| 실험 난도 | 원본 level |
+|---|---|
+| Easy | Level 1–2 |
+| Medium | Level 3 |
+| Hard | Level 4–5 |
+
+**난도는 데이터셋 등급의 묶음이며 모델 정답률 기반 난도가 아니다.** Math-1.5B/Instruct 모델로 대체하지 않는다. S0/S1/S2 또는 직접 사전 RL을 만드는 실행은 없다. 다운로드 → 데이터 변환 → split 준비 → 사전 점검 → 학습은 각각 별도 명령이며 다운로드가 GPU 학습을 시작하지 않는다.
+
+Base와 **이미 RL 후학습된 공개 모델** 각각에서 Random/Curriculum을 비교한다. 각 실행은 설정한 원본 체크포인트에서 새 LoRA로 시작하며, 이전 조건이나 seed의 최종 가중치를 이어받지 않는다.
+
+초기 확인 결과 이 프로젝트 폴더는 비어 있었다. 기존 README, AGENTS.md, 채점기, 학습 코드, 모델/데이터 경로, 결과가 없었으므로 독립 패키지를 작성했다. 현재 개발 환경은 macOS이며 NVIDIA GPU가 없다. PRO 6000의 세대·VRAM은 **미확인**이다. 서버에서 검사하기 전 48/96 GB 등으로 가정하지 않는다. 본실험은 자동 실행하지 않았다.
+
+## 서버 설치와 사전 검사
+
+Linux, Python 3.11 또는 3.12, 할당된 CUDA GPU 두 장(논리 slot 0·1)을 대상으로 한다. 호스트 물리 번호는 가정하지 않는다. 프로젝트 루트에서 실행한다.
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-assets.txt
+python -m pip freeze > environment.lock.txt
+bash scripts/run.sh test
+bash scripts/run.sh preflight --environment-only
+```
+
+CUDA 12.8 wheel은 최초 파일럿 환경의 **명시적 선택**이며 GPU/드라이버 호환성을 보장하는 추정이 아니다. [PyTorch 공식 배포표](https://pytorch.org/get-started/previous-versions/)에 있는 버전을 고정했다. `preflight`는 `nvidia-smi`에서 정확한 GPU 이름·UUID·GPU별 전체/사용/가용 메모리·드라이버·compute process를 수집하고, PyTorch CUDA 버전·compute capability·지원 아키텍처·BF16 지원을 기록한다. 실제 BF16 matmul/backward도 검사한다. 실패하면 학습을 중단한다. 호환 환경이 달라 버전을 변경해야 한다면 requirements와 실험 output 경로를 새로 정하고 CPU/GPU 검증을 다시 수행한다.
+
+사전 검사의 가용 VRAM 하한 8 GiB는 **실행 허용 최소 기준**일 뿐 모델의 메모리 적합성 판정이 아니다. 실제 모델의 smoke 및 2,048/4,096 출력 파일럿으로 확인한다. 다른 GPU compute process는 기본적으로 실행을 막는다. 서버의 process 검사/모델 hashing은 시간이 걸릴 수 있다. 검사 결과는 `reports/preflight-*.json`, 실행기는 `./runs/qwen15b_math_order_v2/preflight/*.json`에 저장한다.
+
+`requirements.txt`의 직접 의존성 버전은 실행 전 대조한다. 전이 의존성까지 재현하려면 첫 정상 서버의 `environment.lock.txt`도 보관하고 이후 같은 lock으로 설치한다. 각 실행에는 실제 관련 패키지 버전이 저장되고 재개 시 비교된다. macOS CPU 검증에 사용한 별도 캐시 환경은 서버 기준 환경이 아니다.
+
+## 모델·토크나이저 준비와 계보
+
+모델·데이터 경로는 `./configs/experiment.json` **맨 위**에 모았다. 다운로드/변환 코드는 `grpo_order/assets.py`, `grpo_order/import_math.py`, 고정 source ID와 난도 매핑은 `grpo_order/sources.py`에서 읽을 수 있다. 모든 `./` 경로는 프로젝트 루트 기준이다. shell 스크립트는 자동으로 프로젝트 루트로 이동한다.
+
+로컬 점검 당시 지정된 두 1.5B 모델과 데이터는 없었다. 전역 Hugging Face 캐시의 다른 7B 모델은 사용하지 않았다. 빈 `./models/`, `./data/` 디렉터리는 실제 가중치/데이터가 준비됐다는 뜻이 아니다.
+
+모델·데이터 준비만 하는 명령:
+
+```bash
+# GPU 없이 별도 CPU 환경에서도 가능
+python -m pip install -r requirements-assets.txt
+
+# 두 지정 모델만 준비. 학습을 호출하지 않음.
+bash scripts/run.sh download --only models
+
+# EleutherAI/hendrycks_math 및 최종 평가 MATH500만 준비
+bash scripts/run.sh download --only data
+
+# 기존 Hugging Face 로컬 캐시만 복사하려면 --offline 추가
+# bash scripts/run.sh download --only models --offline
+```
+
+이미 준비된 `./models/.../.asset.json`과 파일 hash를 먼저 검사한다. 없으면 지정 저장소의 로컬 HF 캐시를 확인하고, 없거나 불완전하면 네트워크에서 받는다. 가중치·토크나이저 모두 해당 모델 저장소의 **같은 40자리 commit SHA**를 사용한다. 최초 설정의 `revision: null`은 준비 시 revision을 고정하라는 뜻이다. 준비 결과는 `./assets.lock.json`과 각 snapshot의 `.asset.json`에 남으며 이후에는 lock revision을 재사용한다. 필요하면 준비 전에 `models.*.revision`, `tokenizer_revision`에 같은 commit SHA를 명시할 수 있다. 다른 모델명으로 자동 대체하지 않는다.
+
+준비가 중단되면 숨김 `.모델명.download-<sha>` 디렉터리에 파일을 보관한다. 재시도는 같은 요청 revision의 임시 디렉터리를 사용한다. 완료된 snapshot은 덮어쓰지 않는다. 다른 모델을 수동으로 같은 폴더명으로 바꿔 넣어도 출처 manifest가 없거나 다르면 학습을 거절한다. 학습 명령은 계속 `local_files_only=True`, `trust_remote_code=False`이며 다운로드를 호출하지 않는다.
+
+Base의 [공식 모델 카드](https://huggingface.co/Qwen/Qwen2.5-1.5B)는 사전학습 Base로 명시한다. [SimpleRL 공식 저장소](https://github.com/hkust-nlp/simpleRL-reason/tree/v1)는 Qwen2.5-1.5B Base에서 출발한 Zero-RL 체크포인트를 공개하며 중간 SFT 없이 학습했다고 설명한다. [논문 §2.1, Appendix B.1](https://arxiv.org/html/2503.18892v3)은 GRPO를 사용했고 1.5B 주 실행에 MATH Level 3–5를 사용했다고 명시한다. 개별 [RL 모델 README](https://huggingface.co/hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo)는 확인 시 비어 있어 공식 프로젝트/논문을 계보 근거로 기록했다. 세부 학습 로그·정확한 문항별 노출·문서에 없는 추가 학습/증류 이력은 확인하지 못했으며 추정하지 않는다. 같은 크기라는 이유로 계보를 판단하지 않는다.
+
+논문은 원본 MATH train과 일부 test를 합쳐 RL 학습했으며 MATH500과 별도 validation을 제외했다고 보고한다. 따라서 아래 진단셋은 “**본 추가 학습에 사용하지 않은 문제**”다. 공개 RL 또는 사전학습에서 전혀 본 적 없다고 주장하지 않는다. Base/RL 효과에는 각 출발 체크포인트의 과거 학습 이력이 포함된다.
+
+실제 저장 dtype은 `.safetensors` header에서 dtype별 parameter 수를 읽어 `.asset.json`에 기록한다. Base config의 BF16 표기나 Hub의 RL F32 표기를 실제 파일 검사로 대체하지 않는다. 학습은 원본을 BF16으로 로딩하고 실제 frozen/trainable dtype을 `metadata.json`의 `lora.frozen_dtypes`, `lora.trainable_dtypes`에 기록한다. `model.resolved_model_revision`, `resolved_tokenizer_revision`, `actual_stored_parameter_dtypes`, `lineage_sources`도 저장한다.
+
+## 7개 과목 통합과 데이터 준비
+
+원천은 **`EleutherAI/hendrycks_math`**이며 다음 7개 subset을 모두 읽는다.
+
+```text
+algebra, counting_and_probability, geometry, intermediate_algebra,
+number_theory, prealgebra, precalculus
+```
+
+[공식 데이터 저장소](https://huggingface.co/datasets/EleutherAI/hendrycks_math/tree/main)의 과목별 Parquet를 직접 읽으므로 remote dataset Python 코드를 실행하지 않는다. 원본 train 7,500개, test 5,000개가 모두 합쳐지는지 검증한다. 과목 또는 split 누락, 예상과 다른 전체 수는 오류다. 통합은 **과목 간 통합**이며 train/test 혼합이 아니다. 원본 test 5,000개는 출처 확인용으로 보관만 하고 추가 학습 후보에는 넣지 않는다.
+
+```bash
+# 준비한 ./data/raw/를 오프라인 변환: 다운로드/학습 없음
+bash scripts/run.sh import
+
+# 중복 검사와 고정 train/diagnostic/validation/MATH500 manifest 생성
+bash scripts/run.sh prepare --config ./configs/experiment.json
+
+# GPU 서버에서 전체 사전 점검
+bash scripts/run.sh preflight --config ./configs/experiment.json
+```
+
+변환 단계에서 원본 `problem`, `solution`, `type`, `level`을 보존하고 `source`, `source_revision`, `split`, `subject`, `subset`, `difficulty`, `source_file`, `source_row`, `original_id`, 안정적인 `id`를 추가한다. ID는 원천 데이터셋·split·subset·정규화 문제 텍스트의 SHA256에 기반하므로 seed나 원본 행 순서가 바뀌어도 같고, 중복 문제는 같은 ID로 검출된다. 원본에 ID가 없으면 `original_id=null`로 명시한다. 원본 출처는 로컬 파일명으로 덮어쓰지 않는다. 이 필드들은 prepared 문제와 학습·평가 로그의 `origin`에도 남는다.
+
+난도는 **원본 데이터셋 등급을 묶은 기준**이다. 모델의 실제 정답률, 출력 길이, GRPO reward로 정의하지 않는다. 알 수 없는 원본 level은 임의로 매핑하지 않는다. solution의 마지막 `\boxed{...}` 또는 `\fbox{...}`에서 중첩 중괄호를 보존해 gold를 추출하며, 추출 불가/불명 난도는 `conversion_exclusions.json`에 기록한다. 해당 원본 행도 `all_train.jsonl`, `all_test.jsonl`에는 보존한다. 모델에는 solution/gold를 prompt로 주지 않는다. gold의 수학적 해석 가능 여부는 실행 전 math-verify로 별도 검사한다.
+
+| 구분 | 원본 | 수량/선택 |
+|---|---|---|
+| 학습 | 원본 train, 전체 7과목 후보 | Easy/Medium/Hard 각 100 = 300 |
+| 진단 | 같은 train에서 추가 학습과 겹치지 않는 문제 | 각 최대 50 = 목표 150 |
+| 개발 validation | 원본 train에서 seed 20261024로 우선 분리 | 각 50 = 초기 150, 중복 제거 후 실제 수 기록 |
+| 최종 평가 | `HuggingFaceH4/MATH-500` test | 500 전체 |
+| 원본 MATH test | 전체 7과목 | 5,000개 보관만; 추가 학습에는 사용하지 않음 |
+
+최종 평가 원본은 [HuggingFaceH4/MATH-500](https://huggingface.co/datasets/HuggingFaceH4/MATH-500)이며 사용자가 확정한 학습 원천과 구분한다. MATH500의 `unique_id`, 과목, 원래 숫자 level도 보존한다.
+
+MATH500 → validation → pool 우선순위로 전역 ID, NFKC/공백/대소문자 정규화 텍스트, 문자 5-gram Jaccard ≥ 0.9 중복을 검사한다. 제외 근거는 prepared의 `exclusions.json`에 기록한다. MATH500 내부 중복은 임의로 benchmark를 축소하지 않고 중단한다. 이 검사가 의미적 동형/번역을 완벽히 잡는다는 주장은 하지 않는다.
+
+고정 `selection_seed=20261023`으로 남은 train 후보에서 난도별 학습 100개와 진단 최대 50개를 선택한다. 학습 seed 1/2/3과 무관하게 문제 집합이 동일하다. 진단 부족분을 중복으로 채우지 않으며 학습 100개 미달 또는 난도별 진단 0개는 오류다. validation도 중복 제거 후 비어 있으면 중단한다. 준비 전에 math-verify 기본 분수/소수 동치 검사를 실행한다. 설치·런타임 오류는 전체 준비를 막으며 후보 제외로 처리하지 않는다. 빈 gold 등 명백한 문항 문제는 `question_problem`, 기본 검사를 통과했지만 symbolic parse가 안 되는 경우는 `parser_limitation`으로 구분한다. 파싱 실패만으로 문항 자체가 잘못되었다고 단정하지 않는다. pool/validation 제외 사유·원문·출처는 `exclusions.json`과 `gold_audit.json`에 기록한다. MATH500 실패는 원본 500개 수와 실패 ID를 `prepared_dir` 옆 고유 이름의 gold audit 보고서에 남기고 준비를 중단한다. 축소 benchmark나 자동 오답은 만들지 않는다. 채점기 환경이 바뀌거나 이전 schema의 prepared 데이터를 쓰면 새 prepared_dir로 다시 준비해야 한다.
+
+원본 revision·파일 hash·과목별 수량은 `import_manifest.json`, 최종 선택과 중복 검사 결과는 prepared `manifest.json`에 기록한다. 기존 변환/manifest 디렉터리는 덮어쓰지 않는다.
+
+Random은 고정 300개를 한 번 shuffle한다. Curriculum은 난도별 내부 shuffle 후 Easy → Medium → Hard 순서다. DataLoader/sampler는 없으며 고정 리스트를 직접 순회한다.
+
+## 실험 프로토콜과 수치 정의
+
+| 항목 | 최초 파일럿 값 |
+|---|---|
+| 본실험 조합 | Base/RL × Random/Curriculum × seed 1, 2, 3 = 12회 |
+| 학습 | LoRA r=16, alpha=32, dropout=0 |
+| 초기화 | PEFT `init_lora_weights=True`: A Kaiming uniform, B zero |
+| 대상 | 지원 attention/MLP Linear·Conv1D 이름을 탐색, 실제 전체 경로 저장; 필요시 `target_modules`로 명시 |
+| Optimizer | AdamW lr=5e-6, betas=(0.9, 0.999), eps=1e-8, weight_decay=0, foreach=false, fused=false |
+| Scheduler / warmup | constant / 0; 별도 scheduler state 없음 |
+| Precision | 원본 BF16, PEFT가 유지하는 FP32 adapter, softmax/log-prob FP32; GradScaler 없음 |
+| Grad norm | 1.0으로 clip, clip 전 norm 기록 |
+| 노출 / 생성 / 예정 step | 1 epoch, 문제 300회 / 응답 1,200개 / 300회 |
+| 생성 | 문제 1개 × 응답 4개, temperature=1.0, top-p=1.0, top-k=0 |
+| 출력 상한 | 2,048; 파일럿용 4,096 변형 제공 |
+| Microbatch / reuse | 응답 1개 / 생성 그룹 재사용 1회 |
+| KL | beta=0; reference 모델 미로딩 |
+| Advantage | `(r - mean(r)) / (population_std(r) + 1e-8)`, std는 ddof=0 |
+| PPO clip | 0.2, 아래 단일 on-policy step에서는 ratio=1 |
+| Loss | 응답별 생성 토큰 평균 후 4개 응답 평균 |
+
+고정 protocol 밖의 KL·group reuse·epoch·loss 종류·top-p 변경 등은 조용히 무시하지 않고 거절한다. LoRA 대상 목록과 trainable 파라미터 목록을 저장하고 LoRA 외 학습 파라미터가 있으면 중단한다. 미지원 모델 구조에는 명시적 `target_modules`를 설정한 뒤 실제 목록을 확인한다. base model의 모듈 dropout도 0으로 만들어 generation과 학습 log-prob 재계산의 정책을 일치시킨다.
+
+한 문제의 응답 4개 전체를 먼저 생성·채점한다. 정답 1, 오답·추출 실패 0이다. 별도 형식/길이 보상은 없다. [Math-Verify](https://github.com/huggingface/Math-Verify)의 수학적 동치 판정을 사용하고 추출 실패·오답·grader 예외를 구분한다. 숫자만 일치시키는 임의 채점기를 쓰지 않는다. 전부 오답/전부 정답 그룹의 advantage는 정확히 0이며 버리지 않는다. Dynamic Sampling은 없다. **advantage가 모두 0이어도 AdamW step을 호출**한다. 이전 momentum 때문에 파라미터가 변할 수 있으며, 이 정책은 두 조건에 동일하다.
+
+응답 i의 길이를 Tᵢ라 하면 loss는 `-(1/4) Σᵢ (1/Tᵢ) Σₜ min(ratioᵢₜ Aᵢ, clip(ratioᵢₜ) Aᵢ)`다. prompt·padding은 제외하고 생성 EOS는 포함한다. Microbatch마다 전체 그룹 크기 4로 나눈 기여를 누적하며 추가 microbatch 평균을 하지 않는다. 모든 backward가 끝난 뒤 clip과 optimizer.step을 한 번 수행한다. advantage가 모두 0인 그룹도 backward를 실행한다. AdamW의 zero gradient는 기존 momentum/weight decay에 따른 업데이트가 가능하지만 grad=None은 해당 parameter를 건너뛰므로 둘을 같은 최적화로 취급하지 않는다.
+
+단일 use·단일 update이고 생성 후 파라미터 변경이 없으므로 `old_logp = current_logp.detach()`가 이 최초 step의 old policy와 같다. `exp(logp - logp.detach())`의 값은 1이고 gradient는 policy gradient다. 따라서 clipping은 이 프로토콜에서 비활성이다. 그룹을 여러 번 재사용하도록 확장할 경우 이 방식은 사용할 수 없다. 학습 log-prob는 생성과 같은 temperature로 logits를 나눈 값이고 학습 top-p는 1로 고정한다. scalar loss가 거의 0이어도 gradient는 0이 아닐 수 있다. [TRL 공식 문서](https://huggingface.co/docs/trl/v0.25.1/grpo_trainer)에 다양한 정규화 옵션이 있어, 여기서는 TRL 기본값에 의존하지 않고 loss를 직접 고정했다.
+
+길이 제한 도달 시 부분 출력에서 동일한 채점기로 답을 추출하고 **생성된 모든 토큰을 loss에 포함**한다. 자동 0점/그룹 제거를 하지 않는다. EOS 종료, 길이 종료, token budget 도달을 별도 저장한다. 마지막 budget 토큰이 EOS면 `hit_token_budget=true`, `truncated=false`다. token entropy는 생성 위치(EOS 포함)에 대한 `softmax(logits / train_temperature)`의 **전체 어휘 Shannon entropy**, 자연로그 nats이며 모든 응답 토큰을 가중 평균한다. 샘플 log-prob의 음수 평균과 구분한다.
+
+입력을 truncate하지 않는다. 문서/모델 config/tokenizer에서 얻은 유효 한도 중 최소를 사용하고 train·diagnostic·validation·MATH500 전부에 `prompt_tokens + max_new_tokens ≤ context_limit`를 확인한다. 기본은 두 모델에 같은 plain prompt다. 모델별 chat template 차이가 추가 변수가 될 수 있으므로 `prompt.mode=chat` 사용 시 그 영향을 기록한다.
+
+## Seed와 초기 상태
+
+| 용도 | 값 |
+|---|---|
+| 문제 집합 선택 | 20261023, 학습 seed와 독립 |
+| 학습 replicate | 1, 2, 3 |
+| 순서 | 10000 + replicate |
+| LoRA 초기화 | 20000 + replicate |
+| 학습 생성 RNG | 30000 + replicate, 실행 중 상태 저장 |
+| 평가 | 40000과 split/문제 ID의 SHA256에서 파생 |
+| 문제 bootstrap | 50000 |
+
+같은 모델·seed의 Random/Curriculum은 같은 원본 모델 hash와 초기 LoRA hash를 가져야 한다. pair registry를 원자적 lock 아래 비교한다. 서로 다른 Base/RL 모델의 adapter tensor 자체가 같다는 주장은 하지 않는다. 원본 모델 파일·모델 카드·설정·데이터·순서·코드·패키지 버전이 실행 contract에 들어간다. 이전 조건이나 seed의 최종 가중치를 다음 실행의 출발점으로 사용하지 않는다.
+
+## GPU 할당과 실행
+
+실행기는 부모의 `CUDA_VISIBLE_DEVICES` 할당을 보존한다(없으면 `0,1`). `CUDA_DEVICE_ORDER=PCI_BUS_ID`를 설정하고 실제 `torch.cuda.get_device_properties(i).uuid`와 nvidia-smi UUID를 대조한다. 할당 slot 0=Random, slot 1=Curriculum이며 worker에는 검증한 **UUID**를 전달한다. 컨테이너 내부 0·1과 호스트 nvidia-smi 0·1이 같다고 가정하지 않는다. UUID를 얻거나 대조할 수 없으면 실행을 막는다. 같은 모델·seed의 두 실행이 모두 끝나야 다음 조합으로 진행한다. seed 1→2→3, 각 seed에서 Base→RL이므로 full은 정확히 12회다.
+
+GPU UUID별 lock과 실행별 lock이 학습/별도 평가의 충돌을 막는다. compute process 검사도 UUID로 필터링한다. 컨테이너 PID namespace 때문에 자기 PID를 확인할 수 없으면 보수적으로 중단한다. 서버에서 필요하면 호스트 PID namespace로 실행하여 확인한다. 임의로 process 검사를 끄지 않는다. 두 순서가 서로 다른 GPU 개체에 고정되므로 시간·처리량 비교에는 GPU 개체 차이가 포함된다.
+
+```bash
+# 원본 모델/데이터 준비 뒤; 기존 prepared v1/results는 덮어쓰지 않음
+bash scripts/run.sh prepare --config configs/experiment.json
+bash scripts/run.sh preflight --config configs/experiment.json
+
+# 생성→채점→update→평가→checkpoint 뒤 실제 프로세스 종료
+# 각 조건 3문제, 생성 상한 32, 진단 3문제; 과학적 결과에서 제외
+bash scripts/run.sh smoke --config configs/experiment.json --stop-after 1
+# 새 프로세스에서 LoRA/AdamW/RNG/cursor 복원, 남은 2문제 진행
+bash scripts/run.sh resume --config configs/experiment.json --mode smoke
+```
+
+중단 없이 smoke 전체를 실행하려면 `--stop-after 1`을 생략한다. smoke 종료 시 저장한 checkpoint를 다시 읽고 평가까지 수행한다. 위 중단/재개 명령은 프로세스 경계를 넘는 복원도 확인한다. 기본 출력 경로가 이미 있다면 새 variant를 만든다. `--resume`/`--resume-failed`는 같은 contract의 미완료 실행에만 사용한다.
+
+## Validation 파일럿: prompt → 길이 → 필요 시 LR
+
+pilot은 **validation만** 자동 평가한다. MATH500은 full의 step 0/300에서만 생성·채점하며 `evaluate --mode pilot --split math500`도 거절한다. 사전 데이터 gold 감사에는 500개 전체가 필요하지만 모델 성능 튜닝에 쓰지 않는다. LR 기본은 계속 **5e-6**이다.
+
+1. 포함된 두 설정으로 Base/RL × Random/Curriculum을 step 0에서 평가한다. `pilot.updates=0`이라 학습하지 않으며, 공통 prompt를 validation 정확도·잘림률·추출 실패를 보고 선택한다.
+
+```bash
+bash scripts/run.sh pilot --config configs/pilot_plain2048.json --seed 1
+bash scripts/run.sh pilot --config configs/pilot_chat2048.json --seed 1
+```
+
+2. 선택한 prompt 설정을 `PROMPT_CONFIG`에 지정한 뒤 길이만 2048/4096으로 비교한다. 아래 변수는 사용자가 실제 validation 결과로 선택해 설정한다. 각 조건 30 update는 초기 비용/학습 신호 점검용이고 본실험 300 update를 대체하지 않는다.
+
+```bash
+# 예: export PROMPT_CONFIG=configs/pilot_plain2048.json (또는 pilot_chat2048.json)
+: "${PROMPT_CONFIG:?먼저 validation으로 선택한 prompt 설정 경로를 지정하세요}"
+python scripts/make_variant.py --source "$PROMPT_CONFIG" --output configs/pilot_len2048.json --train-max-new-tokens 2048 --eval-max-new-tokens 2048 --pilot-updates 30 --output-dir ./runs/qwen15b_pilot_len2048_v2
+python scripts/make_variant.py --source "$PROMPT_CONFIG" --output configs/pilot_len4096.json --train-max-new-tokens 4096 --eval-max-new-tokens 4096 --pilot-updates 30 --output-dir ./runs/qwen15b_pilot_len4096_v2
+bash scripts/run.sh pilot --config configs/pilot_len2048.json --seed 1
+bash scripts/run.sh pilot --config configs/pilot_len4096.json --seed 1
+```
+
+3. 선택한 길이 설정을 `LENGTH_CONFIG`로 지정하고 기본 LR로 300 update를 검증한다. validation은 0/100/200/300 및 마지막 update에서 실행된다. reward·혼합 그룹 비율, LoRA A/B norm, validation 변화를 점검한다. 필요할 때만 동일 조건에서 명시한 LR 후보와 비교한다.
+
+```bash
+# LENGTH_CONFIG=configs/pilot_len2048.json 또는 configs/pilot_len4096.json
+: "${LENGTH_CONFIG:?validation으로 선택한 길이 설정 경로를 지정하세요}"
+python scripts/make_variant.py --source "$LENGTH_CONFIG" --output configs/pilot_train.json --pilot-updates 300 --output-dir ./runs/qwen15b_pilot_train_v2
+bash scripts/run.sh pilot --config configs/pilot_train.json --seed 1
+# 필요할 때만 실행하는 LR 후보. 기본 LR을 자동 변경하지 않는다.
+python scripts/make_variant.py --source configs/pilot_train.json --output configs/pilot_lr1e5.json --lr 1e-5 --output-dir ./runs/qwen15b_pilot_lr1e5_v2
+bash scripts/run.sh pilot --config configs/pilot_lr1e5.json --seed 1
+```
+
+파일럿 평가는 각 실행의 `eval/validation_step-*.json`, 학습 신호는 `steps/*.json`에 있다. `analyze`의 주 endpoint는 full MATH500이므로 validation-only pilot에 그대로 적용하지 않는다. 각 variant는 독립 설정·output_dir를 사용하고 기존 경로를 거절한다.
+
+## 확정 및 full (자동 시작하지 않음)
+
+검증 완료한 최종 파일럿 설정을 `SELECTED_CONFIG`로 지정한다. 코드·공통 prompt·출력 길이·LR·데이터가 확정된 뒤 실행할 명령이다. `freeze`는 full preflight를 통과한 코드/설정/데이터/모델·tokenizer/패키지 hash를 저장하며 학습하지 않는다. 이후 어느 하나라도 바뀌면 full 및 재개가 거절된다. `length_finalized=true`만으로 full을 시작할 수 없다.
+
+```bash
+: "${SELECTED_CONFIG:?검증 완료한 최종 파일럿 설정 경로를 지정하세요}"
+python scripts/make_variant.py --source "$SELECTED_CONFIG" --output configs/final.json --pilot-updates 300 --finalize-length --output-dir ./runs/qwen15b_math_final_v2
+bash scripts/run.sh preflight --config configs/final.json
+bash scripts/run.sh freeze --config configs/final.json
+bash scripts/run.sh full --config configs/final.json
+# 중단 이후에만: 완료 실행은 identity 확인 후 건너뜀
+bash scripts/run.sh resume --config configs/final.json --mode full
+```
+
+직접 worker를 실행할 때는 preflight에서 확인한 UUID를 사용한다. 예를 들어 Random은 `CUDA_VISIBLE_DEVICES="$RANDOM_GPU_UUID" GRPO_ALLOCATED_SLOT=0 GRPO_ASSIGNED_GPU_UUID="$RANDOM_GPU_UUID" bash scripts/run.sh train --config configs/experiment.json --model base --order random --seed 1 --mode pilot`이다. Curriculum은 slot=1과 해당 UUID를 쓴다. 두 변수의 실제 UUID는 서버 preflight 결과에서 확인해야 한다. 일반 실행에는 위 launcher 명령을 권장한다.
+
+## 생성 정책과 step 0 공유
+
+한 문제의 학습 응답 4개는 `num_return_sequences=4`, 평가 샘플링 8개는 `num_return_sequences=8`로 각각 **한 번의 generate 호출**에서 생성한다. greedy는 별도의 1개 호출이다. 문제끼리 합치지 않으며 학습 forward/backward microbatch 1/2/4 설정과 생성 배치는 구분한다. 하나의 4응답 그룹으로 advantage를 계산한 뒤 optimizer.step은 한 번 수행한다. 첫 EOS까지(해당 EOS 포함)만 보관하여 후속 padding이 길이·채점 text·loss에 들어가지 않는다.
+
+학습 RNG는 연속된 process RNG를 사용한다. 평가는 `SHA256(평가 seed, split, 문제 ID)`에서 정한 seed로 8응답 배치와 greedy를 실행하고 바깥 Python/NumPy/CPU/CUDA RNG를 예외 발생 시에도 복구한다. 이 배치 정책은 과거 순차 생성과 RNG 소비가 다르므로 과거 출력과 섞지 않는다. `metadata.json` 및 평가 파일에 정책을 기록한다.
+
+기본 결정론은 strict다. 샘플링 `top_p<1`인 **generate 호출 전체**에서만 `torch.use_deterministic_algorithms(True, warn_only=True)`를 사용하고 `finally`에서 enabled/warn_only 두 상태를 복구한다. 이 구간의 **모든 지원되지 않는 비결정론 연산**이 경고 대상이며 cumsum만 예외가 아니다. CUDA 전체의 비트 단위 재현성을 보장하지 않는다. 실패한 생성에 자동 retry나 silent 설정 변경을 하지 않는다. 학습 backward 구간에는 이 완화가 적용되지 않는다. [PyTorch 공식 동작 정의](https://docs.pytorch.org/docs/main/generated/torch.use_deterministic_algorithms.html).
+
+EOS는 실제 tokenizer EOS·generation_config EOS와, 실제 vocab에 존재하는 `<|im_end|>`의 합집합이다. 모든 EOS가 special token이며 1개 토큰으로 round-trip하는지 검사한다. generation_config가 없으면 model config를 사용했다는 사실도 기록한다. 임의의 numeric token ID는 설정하지 않는다. preflight와 metadata에서 모델별 resolved ID/문자열/출처를 확인한다.
+
+step 0 공유는 원본 model/tokenizer hash, **동일한 초기 adapter hash**, 전체 문제/정답/프롬프트 token IDs, 평가 seed·배치·생성 설정·EOS·채점기·코드·패키지·수치 설정·GPU 종류가 모두 같고 첫 문제의 실제 8+1 초기 출력 확인값도 같을 때만 허용한다. 다른 LoRA seed는 B=0이어도 공유하지 않는 보수적 정책이다. 따라서 기본적으로 같은 모델·seed의 Random/Curriculum 사이에서 공유한다. 일부 문항의 확인값만으로 서로 다른 모델의 동치를 추정하지 않는다. cache key별 대기 lock, 결과 checksum, atomic commit으로 동시 실행 및 중단을 처리한다. cache hit도 초기 출력 확인 생성 비용이 들며 실제 이번 시도의 tokens/time과 원본 평가 비용을 구분해 저장한다. 기존 run 결과는 재작성하지 않는다.
+
+## 체크포인트와 평가
+
+step은 **노출/예정 update 번호**다. snapshot 0·100·200·300을 보존하고, 정확한 실패 복구를 위해 매 update의 최신 restart state도 저장한다. 실제 optimizer step/비정상 gradient로 생략된 step은 별도 누적한다. BF16에는 FP16 GradScaler overflow skip이 없으며 nonfinite gradient skip을 기록한다. skipped step이 있는 실행은 기본 주 분석에서 거절한다.
+
+checkpoint는 LoRA, AdamW moments/step, Python·NumPy·CPU/CUDA RNG, 데이터 cursor, 누적 비용, 마지막 event를 포함한다. 임시 디렉터리에 쓴 후 원자적으로 commit한다. 재개 시 가장 최신 완료 commit만 사용하고 hash를 검사한다. checkpoint commit과 로그 저장 사이에 실패해도 마지막 event를 복구한다. 다음 문제는 `rows[cursor]`이다. 미완료 update는 RNG를 되돌려 다시 계산할 수 있으므로 장애 전 실제 GPU 사용 비용까지 exactly-once인 것은 아니지만 **완료한 노출/학습 step에는 중복·누락이 없다**. 장애 시 남은 `.pending-*` 디렉터리는 무시되며 디스크 정리가 필요할 수 있다.
+
+full은 0·100·200·300에서 diagnostic, 0·300에서 MATH500을 평가한다. pilot은 validation만 평가한다. 100/200 이후 같은 모델·optimizer·RNG를 이어간다. 평가는 전체 루프(채점 포함)를 RNG 보존 문맥으로 감싸고 문제별 평가 seed를 사용한다. 평가 전후 LoRA hash도 비교한다. 응답 8개는 temperature=0.6, top-p=0.95, top-k=0이며 별도 greedy 1개를 생성한다. 생성 기본값을 새 GenerationConfig로 명시하여 모델 기본 penalty를 상속하지 않는다.
+
+- avg@8: 문제별 `정답 응답 수 / 8`의 문제 평균.
+- pass@8: 문제별 `8개 중 하나 이상 정답`의 문제 평균. 추정식으로 보정하지 않는다.
+- 혼합 그룹: 응답 index `[0,1,2,3]`, `[4,5,6,7]`를 사전 고정. 두 그룹의 혼합 indicator를 **한 문제 안에서 평균**한 후 문제 평균.
+- 평가 중 optimizer update 없음. 중단 시 이미 완료한 문제별 평가 JSON은 재사용한다.
+
+저장 checkpoint 평가 예시:
+
+```bash
+CUDA_VISIBLE_DEVICES="$RANDOM_GPU_UUID" GRPO_ALLOCATED_SLOT=0 GRPO_ASSIGNED_GPU_UUID="$RANDOM_GPU_UUID" bash scripts/run.sh evaluate --config configs/pilot_train.json --model base --order random --seed 1 --mode pilot --step 100 --split validation
+CUDA_VISIBLE_DEVICES="$CURRICULUM_GPU_UUID" GRPO_ALLOCATED_SLOT=1 GRPO_ASSIGNED_GPU_UUID="$CURRICULUM_GPU_UUID" bash scripts/run.sh evaluate --config configs/final.json --model rl --order curriculum --seed 1 --mode full --step 300 --split math500
+```
+
+동일 평가 결과가 이미 있으면 입력 identity 확인 후 재사용한다. 평가 설정을 바꾸어 기존 파일을 덮어쓰거나 변경된 config로 checkpoint를 조용히 로딩하지 않는다. `state.pt`는 이 파이프라인이 생성한 신뢰할 수 있는 파일만 로드한다.
+
+## 로그와 분석
+
+실행 예: `./runs/qwen15b_math_order_v2/full/base_seed1_random/`.
+
+| 파일 | 내용 |
+|---|---|
+| `metadata.json` | 설정, seed 분리, 원본/revision/hash, 모델 카드, 패키지, 하드웨어, LoRA 대상·초기 hash, 전체 예정 순서 |
+| `steps/000001.json` 등 | 실제 ID·난도·순서, 응답 text/token IDs, 추출 답·정오답·실패 이유, 길이·종료·잘림, reward mean/std/advantage, 그룹 비율, loss·norm·LR·entropy, 메모리·시간·누적 tokens |
+| `checkpoints/step-000100/` 등 | 복구 가능한 상태와 checksum/contract |
+| `eval/*_step-*.json` | 문제별 8개+greedy 원출력, 문제별/전체/난도별 지표, 생성 비용 |
+| `eval/*_step-*/<id-hash>.json` | 중단 가능한 평가의 문제 단위 commit |
+| `complete.json` | 예정/실제/skip update, 노출·응답·토큰 수, 유효성 |
+| `failure.json` | 가장 최근 실행 실패의 원인. 이후 정상 재개해도 이력으로 보존 |
+
+학습 비용은 committed 학습 응답만 누적하고 평가 비용은 평가 파일에 따로 저장한다. wall time은 생성·채점·backward/step을 포함하며 checkpoint I/O와 중간 평가 시간은 학습 시간에서 제외한다. GPU peak 메모리도 update마다 재설정한다. 길이 2,048/4,096에서 logits가 차지하는 메모리가 크므로 smoke 이후 실제 상한 파일럿이 필요하다.
+
+```bash
+bash scripts/run.sh analyze --config configs/final.json --mode full --output reports/main_v2
+# full에서 완료된 seed의 네 조건만 중간 확인할 때
+bash scripts/run.sh analyze --config configs/final.json --mode full --output reports/main_partial_v2 --allow-incomplete
+```
+
+주 endpoint는 MATH500 step 300의 avg@8, pass@8, greedy다. `seed_contrasts.csv`에 seed별 네 조건 성능, ΔBase=Base Curriculum−Random, ΔRL=RL Curriculum−Random, interaction=ΔRL−ΔBase를 출력한다. `summary.csv`에는 평균·seed sample SD(ddof=1)·범위를 제공한다.
+
+문제 bootstrap 2,000회는 같은 문제 ID를 조건/seed 전체에 공동으로 resample하여 **관측된 seed에 조건부인 평가 문제 표본 불확실성**을 계산한다. 학습 seed 변동성은 별도의 seed SD로 표현하며 두 불확실성을 하나로 혼합하지 않는다. 응답 8개나 reward group 2개를 독립 문제처럼 취급하지 않는다. Seed가 3개뿐이므로 seed 분산 추정은 불안정하고 강한 유의성/일반화 주장을 뒷받침하지 않는다. 한 seed 파일럿의 seed SD는 정의하지 않는다.
+
+`diagnostic_curves.csv`, `training_curves.csv`와 PNG/SVG 그래프를 만든다. diagnostic의 전체/난도별 avg@8·pass@8·혼합률·잘림률·출력 길이, 학습 혼합률·잘림률·출력 길이·누적 생성 token·학습 시간·entropy 변화를 표시한다. 선은 seed 평균, 음영은 seed SD다. 문제 bootstrap CI와 혼동하지 않는다. 미완료 조건은 기본 오류이고 `--allow-incomplete` 사용 시 결측 목록을 기록한다. 기존 분석 경로는 덮어쓰지 않는다. plotting 패키지가 없는 CPU 검사에는 `--no-plots`를 쓸 수 있다.
+
+## 검증과 남은 확인
+
+```bash
+bash scripts/run.sh test
+python -m compileall -q grpo_order tests scripts
+```
+
+CPU 테스트는 순서·동일 집합·zero variance·avg/pass·중복 제거/manifest 변조·배타 lock, microbatch 1/2/4의 실제 gradient 대조, AdamW/RNG/cursor의 중단-재개 대조, LoRA 초기 일치/동결 파라미터 불변, 실제 작은 HF 모델 평가의 RNG/weights 불변, 수식 채점 동치를 포함한다. 작은 HF 모델은 랜덤 초기화한 CPU fixture이며 공개 모델 다운로드를 하지 않는다. 의존성이 없으면 해당 테스트를 **skip으로 명시**한다. 서버에서는 설치 후 모든 테스트의 skip/실패 여부를 확인한다.
+
+최신 CPU 검증은 52개 중 51 통과·1 skip(math-verify 설치 실패)이며, 실제 수행 결과와 환경 차이는 `VALIDATION.md`의 최신 절에 기록한다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.

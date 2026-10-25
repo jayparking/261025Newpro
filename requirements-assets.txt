@@ -1,0 +1,5 @@
+# Optional asset preparation on a networked CPU server; no torch needed.
+huggingface-hub==0.31.4
+pyarrow==20.0.0
+math-verify[antlr4_13_2]==0.8.0
+antlr4-python3-runtime==4.13.2
