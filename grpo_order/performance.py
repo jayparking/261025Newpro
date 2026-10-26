@@ -72,7 +72,8 @@ def performance_report(c):
                     'evaluations': evaluations,
                 })
     return {'config_hash': digest(c), 'gpu_count': len(c['runtime']['allocated_gpu_slots']),
-            'expected_runs': 12, 'completed_runs': sum(r['complete'] for r in records), 'runs': records,
+            'expected_runs': len(c['models']) * 2 * len(c['seeds']['training']),
+            'completed_runs': sum(r['complete'] for r in records), 'runs': records,
             'timing_notes': [
                 'Training rates use committed updates only and exclude checkpoints, evaluation, startup and discarded attempts.',
                 'Generation-only rate excludes grading and optimization; it is not end-to-end training throughput.',

@@ -10,7 +10,7 @@
 #   presmoke   Base only: 1 training problem + 1 diagnostic       -> grpo_order train --mode presmoke
 #   smoke      3 problems per condition, 32-token outputs          -> grpo_order launch --mode smoke
 #   pilot      one seed, four conditions                           -> grpo_order launch --mode pilot
-#   full       2 models x 2 orders x 3 seeds                       -> grpo_order launch --mode full
+#   full       2 models x 2 orders x configured seeds (default 1)  -> grpo_order launch --mode full
 #   resume     recover failed/interrupted runs (needs --mode)      -> grpo_order launch --resume-failed
 #   train      one run in this process (set CUDA_VISIBLE_DEVICES)  -> grpo_order train
 #   evaluate   evaluate a retained checkpoint                      -> grpo_order evaluate

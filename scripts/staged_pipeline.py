@@ -96,11 +96,15 @@ class StagedPipeline(Pipeline):
         final, path = self.real_config(c)
         _, splits = load_prepared(final)
         workload = experiment_workload(final, splits)
+        runs = workload['runs']
         atomic_json(self.session / 'workload.json', workload)
-        print(f'실제 실행: GPU 1장, 12 run × 300 updates; prompt={final["prompt"]["mode"]}, '
+        print(f'실제 실행: GPU 1장, {runs} run × 300 updates; prompt={final["prompt"]["mode"]}, '
               f'학습/평가 출력 상한={final["train"]["max_new_tokens"]}/{final["evaluation"]["max_new_tokens"]}, '
               f'LR={final["train"]["lr"]}', flush=True)
         print('설정 탐색 파일럿 없이 저장한 설정으로 실행합니다. 초기 진단/MATH500 평가부터 진행합니다.', flush=True)
+        print(f'평가 시점(update): 진단={final["evaluation"]["diagnostic_steps"]}, '
+              f'MATH500={final["evaluation"]["math500_steps"]}; '
+              f'체크포인트 보존 시점={final["train"]["checkpoints"]}', flush=True)
         print(f'작업량: 학습 {workload["training_responses"]:,}응답, '
               f'평가 {workload["evaluation_responses_excluding_witnesses"]:,}응답 '
               f'+ 초기 확인 {workload["step0_witness_responses"]:,}응답. '
@@ -117,15 +121,15 @@ class StagedPipeline(Pipeline):
             return
         started = time.monotonic()
         try:
-            self.cli('full-12-runs', 'full', path, '--resume-failed')
+            self.cli(f'full-{runs}-runs', 'full', path, '--resume-failed')
             report = self.session / 'analysis' / str(time.time_ns())
             self.cli('analyze', 'analyze', path, '--mode', 'full', '--output', report)
-            atomic_json(self.session / 'finished.json', {'final_config': str(path), 'full_runs': 12,
+            atomic_json(self.session / 'finished.json', {'final_config': str(path), 'full_runs': runs,
                                                         'analysis': str(report)})
             self.state['analysis'] = str(report)
             self.state['real_complete'] = True
             self.save()
-            print(f'12회 본실험·최종 평가·분석 완료: {report}', flush=True)
+            print(f'{runs}회 본실험·최종 평가·분석 완료: {report}', flush=True)
         finally:
             self.state.setdefault('real_attempt_seconds', []).append(time.monotonic() - started)
             self.save()
@@ -138,7 +142,7 @@ class StagedPipeline(Pipeline):
         summary['wall_time_scope'] = 'full launcher + analysis attempts; excludes setup, smoke, freeze and time between attempts'
         destination = self.session / 'performance.json'
         atomic_json(destination, summary)
-        print(f'성능 보고: {destination} (완료 {summary["completed_runs"]}/12)', flush=True)
+        print(f'성능 보고: {destination} (완료 {summary["completed_runs"]}/{summary["expected_runs"]})', flush=True)
 
 
 def open_session(args):

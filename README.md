@@ -2,6 +2,8 @@
 
 ## GPU 한 장에서 3단계 실행
 
+기본 본실험은 **Base/RL × Random/Curriculum × seed 1 = 총 4회**다. 반복 seed를 3개에서 1개로 줄였으며 조건당 학습 300문제, MATH500 500문제, 평가 8샘플+greedy, 출력 상한 2048은 유지한다. 학습 seed에 따른 결과 변동성은 이 실행만으로 추정할 수 없다. **4회여도 최대 6시간 내 완료를 보장하지 않으며 시간 제한에 따른 자동 종료는 없다.** 기존 12회 설정으로 setup한 세션은 새 setup으로 교체한다(기존 결과는 보존). 기본 중간평가(100·200 update)는 생략하며 학습 전(0)·후(300) 진단/MATH500 평가만 수행한다. 학습 중 reward 채점과 재개용 체크포인트 저장은 유지한다.
+
 Linux NVIDIA GPU 서버에서 아래 세 파일을 차례로 실행한다. 각 단계는 완료 후 종료하며 다음 단계를 자동 시작하지 않는다. 기본 GPU는 0이고, 이미 지정한 `CUDA_VISIBLE_DEVICES`는 유지한다. GPU를 두 개 이상 지정하면 한 개를 고르라는 오류로 중단한다.
 
 ```bash
@@ -27,9 +29,9 @@ bash 2.1presmoke.sh --session runs/single_gpu_sessions/실제실행번호
 | `1.setup.sh` | Python venv·고정 패키지 설치 → GPU 1장 환경 검사 → 모델/데이터 다운로드 → 변환·gold 감사·split 준비 → 전체 preflight |
 | `2.1presmoke.sh` | 선택 단계: Base 한 조건, 학습 1문제 1 update → 별도 진단 1문제 평가, 출력 상한 32 |
 | `2.SMOKE.sh` | 준비된 자산 사용 → Base/RL × Random/Curriculum 네 조건 순차 실행 → 조건당 1 update에서 중단 → 재개하여 총 3 updates → checkpoint 재로딩 검증. 출력 상한 32 |
-| `3.runreal.sh` | setup/SMOKE 완료 확인 → 저장한 설정 확정·freeze → 기존 12 run을 한 GPU에서 순차 실행 → 최종 평가·분석·성능 보고 |
+| `3.runreal.sh` | setup/SMOKE 완료 확인 → 저장한 설정 확정·freeze → 기본 4 run을 한 GPU에서 순차 실행 → 최종 평가·분석·성능 보고 |
 
-`runreal`은 **실제 본실험**이다. 기본 설정은 run당 학습 300문제·4응답·출력 상한 2048, diagnostic step 0/100/200/300, MATH500 step 0/300, 평가 8샘플+greedy를 유지한다. 초기 평가가 먼저 실행된다. 별도의 plain/chat·2048/4096·LR 탐색 파일럿이나 선택 질문은 없다. setup 시 지정한 설정의 prompt·학습/평가 길이·LR을 그대로 확정하므로 다른 설정을 원하면 setup 전에 `--config`로 지정한다. vLLM은 사용하지 않는다. 이 분리는 생성 엔진 가속이나 5시간 완료를 보장하지 않는다.
+`runreal`은 **실제 본실험**이다. 기본 설정은 run당 학습 300문제·4응답·출력 상한 2048, diagnostic step 0/300, MATH500 step 0/300, 평가 8샘플+greedy를 유지한다. 초기 평가가 먼저 실행된다. 별도의 plain/chat·2048/4096·LR 탐색 파일럿이나 선택 질문은 없다. setup 시 지정한 설정의 prompt·학습/평가 길이·LR을 그대로 확정하므로 다른 설정을 원하면 setup 전에 `--config`로 지정한다. vLLM은 사용하지 않는다.
 
 ```bash
 # 다른 GPU를 쓰려면 세 명령 모두 같은 GPU를 지정한다.
@@ -75,24 +77,24 @@ bash 3.runreal.sh
 | `configs/session.json`, `configs/real.json`, `selection.json` | 준비/SMOKE 설정, 본실험 설정과 선택 방식 |
 | `data/converted/`, `data/prepared/` | 변환 원천·고정 split·감사 기록 |
 | `logs/` | 단계별 명령·실시간 로그, 환경·preflight 보고서 |
-| `runs/smoke/`, `runs/real/` | 네 조건 SMOKE, 12개 본실험의 checkpoint·응답·평가·worker 로그 |
+| `runs/smoke/`, `runs/real/` | 네 조건 SMOKE, 기본 4개 본실험의 checkpoint·응답·평가·worker 로그 |
 | `runs/presmoke/base_seed1_random/` | 선택 단계의 학습·평가·checkpoint와 `summary.json` |
 | `performance.json` | run별 정답률, update당 초, 생성/채점/학습 시간, tok/s, GPU peak 메모리 |
 | `workload.json` | 실제 split 개수와 캐시 정책에 따른 예정 학습·평가 응답 수 |
-| `analysis/<번호>/` | 12회 완료 후 조건별 비교·CSV·그래프 |
+| `analysis/<번호>/` | 설정된 모든 run(기본 4회) 완료 후 조건별 비교·CSV·그래프 |
 | `state.json`, `failure-*.json`, `finished.json` | 단계 상태·재개 정보·완료 표시 |
 
 학습 tok/s는 생성·채점·backward/optimizer를 포함하며 checkpoint 저장·평가·초기 로딩을 제외한다. 생성만의 tok/s는 별도로 기록한다. 평가 파일의 시간은 마지막 시도 기준이므로 중단 이전 비용을 모두 포함하지 않는다. 측정값은 로컬에서 추정해 채우지 않는다.
 
 ## runreal 성능·결과 재점검 반영
 
-기본 설정은 HF 생성 유지, `runtime.attention_implementation="sdpa"`, `evaluation.problem_batch_size=4`, `evaluation.step0_share_across_seeds=true`다. 평가 한 호출에 4문제 × 8샘플을 처리하고 greedy 4개는 별도 호출한다. 12회·run당 300 updates·학습 4응답·평가 8+greedy·2048 출력 상한·LR·난도 순서·데이터 split은 유지한다.
+기본 설정은 HF 생성 유지, `runtime.attention_implementation="sdpa"`, `evaluation.problem_batch_size=4`, `evaluation.step0_share_across_seeds=true`다. 평가 한 호출에 4문제 × 8샘플을 처리하고 greedy 4개는 별도 호출한다. 총 실행은 4회이며 run당 300 updates·학습 4응답·평가 8+greedy·2048 출력 상한·LR·난도 순서·데이터 split은 유지한다.
 
 초기 LoRA B 텐서가 실제로 모두 0이고 원본 모델이 동결되어 있는지 확인한 뒤, 초기 평가 중에만 adapter를 비활성화해 같은 원본 모델의 seed별 공통 초기값을 계산한다. Base와 RL은 원본 hash가 달라 캐시를 공유하지 않는다. 각 실행의 학습 adapter A 초기화와 학습 seed는 그대로 독립적이다.
 
-진단이 150문제이고 초기 캐시가 적중하면 평가 응답 수는 137,700개에서 114,300개로 줄어든다(별도 초기 확인 생성 제외). 기본 배치 4에서는 초기 확인 864응답이 추가된다. 실제 prepared 개수로 계산한 `workload.json`을 runreal 시작 시 저장한다. GPU 한 장에서 12 run은 순차 실행하므로 가속 폭과 완료 시간은 서버 실측이 필요하다. 32토큰 SMOKE는 실제 2048토큰 평가의 peak 메모리를 보장하지 않는다.
+기본 4회에서 학습은 총 1,200 updates·4,800응답이다. 진단이 150문제이고 초기 캐시가 적중하면 평가 응답 수는 35,100개이며 기본 배치 4에서는 초기 확인 288응답이 추가된다. 실제 prepared 개수로 계산한 `workload.json`을 runreal 시작 시 저장한다. GPU 한 장에서 4 run은 순차 실행하며 완료 시간은 서버 실측이 필요하다. 초기 평가 등 공통 비용이 있어 12회 대비 총 시간이 정확히 1/3이 되지는 않는다. 32토큰 SMOKE는 실제 2048토큰 평가의 peak 메모리를 보장하지 않는다.
 
-평가 배치와 SDPA는 수치·난수 소비를 바꾸므로 과거 출력과 동일하다고 가정하지 않는다. 설정은 같은 12조건 전체에 고정한다. OOM 때 자동으로 배치를 줄여 결과를 섞지 않는다. 서버에서 메모리가 부족하면 새 setup 전에 `evaluation.problem_batch_size`를 2 또는 1로 조정한다. SDPA 환경 문제가 있다면 새 설정에서 `attention_implementation="eager"`를 선택할 수 있다.
+평가 배치와 SDPA는 수치·난수 소비를 바꾸므로 과거 출력과 동일하다고 가정하지 않는다. 설정은 네 조건 전체에 고정한다. OOM 때 자동으로 배치를 줄여 결과를 섞지 않는다. 서버에서 메모리가 부족하면 새 setup 전에 `evaluation.problem_batch_size`를 2 또는 1로 조정한다. SDPA 환경 문제가 있다면 새 설정에서 `attention_implementation="eager"`를 선택할 수 있다.
 
 채점기 내부 예외는 오답으로 바꾸지 않고 중단한다. NaN/Inf loss·entropy·gradient도 optimizer와 cursor 저장 전에 중단한다. 마지막 정상 checkpoint는 유지된다. 최종 분석은 실제 300개 학습 기록의 순서·응답·advantage·정상 update, Random/Curriculum 초기값, 모든 평가 시점의 문항·8+1응답·집계 정답률을 검사한다. 누락되거나 불일치하는 결과는 정상 분석으로 통과하지 않는다.
 
@@ -115,10 +117,10 @@ bash 3.runreal.sh
 | `grpo_order/grading.py` | math-verify 파싱·정오답 채점, 설치/파서/문항 문제 구분 |
 | `grpo_order/preflight.py` | 의존성·UUID·GPU/BF16·모델·tokenizer·context·데이터 검사 |
 | `grpo_order/model.py` | 모델/LoRA/EOS 검증, 응답 4/8개 배치 생성, 생성 중 결정론 설정 복구 |
-| `grpo_order/objective.py`, `train.py` | 한 문제 4응답 advantage, microbatch backward, AdamW 한 번, 중간 평가 후 학습 지속 |
+| `grpo_order/objective.py`, `train.py` | 한 문제 4응답 advantage, microbatch backward, AdamW 한 번, 설정된 시점의 평가 |
 | `grpo_order/evaluation.py`, `step0.py` | 평가 RNG 격리, 8개 샘플+greedy, 초기 상태 검증 캐시 |
 | `grpo_order/storage.py` | 배타 lock, 원자적 checkpoint, optimizer/RNG/cursor 저장·복원 |
-| `grpo_order/launcher.py` | 한 GPU에서는 순차 실행, 두 GPU 설정에서는 pair 동시 실행. full 정확히 12회 |
+| `grpo_order/launcher.py` | 한 GPU에서는 순차 실행, 두 GPU 설정에서는 pair 동시 실행. full은 설정된 seed 수 × 4회 |
 | `grpo_order/freeze.py`, `core.py` | 설정 불변 조건·hash·seed, 확정 전 full 차단 |
 | `grpo_order/analysis.py` | full 평가의 seed별 성능·조건 차이·곡선·그래프 |
 | `grpo_order/integrity.py` | 정상 update·학습 순서·응답·평가 집계 검증 |
@@ -136,7 +138,7 @@ bash 3.runreal.sh
 | 최종 평가 | `HuggingFaceH4/MATH-500` | `./data/raw/MATH-500/` |
 | 통합·변환 JSONL | 원본 split·과목·level·안정적인 ID 보존 | `./data/converted/hendrycks_math/` |
 | 고정 학습·진단·validation·평가 | 문제 집합과 hash | `./data/prepared/qwen15b_math_order_v2/` |
-| 본실험 결과 | 2모델 × 2순서 × 3 seed = **12회** | `./runs/qwen15b_math_order_v2/full/` |
+| 본실험 결과 | 2모델 × 2순서 × 1 seed = **4회** | `./runs/qwen15b_math_order_v2/full/` |
 | 다운로드 revision lock | 모델·토크나이저·데이터 commit | `./assets.lock.json` |
 
 | 실험 난도 | 원본 level |
@@ -252,7 +254,7 @@ Random은 고정 300개를 한 번 shuffle한다. Curriculum은 난도별 내부
 
 | 항목 | 최초 파일럿 값 |
 |---|---|
-| 본실험 조합 | Base/RL × Random/Curriculum × seed 1, 2, 3 = 12회 |
+| 본실험 조합 | Base/RL × Random/Curriculum × seed 1 = 4회 |
 | 학습 | LoRA r=16, alpha=32, dropout=0 |
 | 초기화 | PEFT `init_lora_weights=True`: A Kaiming uniform, B zero |
 | 대상 | 지원 attention/MLP Linear·Conv1D 이름을 탐색, 실제 전체 경로 저장; 필요시 `target_modules`로 명시 |
@@ -297,7 +299,7 @@ Random은 고정 300개를 한 번 shuffle한다. Curriculum은 난도별 내부
 
 ## GPU 할당과 실행
 
-실행기는 부모의 `CUDA_VISIBLE_DEVICES` 할당을 보존한다(없으면 설정에 따라 한 GPU는 `0`, 두 GPU는 `0,1`). `CUDA_DEVICE_ORDER=PCI_BUS_ID`를 설정하고 실제 `torch.cuda.get_device_properties(i).uuid`와 nvidia-smi UUID를 대조한다. 기본 한 GPU 설정에서는 두 조건 모두 slot 0에서 순차 실행한다. 두 GPU 설정에서는 slot 0=Random, slot 1=Curriculum이며 worker에는 검증한 **UUID**를 전달한다. 컨테이너 내부 0·1과 호스트 nvidia-smi 0·1이 같다고 가정하지 않는다. UUID를 얻거나 대조할 수 없으면 실행을 막는다. 같은 모델·seed의 두 실행이 모두 끝나야 다음 조합으로 진행한다. seed 1→2→3, 각 seed에서 Base→RL이므로 full은 정확히 12회다.
+실행기는 부모의 `CUDA_VISIBLE_DEVICES` 할당을 보존한다(없으면 설정에 따라 한 GPU는 `0`, 두 GPU는 `0,1`). `CUDA_DEVICE_ORDER=PCI_BUS_ID`를 설정하고 실제 `torch.cuda.get_device_properties(i).uuid`와 nvidia-smi UUID를 대조한다. 기본 한 GPU 설정에서는 두 조건 모두 slot 0에서 순차 실행한다. 두 GPU 설정에서는 slot 0=Random, slot 1=Curriculum이며 worker에는 검증한 **UUID**를 전달한다. 컨테이너 내부 0·1과 호스트 nvidia-smi 0·1이 같다고 가정하지 않는다. UUID를 얻거나 대조할 수 없으면 실행을 막는다. 같은 모델·seed의 두 실행이 모두 끝나야 다음 조합으로 진행한다. 기본은 seed 1에서 Base Random → Base Curriculum → RL Random → RL Curriculum의 총 4회다. `seeds.training=[1,2,3]`인 기존 설정도 지원하며 이 경우 seed 1→2→3 순서로 총 12회다.
 
 GPU UUID별 lock과 실행별 lock이 학습/별도 평가의 충돌을 막는다. compute process 검사도 UUID로 필터링한다. 컨테이너 PID namespace 때문에 자기 PID를 확인할 수 없으면 보수적으로 중단한다. 서버에서 필요하면 호스트 PID namespace로 실행하여 확인한다. 임의로 process 검사를 끄지 않는다. 두 GPU 모드를 선택하면 두 순서가 서로 다른 GPU 개체에 고정되므로 시간·처리량 비교에 GPU 개체 차이가 포함된다. 기본 한 GPU 모드에서는 같은 GPU를 순차 사용한다.
 
@@ -337,7 +339,7 @@ bash scripts/run.sh pilot --config configs/pilot_len2048.json --seed 1
 bash scripts/run.sh pilot --config configs/pilot_len4096.json --seed 1
 ```
 
-3. 선택한 길이 설정을 `LENGTH_CONFIG`로 지정하고 기본 LR로 300 update를 검증한다. validation은 0/100/200/300 및 마지막 update에서 실행된다. reward·혼합 그룹 비율, LoRA A/B norm, validation 변화를 점검한다. 필요할 때만 동일 조건에서 명시한 LR 후보와 비교한다.
+3. 선택한 길이 설정을 `LENGTH_CONFIG`로 지정하고 기본 LR로 300 update를 검증한다. validation은 설정된 diagnostic 시점(기본 0/300)과 마지막 update에서 실행된다. reward·혼합 그룹 비율, LoRA A/B norm, validation 변화를 점검한다. 필요할 때만 동일 조건에서 명시한 LR 후보와 비교한다.
 
 ```bash
 # LENGTH_CONFIG=configs/pilot_len2048.json 또는 configs/pilot_len4096.json
@@ -385,7 +387,7 @@ step은 **노출/예정 update 번호**다. snapshot 0·100·200·300을 보존�
 
 checkpoint는 LoRA, AdamW moments/step, Python·NumPy·CPU/CUDA RNG, 데이터 cursor, 누적 비용, 마지막 event를 포함한다. 임시 디렉터리에 쓴 후 원자적으로 commit한다. 재개 시 가장 최신 완료 commit만 사용하고 hash를 검사한다. checkpoint commit과 로그 저장 사이에 실패해도 마지막 event를 복구한다. 다음 문제는 `rows[cursor]`이다. 미완료 update는 RNG를 되돌려 다시 계산할 수 있으므로 장애 전 실제 GPU 사용 비용까지 exactly-once인 것은 아니지만 **완료한 노출/학습 step에는 중복·누락이 없다**. 장애 시 남은 `.pending-*` 디렉터리는 무시되며 디스크 정리가 필요할 수 있다.
 
-full은 0·100·200·300에서 diagnostic, 0·300에서 MATH500을 평가한다. pilot은 validation만 평가한다. 100/200 이후 같은 모델·optimizer·RNG를 이어간다. 평가는 전체 루프(채점 포함)를 RNG 보존 문맥으로 감싸고 고정 배치별 평가 seed를 사용한다. 문제별 commit을 유지하되 중단된 배치는 원래 전체 문항을 다시 생성한다. 이미 저장된 형제 문항의 token IDs와 일치해야 재개하며, 완전히 저장된 배치는 생성하지 않는다. 평가 전후 LoRA hash도 비교한다. 응답 8개는 temperature=0.6, top-p=0.95, top-k=0이며 별도 greedy 1개를 생성한다. 생성 기본값을 새 GenerationConfig로 명시하여 모델 기본 penalty를 상속하지 않는다.
+full은 기본 0·300에서 diagnostic과 MATH500을 평가한다. 100·200 update의 중간 진단평가는 생략하며, 체크포인트는 기존대로 0·100·200·300을 보존한다. pilot은 validation만 평가한다. 학습은 같은 모델·optimizer·RNG로 300 update까지 이어간다. 기존 설정의 diagnostic 0·100·200·300도 지원한다. 평가는 전체 루프(채점 포함)를 RNG 보존 문맥으로 감싸고 고정 배치별 평가 seed를 사용한다. 문제별 commit을 유지하되 중단된 배치는 원래 전체 문항을 다시 생성한다. 이미 저장된 형제 문항의 token IDs와 일치해야 재개하며, 완전히 저장된 배치는 생성하지 않는다. 평가 전후 LoRA hash도 비교한다. 응답 8개는 temperature=0.6, top-p=0.95, top-k=0이며 별도 greedy 1개를 생성한다. 생성 기본값을 새 GenerationConfig로 명시하여 모델 기본 penalty를 상속하지 않는다.
 
 - avg@8: 문제별 `정답 응답 수 / 8`의 문제 평균.
 - pass@8: 문제별 `8개 중 하나 이상 정답`의 문제 평균. 추정식으로 보정하지 않는다.
@@ -425,9 +427,9 @@ bash scripts/run.sh analyze --config configs/final.json --mode full --output rep
 
 주 endpoint는 MATH500 step 300의 avg@8, pass@8, greedy다. `seed_contrasts.csv`에 seed별 네 조건 성능, ΔBase=Base Curriculum−Random, ΔRL=RL Curriculum−Random, interaction=ΔRL−ΔBase를 출력한다. `summary.csv`에는 평균·seed sample SD(ddof=1)·범위를 제공한다.
 
-문제 bootstrap 2,000회는 같은 문제 ID를 조건/seed 전체에 공동으로 resample하여 **관측된 seed에 조건부인 평가 문제 표본 불확실성**을 계산한다. 학습 seed 변동성은 별도의 seed SD로 표현하며 두 불확실성을 하나로 혼합하지 않는다. 응답 8개나 reward group 2개를 독립 문제처럼 취급하지 않는다. Seed가 3개뿐이므로 seed 분산 추정은 불안정하고 강한 유의성/일반화 주장을 뒷받침하지 않는다. 한 seed 파일럿의 seed SD는 정의하지 않는다.
+문제 bootstrap 2,000회는 같은 문제 ID를 조건/seed 전체에 공동으로 resample하여 **관측된 seed에 조건부인 평가 문제 표본 불확실성**을 계산한다. 응답 8개나 reward group 2개를 독립 문제처럼 취급하지 않는다. 기본 seed 1개에서는 학습 seed 변동성을 추정할 수 없어 seed SD를 null(CSV에서는 빈칸)로 기록한다. 문제 bootstrap CI가 좁더라도 다른 seed에서의 재현성을 보장하지 않는다. 기존 3개 seed 설정에서는 seed SD를 함께 제공하지만 분산 추정은 여전히 불안정하다.
 
-`diagnostic_curves.csv`, `training_curves.csv`와 PNG/SVG 그래프를 만든다. diagnostic의 전체/난도별 avg@8·pass@8·혼합률·잘림률·출력 길이, 학습 혼합률·잘림률·출력 길이·누적 생성 token·학습 시간·entropy 변화를 표시한다. 선은 seed 평균, 음영은 seed SD다. 문제 bootstrap CI와 혼동하지 않는다. 미완료 조건은 기본 오류이고 `--allow-incomplete` 사용 시 결측 목록을 기록한다. 기존 분석 경로는 덮어쓰지 않는다. plotting 패키지가 없는 CPU 검사에는 `--no-plots`를 쓸 수 있다.
+`diagnostic_curves.csv`, `training_curves.csv`와 PNG/SVG 그래프를 만든다. diagnostic의 전체/난도별 avg@8·pass@8·혼합률·잘림률·출력 길이, 학습 혼합률·잘림률·출력 길이·누적 생성 token·학습 시간·entropy 변화를 표시한다. 기본 seed 1개에서는 해당 seed의 선만 그리고 SD 음영은 표시하지 않는다. 여러 seed에서는 선은 평균, 음영은 seed SD이며 문제 bootstrap CI와 구분한다. 미완료 조건은 기본 오류이고 `--allow-incomplete` 사용 시 결측 목록을 기록한다. 기존 분석 경로는 덮어쓰지 않는다. plotting 패키지가 없는 CPU 검사에는 `--no-plots`를 쓸 수 있다.
 
 ## 검증과 남은 확인
 

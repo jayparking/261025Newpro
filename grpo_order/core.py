@@ -91,7 +91,7 @@ def load_config(path):
         "dedup threshold (0,1]": 0 < c["data"]["near_duplicate_threshold"] <= 1,
         "eight samples plus greedy": c["evaluation"]["samples"] == 8 and c["evaluation"]["greedy"],
         "fixed evaluation groups": c["evaluation"]["mixed_groups"] == [[0, 1, 2, 3], [4, 5, 6, 7]],
-        "diagnostic schedule": c["evaluation"]["diagnostic_steps"] == [0, 100, 200, 300],
+        "diagnostic schedule 0/300 or 0/100/200/300": c["evaluation"]["diagnostic_steps"] in ([0, 300], [0, 100, 200, 300]),
         "MATH500 schedule": c["evaluation"]["math500_steps"] == [0, 300],
         "LoRA dropout/initialization": c["lora"]["dropout"] == 0 and c["lora"]["init"] == "kaiming_uniform_A_zero_B",
         "offline models without remote code": c["runtime"]["local_files_only"] and not c["runtime"]["trust_remote_code"],
@@ -105,7 +105,7 @@ def load_config(path):
             and 1 <= c["evaluation"].get("problem_batch_size", 1) <= 32,
         "step0 seed sharing flag": type(c["evaluation"].get("step0_share_across_seeds", False)) is bool,
         "pilot updates 0..300": isinstance(c["pilot"]["updates"], int) and 0 <= c["pilot"]["updates"] <= 300,
-        "training seeds 1/2/3": c["seeds"]["training"] == [1, 2, 3],
+        "training seeds [1] or [1,2,3]": c["seeds"]["training"] in ([1], [1, 2, 3]),
         "positive output budgets": t["max_new_tokens"] > 0 and c["evaluation"]["max_new_tokens"] > 0,
         "valid evaluation sampling": c["evaluation"]["temperature"] > 0 and 0 < c["evaluation"]["top_p"] <= 1,
         "valid optimizer values": t["lr"] > 0 and t["epsilon"] > 0 and t["max_grad_norm"] > 0

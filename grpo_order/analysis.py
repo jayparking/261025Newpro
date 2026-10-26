@@ -55,8 +55,7 @@ def analyze(c, mode, output, allow_incomplete=False, plots=True, bootstrap_repea
     initial_adapters = {}
     signatures = set()
     role_models = {"base": set(), "rl": set()}
-    selected_seeds = c["seeds"]["training"] if mode == "full" else [s for s in c["seeds"]["training"]
-                     if any(run_path(c, mode, role, order, s).exists() for role in ("base", "rl") for order in ("random", "curriculum"))] or [1]
+    selected_seeds = c["seeds"]["training"]
     for seed in selected_seeds:
         for role in ("base", "rl"):
             for order in ("random", "curriculum"):
@@ -140,8 +139,11 @@ def analyze(c, mode, output, allow_incomplete=False, plots=True, bootstrap_repea
     write_csv(out / "summary.csv", summaries)
     write_csv(out / "diagnostic_curves.csv", curves)
     write_csv(out / "training_curves.csv", costs)
+    seed_uncertainty = ("Only 1 training seed; seed SD is undefined and training-seed variation cannot be estimated. "
+                        if len(seeds) == 1 else
+                        f"Seed SD describes training-seed variation ({len(seeds)} observed seeds; unstable variance, no population claim). ")
     atomic_json(out / "analysis.json", {"seed_results": seed_rows, "summary": summaries, "missing_runs": missing,
-                "uncertainty": "Seed SD describes training-seed variation (only 3 seeds; unstable variance, no population claim). Bootstrap resamples evaluation questions jointly across conditions/seeds conditional on observed seeds. Eight responses and two reward groups are NOT independent questions.",
+                "uncertainty": seed_uncertainty + "Bootstrap resamples evaluation questions jointly across conditions/seeds conditional on observed seeds. It excludes training-seed uncertainty. Eight responses and two reward groups are NOT independent questions.",
                 "primary_endpoint": "MATH500 step 300; Curriculum - Random and (RL difference) - (Base difference)",
                 "diagnostic_claim": "Not used in this additional training; public model historical exposure unknown"})
     if plots:
@@ -159,16 +161,19 @@ def plot_curves(curves, costs, out):
     import matplotlib.pyplot as plt
     def plot(rows, field, title, filename):
         fig, ax = plt.subplots(figsize=(8, 4.5))
+        single_seed = len({r["seed"] for r in rows}) <= 1
         for role, color in (("base", "#2672b8"), ("rl", "#d77920")):
             for order, style in (("random", "--"), ("curriculum", "-")):
                 selected = [r for r in rows if r["model"] == role and r["order"] == order]
                 steps = sorted({r["step"] for r in selected})
                 grouped = [[r[field] for r in selected if r["step"] == s and r[field] is not None] for s in steps]
                 means = [statistics.mean(v) if v else float("nan") for v in grouped]
-                sds = [statistics.stdev(v) if len(v) > 1 else 0 for v in grouped]
                 ax.plot(steps, means, style, color=color, label=f"{role} {order}")
-                ax.fill_between(steps, [a-b for a,b in zip(means,sds)], [a+b for a,b in zip(means,sds)], color=color, alpha=0.10)
-        ax.set(xlabel="Problem exposures / scheduled updates", ylabel=field, title=title + " (mean ± seed SD)")
+                if not single_seed:
+                    sds = [statistics.stdev(v) if len(v) > 1 else float("nan") for v in grouped]
+                    ax.fill_between(steps, [a-b for a,b in zip(means,sds)], [a+b for a,b in zip(means,sds)], color=color, alpha=0.10)
+        variation = "single seed; seed SD unavailable" if single_seed else "mean ± seed SD"
+        ax.set(xlabel="Problem exposures / scheduled updates", ylabel=field, title=f"{title} ({variation})")
         ax.legend()
         ax.grid(alpha=.2)
         fig.tight_layout()

@@ -18,7 +18,7 @@ from .train import check_environment, configure_torch, open_run, train, validate
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fixed-set 2 x 2 x 3 additional GRPO experiment")
+    parser = argparse.ArgumentParser(description="Fixed-set 2 x 2 additional GRPO experiment with configured training seeds")
     sub = parser.add_subparsers(dest="command", required=True)
     for command in ("preflight", "prepare-data", "freeze", "train", "launch", "evaluate", "analyze"):
         p = sub.add_parser(command)

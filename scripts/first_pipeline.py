@@ -291,12 +291,13 @@ class Pipeline:
         else:
             from grpo_order.freeze import verify_freeze
             verify_freeze(final)
-        self.cli('full-12-runs', 'full', final_path, '--resume-failed')
+        runs = len(final['models']) * 2 * len(final['seeds']['training'])
+        self.cli(f'full-{runs}-runs', 'full', final_path, '--resume-failed')
         # Use an attempt-specific analysis destination: interrupted analysis cannot overwrite a report.
         report = self.session / 'analysis' / str(time.time_ns())
         self.cli('analyze', 'analyze', final_path, '--mode', 'full', '--output', report)
-        immutable_json(self.session / 'finished.json', {'final_config':str(final_path), 'full_runs':12})
-        print(f'\n12회 본실험 및 분석 완료: {report}', flush=True)
+        immutable_json(self.session / 'finished.json', {'final_config':str(final_path), 'full_runs':runs})
+        print(f'\n{runs}회 본실험 및 분석 완료: {report}', flush=True)
 
 
 def main():

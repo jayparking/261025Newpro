@@ -8,7 +8,7 @@ case "$stage" in
   setup) entry=1.setup.sh; plan='설치 → GPU 1장 검사 → 모델/데이터 준비 → 전체 preflight. 여기서 종료.' ;;
   presmoke) entry=2.1presmoke.sh; plan='setup 완료 세션 → Base 모델 하나, 학습 1문제 × 4응답으로 1 update → 별도 진단 1문제 평가(8샘플+greedy). 출력 상한 32. 선택 단계이며 SMOKE를 대체하지 않음.' ;;
   smoke) entry=2.SMOKE.sh; plan='준비된 세션 → 네 조건을 GPU 1장에서 순차 실행 → 1 update 중단/재개 → 조건당 3 updates, 출력 상한 32. 여기서 종료.' ;;
-  runreal) entry=3.runreal.sh; plan='준비/SMOKE 완료 확인 → 저장된 설정 확정·freeze → 12 run 순차 실행(각 300 updates, 설정의 실제 출력 길이) → MATH500 평가·분석·성능 보고.' ;;
+  runreal) entry=3.runreal.sh; plan='준비/SMOKE 완료 확인 → 저장된 설정 확정·freeze → 기본 4 run 순차 실행(설정 seed 수에 따름, 각 300 updates, 설정의 실제 출력 길이) → MATH500 평가·분석·성능 보고.' ;;
   *) echo "알 수 없는 단계: $stage" >&2; exit 2 ;;
 esac
 usage() {
