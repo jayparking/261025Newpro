@@ -16,6 +16,7 @@ from .preflight import dependency_errors, gpu_errors, hardware, resolve_model
 from .presmoke import select_one
 from .storage import (checkpoints, exclusive_lock, load_checkpoint, reconcile_event,
                       run_path, save_checkpoint)
+from poc_Test.protocol import select_splits as select_poc_splits, validate_config as validate_poc_config
 
 
 def build_contract(c, manifest, model_meta, role, order, seed, mode, rows):
@@ -40,6 +41,12 @@ def check_pair_initialization(root, role, seed, mode, c, contract, lora_meta):
 
 
 def train(c, role, order, seed, mode="pilot", resume=False, stop_after=None):
+    if mode == "poc":
+        validate_poc_config(c)
+        if role not in ("base", "rl") or (order, seed) != ("random", 1):
+            raise ValueError("POC uses Base/RL with the same random order and seed 1")
+    elif "poc" in c:
+        raise ValueError("A POC config cannot be used for main-experiment training")
     if mode == "presmoke" and (role, order, seed) != ("base", "random", 1):
         raise ValueError("presmoke runs only Base/random/seed1; use smoke for four conditions")
     if stop_after is not None and (mode != "smoke" or stop_after not in (1, 2)):
@@ -119,6 +126,8 @@ def open_run(c, role, order, seed, mode):
     if Path(c["output_dir"]).resolve().is_relative_to(path.resolve()):
         raise ValueError("output_dir must be outside the immutable original model directory")
     manifest, splits = load_prepared(c)
+    if mode == "poc":
+        splits = select_poc_splits(c, splits)
     if mode == "presmoke":
         # Validate and tokenize only the two questions actually used by this check.
         splits = {name: select_one(splits[name]) for name in ("train", "diagnostic")}
@@ -186,6 +195,19 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
         return save_checkpoint(root, state, milestones)
 
     def evaluate_due(step):
+        if mode == "poc":
+            if step == len(rows):
+                destination = root / "eval" / f"validation_step-{step:06d}.json"
+                already_evaluated = destination.exists()
+                torch.cuda.reset_peak_memory_stats()
+                result = evaluate(model, tok, c, splits["validation"], "validation", step, root, contract)
+                if not already_evaluated:
+                    result["poc_gpu_memory"] = {
+                        "peak_allocated_bytes": torch.cuda.max_memory_allocated(),
+                        "peak_reserved_bytes": torch.cuda.max_memory_reserved(),
+                    }
+                    atomic_json(destination, result)
+            return
         if mode == "presmoke":
             if step == len(rows):
                 evaluate(model, tok, c, splits["diagnostic"], "diagnostic", step, root, contract, subset=1)

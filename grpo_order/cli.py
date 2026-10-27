@@ -31,7 +31,7 @@ def main():
             p.add_argument("--order", choices=("random", "curriculum"), required=True)
             p.add_argument("--seed", type=int, choices=(1, 2, 3), default=1)
         if command in ("train", "launch", "evaluate", "analyze"):
-            modes = ("presmoke", "smoke", "pilot", "full") if command == "train" else ("smoke", "pilot", "full")
+            modes = ("poc", "presmoke", "smoke", "pilot", "full") if command == "train" else ("smoke", "pilot", "full")
             p.add_argument("--mode", choices=modes, default="pilot")
         if command == "train":
             p.add_argument("--resume", action="store_true")

@@ -12,6 +12,7 @@ models/*/
 assets.lock.json
 assets.lock.lock
 runs/
+poc_Test/runs/
 reports/
 .cache/
 .DS_Store

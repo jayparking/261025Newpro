@@ -212,4 +212,5 @@ def code_hash():
     files = list((root / "grpo_order").glob("*.py")) + list((root / "scripts").glob("*.py"))
     files += list((root / "scripts").glob("*.sh")) + list(root.glob("requirements*.txt"))
     files += list(root.glob("*.sh"))
+    files += list((root / "poc_Test").glob("*.py")) + list((root / "poc_Test").glob("*.sh"))
     return digest({str(p.relative_to(root)): file_hash(p) for p in sorted(files)})

@@ -17,7 +17,7 @@ def summarize(questions):
 def evaluate(model, tok, config, rows, split, step, root, contract, *, subset=None):
     # Enclose grading, filesystem recovery and all other evaluation work as well.
     with isolated_rng(config["seeds"]["evaluation"]):
-        if contract.get("mode") in ("presmoke", "smoke", "pilot") and split == "math500":
+        if contract.get("mode") in ("poc", "presmoke", "smoke", "pilot") and split == "math500":
             raise ValueError("MATH500 is reserved for frozen full runs, never pilot tuning")
         selected = rows if subset is None else rows[:subset]
         print(f"Evaluation {split} step={step}: {len(selected)} questions, 8 samples + greedy, "
