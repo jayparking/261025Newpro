@@ -1,0 +1,391 @@
+{
+  "hardware": {
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+    "python": "3.11.17",
+    "cuda_visible_devices": "0",
+    "cuda_device_order": "PCI_BUS_ID",
+    "packages": {
+      "torch": "2.7.1+cu128",
+      "transformers": "4.52.4",
+      "peft": "0.15.2",
+      "accelerate": "1.7.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.10.3",
+      "math-verify": "0.8.0",
+      "huggingface-hub": "0.31.4",
+      "tokenizers": "0.21.4",
+      "safetensors": "0.8.0",
+      "sympy": "1.14.0",
+      "latex2sympy2_extended": "1.10.2",
+      "antlr4-python3-runtime": "4.13.2"
+    },
+    "nvidia_smi": {
+      "returncode": 0,
+      "stdout": "0, GPU-ddb660cc-cefb-4b1a-f2ca-8601d4ce236b, NVIDIA RTX A6000, 49140, 1, 48541, 595.91.07\n",
+      "stderr": ""
+    },
+    "processes": {
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "torch_cuda": "12.8",
+    "cuda_available": true,
+    "torch_arch_list": [
+      "sm_75",
+      "sm_80",
+      "sm_86",
+      "sm_90",
+      "sm_100",
+      "sm_120",
+      "compute_120"
+    ],
+    "devices": [
+      {
+        "logical_index": 0,
+        "name": "NVIDIA RTX A6000",
+        "uuid": "ddb660cc-cefb-4b1a-f2ca-8601d4ce236b",
+        "capability": [
+          8,
+          6
+        ],
+        "total_bytes": 50899386368,
+        "free_bytes": 50615091200,
+        "bf16": true,
+        "bf16_kernel_backward": "passed"
+      }
+    ],
+    "uuid_mapping": [
+      {
+        "allocated_slot": 0,
+        "cuda_uuid": "ddb660cc-cefb-4b1a-f2ca-8601d4ce236b",
+        "nvidia_smi_index": "0",
+        "uuid": "GPU-ddb660cc-cefb-4b1a-f2ca-8601d4ce236b"
+      }
+    ]
+  },
+  "errors": [],
+  "models": {
+    "base": {
+      "configured": {
+        "hub_id": "Qwen/Qwen2.5-1.5B",
+        "path": "./models/Qwen2.5-1.5B",
+        "revision": null,
+        "tokenizer_revision": null,
+        "role_verified": true,
+        "model_card": null,
+        "lineage": "Qwen/Qwen2.5-1.5B -> hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo; official SimpleRL-Zoo repository and paper document direct zero-RL from this Base, not inferred from size.",
+        "training_history": "Official Qwen card: pretraining Base. Full historical pretraining data exposure UNKNOWN.",
+        "lineage_sources": [
+          "https://huggingface.co/Qwen/Qwen2.5-1.5B",
+          "https://huggingface.co/hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+          "https://github.com/hkust-nlp/simpleRL-reason/tree/v1",
+          "https://arxiv.org/html/2503.18892v3"
+        ],
+        "context_limit": null
+      },
+      "resolved_path": "/root/261025Newpro/models/Qwen2.5-1.5B",
+      "files": {
+        ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+        "LICENSE": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+        "README.md": "84cc3bdbfd781149913126b70981cf1e341176fe4bc9d878601a83f18b035ddf",
+        "config.json": "0e8c8aa86468aba09c9d32157ff4bc2301c7e6c50e4398960425b2ea71e66f77",
+        "generation_config.json": "8c970692323e3ea0e9b8b0a4dca79388d31226e41f83c9fd6014804280ebf6e8",
+        "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "model.safetensors": "a961db72e75d52b18e6b0c9d379e51a26973b233385e0e127fdda7d648aec796",
+        "tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+        "tokenizer_config.json": "c91efca15ceff6e9ee9424db58a6f59cd41294e550a86cbd07e3c1fb500b34f9",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "content_hash": "ec8c99b4b8f1154cc3db60619d084677fcdcc4b1cebbce54f6add1850a5b451a",
+      "model_card_text": "---\nlicense: apache-2.0\nlicense_link: https://huggingface.co/Qwen/Qwen2.5-1.5B/blob/main/LICENSE\nlanguage:\n- en\npipeline_tag: text-generation\nlibrary_name: transformers\n---\n\n# Qwen2.5-1.5B\n\n## Introduction\n\nQwen2.5 is the latest series of Qwen large language models. For Qwen2.5, we release a number of base language models and instruction-tuned language models ranging from 0.5 to 72 billion parameters. Qwen2.5 brings the following improvements upon Qwen2:\n\n- Significantly **more knowledge** and has greatly improved capabilities in **coding** and **mathematics**, thanks to our specialized expert models in these domains.\n- Significant improvements in **instruction following**, **generating long texts** (over 8K tokens), **understanding structured data** (e.g, tables), and **generating structured outputs** especially JSON. **More resilient to the diversity of system prompts**, enhancing role-play implementation and condition-setting for chatbots.\n- **Long-context Support** up to 128K tokens and can generate up to 8K tokens.\n- **Multilingual support** for over 29 languages, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, Arabic, and more. \n\n**This repo contains the base 1.5B Qwen2.5 model**, which has the following features:\n- Type: Causal Language Models\n- Training Stage: Pretraining\n- Architecture: transformers with RoPE, SwiGLU, RMSNorm, Attention QKV bias and tied word embeddings\n- Number of Parameters: 1.54B\n- Number of Paramaters (Non-Embedding): 1.31B\n- Number of Layers: 28\n- Number of Attention Heads (GQA): 12 for Q and 2 for KV\n- Context Length: Full 32,768 tokens\n\n**We do not recommend using base language models for conversations.** Instead, you can apply post-training, e.g., SFT, RLHF, continued pretraining, etc., on this model.\n\nFor more details, please refer to our [blog](https://qwenlm.github.io/blog/qwen2.5/), [GitHub](https://github.com/QwenLM/Qwen2.5), and [Documentation](https://qwen.readthedocs.io/en/latest/).\n\n## Requirements\n\nThe code of Qwen2.5 has been in the latest Hugging face `transformers` and we advise you to use the latest version of `transformers`.\n\nWith `transformers<4.37.0`, you will encounter the following error:\n```\nKeyError: 'qwen2'\n```\n\n## Evaluation & Performance\n\nDetailed evaluation results are reported in this [📑 blog](https://qwenlm.github.io/blog/qwen2.5/).\n\nFor requirements on GPU memory and the respective throughput, see results [here](https://qwen.readthedocs.io/en/latest/benchmark/speed_benchmark.html).\n\n## Citation\n\nIf you find our work helpful, feel free to give us a cite.\n\n```\n@misc{qwen2.5,\n    title = {Qwen2.5: A Party of Foundation Models},\n    url = {https://qwenlm.github.io/blog/qwen2.5/},\n    author = {Qwen Team},\n    month = {September},\n    year = {2024}\n}\n\n@article{qwen2,\n      title={Qwen2 Technical Report}, \n      author={An Yang and Baosong Yang and Binyuan Hui and Bo Zheng and Bowen Yu and Chang Zhou and Chengpeng Li and Chengyuan Li and Dayiheng Liu and Fei Huang and Guanting Dong and Haoran Wei and Huan Lin and Jialong Tang and Jialin Wang and Jian Yang and Jianhong Tu and Jianwei Zhang and Jianxin Ma and Jin Xu and Jingren Zhou and Jinze Bai and Jinzheng He and Junyang Lin and Kai Dang and Keming Lu and Keqin Chen and Kexin Yang and Mei Li and Mingfeng Xue and Na Ni and Pei Zhang and Peng Wang and Ru Peng and Rui Men and Ruize Gao and Runji Lin and Shijie Wang and Shuai Bai and Sinan Tan and Tianhang Zhu and Tianhao Li and Tianyu Liu and Wenbin Ge and Xiaodong Deng and Xiaohuan Zhou and Xingzhang Ren and Xinyu Zhang and Xipin Wei and Xuancheng Ren and Yang Fan and Yang Yao and Yichang Zhang and Yu Wan and Yunfei Chu and Yuqiong Liu and Zeyu Cui and Zhenru Zhang and Zhihao Fan},\n      journal={arXiv preprint arXiv:2407.10671},\n      year={2024}\n}\n```",
+      "model_card_hash": "84cc3bdbfd781149913126b70981cf1e341176fe4bc9d878601a83f18b035ddf",
+      "lineage_status": "Qwen/Qwen2.5-1.5B -> hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo; official SimpleRL-Zoo repository and paper document direct zero-RL from this Base, not inferred from size.",
+      "history_status": "Official Qwen card: pretraining Base. Full historical pretraining data exposure UNKNOWN.",
+      "hf_config": {
+        "architectures": [
+          "Qwen2ForCausalLM"
+        ],
+        "attention_dropout": 0.0,
+        "bos_token_id": 151643,
+        "eos_token_id": 151643,
+        "hidden_act": "silu",
+        "hidden_size": 1536,
+        "initializer_range": 0.02,
+        "intermediate_size": 8960,
+        "max_position_embeddings": 131072,
+        "max_window_layers": 28,
+        "model_type": "qwen2",
+        "num_attention_heads": 12,
+        "num_hidden_layers": 28,
+        "num_key_value_heads": 2,
+        "rms_norm_eps": 1e-06,
+        "rope_theta": 1000000.0,
+        "sliding_window": 131072,
+        "tie_word_embeddings": true,
+        "torch_dtype": "bfloat16",
+        "transformers_version": "4.40.1",
+        "use_cache": true,
+        "use_mrope": false,
+        "use_sliding_window": false,
+        "vocab_size": 151936
+      },
+      "asset_receipt": {
+        "repo_id": "Qwen/Qwen2.5-1.5B",
+        "repo_type": "model",
+        "revision": "8faed761d45a263340a0528343f099c05c9a4323",
+        "tokenizer_revision": "8faed761d45a263340a0528343f099c05c9a4323",
+        "tokenizer_repo_id": "Qwen/Qwen2.5-1.5B",
+        "files": {
+          ".gitattributes": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+          "LICENSE": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+          "README.md": "84cc3bdbfd781149913126b70981cf1e341176fe4bc9d878601a83f18b035ddf",
+          "config.json": "0e8c8aa86468aba09c9d32157ff4bc2301c7e6c50e4398960425b2ea71e66f77",
+          "generation_config.json": "8c970692323e3ea0e9b8b0a4dca79388d31226e41f83c9fd6014804280ebf6e8",
+          "merges.txt": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+          "model.safetensors": "a961db72e75d52b18e6b0c9d379e51a26973b233385e0e127fdda7d648aec796",
+          "tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+          "tokenizer_config.json": "c91efca15ceff6e9ee9424db58a6f59cd41294e550a86cbd07e3c1fb500b34f9",
+          "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        },
+        "stored_parameter_dtypes": {
+          "BF16": 1543714304
+        },
+        "receipt_hash": "d8d8b3ac8f641ed3575d69411560c11e351b77d2e836eb14550077e1495d2efe"
+      },
+      "resolved_model_revision": "8faed761d45a263340a0528343f099c05c9a4323",
+      "resolved_tokenizer_revision": "8faed761d45a263340a0528343f099c05c9a4323",
+      "lineage_sources": [
+        "https://huggingface.co/Qwen/Qwen2.5-1.5B",
+        "https://huggingface.co/hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+        "https://github.com/hkust-nlp/simpleRL-reason/tree/v1",
+        "https://arxiv.org/html/2503.18892v3"
+      ],
+      "actual_stored_parameter_dtypes": {
+        "BF16": 1543714304
+      },
+      "model_card_metadata": {
+        "language": [
+          "en"
+        ],
+        "library_name": "transformers",
+        "license": "apache-2.0",
+        "license_link": "https://huggingface.co/Qwen/Qwen2.5-1.5B/blob/main/LICENSE",
+        "pipeline_tag": "text-generation"
+      },
+      "eos": {
+        "policy": "union of generation_config EOS, tokenizer EOS and verified im_end if present",
+        "generation_config_eos": 151643,
+        "tokenizer_eos": 151643,
+        "eos_token_ids": [
+          151643,
+          151645
+        ],
+        "tokens": {
+          "151643": "<|endoftext|>",
+          "151645": "<|im_end|>"
+        },
+        "pad_token_id": 151643,
+        "vocabulary_hash": "36cd562eb06d9cff856d898c9700031561bf42c50bf57dc82e4c5d8655e61f8c",
+        "source": "generation_config.json"
+      },
+      "prompt_lengths": {
+        "train": {
+          "min": 31,
+          "max": 603,
+          "output_budget": 2048,
+          "context": 131072
+        },
+        "diagnostic": {
+          "min": 32,
+          "max": 818,
+          "output_budget": 2048,
+          "context": 131072
+        },
+        "validation": {
+          "min": 32,
+          "max": 862,
+          "output_budget": 2048,
+          "context": 131072
+        },
+        "math500": {
+          "min": 31,
+          "max": 813,
+          "output_budget": 2048,
+          "context": 131072
+        }
+      }
+    },
+    "rl": {
+      "configured": {
+        "hub_id": "hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+        "path": "./models/Qwen-2.5-1.5B-SimpleRL-Zoo",
+        "revision": null,
+        "tokenizer_revision": null,
+        "role_verified": true,
+        "model_card": null,
+        "lineage": "Qwen/Qwen2.5-1.5B -> hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo; official SimpleRL-Zoo repository and paper document direct zero-RL from this Base, not inferred from size.",
+        "training_history": "Official project: GRPO directly from Base without intermediate SFT. Paper B.1: 1.5B uses Hard (MATH levels 3-5); original train plus part of test excluding MATH500 and validation. Exact per-item exposure and any undocumented training UNKNOWN; no undocumented distillation claimed.",
+        "lineage_sources": [
+          "https://huggingface.co/Qwen/Qwen2.5-1.5B",
+          "https://huggingface.co/hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+          "https://github.com/hkust-nlp/simpleRL-reason/tree/v1",
+          "https://arxiv.org/html/2503.18892v3"
+        ],
+        "context_limit": null
+      },
+      "resolved_path": "/root/261025Newpro/models/Qwen-2.5-1.5B-SimpleRL-Zoo",
+      "files": {
+        ".gitattributes": "34448b82c17d60fec9b65b1f093c115ddbaadc04beb1b0140b6bfed2e012a930",
+        "README.md": "4bcf87ecfbbb8e07a01b21415a970c8b53a5283bf6872b657040d3f45c9241f7",
+        "added_tokens.json": "58b54bbe36fc752f79a24a271ef66a0a0830054b4dfad94bde757d851968060b",
+        "config.json": "54fb1a61fe27b13d75d4c0a6381321b827a215d24898e2a26f9e1d24544a9988",
+        "configuration.json": "c75163c168a22da49f0af6731992d670817f837054a1a79a05d3327837aded22",
+        "generation_config.json": "32b9674a384c8aa9221def93b9423a2be28af03b0c8d2dd0f83e07fa3afbb656",
+        "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+        "model-00001-of-00002.safetensors": "17be26cd180941d7334204973ab7bd828cb9b0b5be8d148b366c0e35623326d4",
+        "model-00002-of-00002.safetensors": "79f5ed6881698d657862b1ce70eb0c147d412c22a026461b161edb89b2ed894a",
+        "model.safetensors.index.json": "182b576f521e239d797460755941a1e4c8ffb838a83b0a6aa7dc449f942498df",
+        "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+        "tokenizer.json": "9c5ae00e602b8860cbd784ba82a8aa14e8feecec692e7076590d014d7b7fdafa",
+        "tokenizer_config.json": "dced901d401aa828f313a2baec70d0ce164653285812237b5285c7efd5b9e760",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "content_hash": "05bc74aa464a932467557d0dd1d1c62fa349334f143192361e45da4baa254621",
+      "model_card_text": "---\nlicense: apache-2.0\n---\n",
+      "model_card_hash": "4bcf87ecfbbb8e07a01b21415a970c8b53a5283bf6872b657040d3f45c9241f7",
+      "lineage_status": "Qwen/Qwen2.5-1.5B -> hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo; official SimpleRL-Zoo repository and paper document direct zero-RL from this Base, not inferred from size.",
+      "history_status": "Official project: GRPO directly from Base without intermediate SFT. Paper B.1: 1.5B uses Hard (MATH levels 3-5); original train plus part of test excluding MATH500 and validation. Exact per-item exposure and any undocumented training UNKNOWN; no undocumented distillation claimed.",
+      "hf_config": {
+        "_name_or_path": "/cfs/hadoop-aipnlp/zengweihao02/modelzoo//Qwen2.5-1.5B",
+        "architectures": [
+          "Qwen2ForCausalLM"
+        ],
+        "attention_dropout": 0.0,
+        "eos_token_id": 151645,
+        "hidden_act": "silu",
+        "hidden_size": 1536,
+        "initializer_range": 0.02,
+        "intermediate_size": 8960,
+        "max_position_embeddings": 32768,
+        "max_window_layers": 28,
+        "model_type": "qwen2",
+        "num_attention_heads": 12,
+        "num_hidden_layers": 28,
+        "num_key_value_heads": 2,
+        "pad_token_id": 151643,
+        "rms_norm_eps": 1e-06,
+        "rope_scaling": null,
+        "rope_theta": 1000000.0,
+        "sliding_window": null,
+        "tie_word_embeddings": true,
+        "torch_dtype": "float32",
+        "transformers_version": "4.46.1",
+        "use_cache": true,
+        "use_mrope": false,
+        "use_sliding_window": false,
+        "vocab_size": 151936
+      },
+      "asset_receipt": {
+        "repo_id": "hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+        "repo_type": "model",
+        "revision": "c014edac2e4bbaba644d7af74dc22d4526ec51c9",
+        "tokenizer_revision": "c014edac2e4bbaba644d7af74dc22d4526ec51c9",
+        "tokenizer_repo_id": "hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+        "files": {
+          ".gitattributes": "34448b82c17d60fec9b65b1f093c115ddbaadc04beb1b0140b6bfed2e012a930",
+          "README.md": "4bcf87ecfbbb8e07a01b21415a970c8b53a5283bf6872b657040d3f45c9241f7",
+          "added_tokens.json": "58b54bbe36fc752f79a24a271ef66a0a0830054b4dfad94bde757d851968060b",
+          "config.json": "54fb1a61fe27b13d75d4c0a6381321b827a215d24898e2a26f9e1d24544a9988",
+          "configuration.json": "c75163c168a22da49f0af6731992d670817f837054a1a79a05d3327837aded22",
+          "generation_config.json": "32b9674a384c8aa9221def93b9423a2be28af03b0c8d2dd0f83e07fa3afbb656",
+          "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+          "model-00001-of-00002.safetensors": "17be26cd180941d7334204973ab7bd828cb9b0b5be8d148b366c0e35623326d4",
+          "model-00002-of-00002.safetensors": "79f5ed6881698d657862b1ce70eb0c147d412c22a026461b161edb89b2ed894a",
+          "model.safetensors.index.json": "182b576f521e239d797460755941a1e4c8ffb838a83b0a6aa7dc449f942498df",
+          "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+          "tokenizer.json": "9c5ae00e602b8860cbd784ba82a8aa14e8feecec692e7076590d014d7b7fdafa",
+          "tokenizer_config.json": "dced901d401aa828f313a2baec70d0ce164653285812237b5285c7efd5b9e760",
+          "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        },
+        "stored_parameter_dtypes": {
+          "F32": 1777088000
+        },
+        "receipt_hash": "3ef9aac29f1ddde6e03e1a8b70811d170c84ca8233654bd647493f5ae5b7e99d"
+      },
+      "resolved_model_revision": "c014edac2e4bbaba644d7af74dc22d4526ec51c9",
+      "resolved_tokenizer_revision": "c014edac2e4bbaba644d7af74dc22d4526ec51c9",
+      "lineage_sources": [
+        "https://huggingface.co/Qwen/Qwen2.5-1.5B",
+        "https://huggingface.co/hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo",
+        "https://github.com/hkust-nlp/simpleRL-reason/tree/v1",
+        "https://arxiv.org/html/2503.18892v3"
+      ],
+      "actual_stored_parameter_dtypes": {
+        "F32": 1777088000
+      },
+      "model_card_metadata": {
+        "license": "apache-2.0"
+      },
+      "eos": {
+        "policy": "union of generation_config EOS, tokenizer EOS and verified im_end if present",
+        "generation_config_eos": 151643,
+        "tokenizer_eos": 151645,
+        "eos_token_ids": [
+          151643,
+          151645
+        ],
+        "tokens": {
+          "151643": "<|endoftext|>",
+          "151645": "<|im_end|>"
+        },
+        "pad_token_id": 151643,
+        "vocabulary_hash": "36cd562eb06d9cff856d898c9700031561bf42c50bf57dc82e4c5d8655e61f8c",
+        "source": "generation_config.json"
+      },
+      "prompt_lengths": {
+        "train": {
+          "min": 31,
+          "max": 603,
+          "output_budget": 2048,
+          "context": 32768
+        },
+        "diagnostic": {
+          "min": 32,
+          "max": 818,
+          "output_budget": 2048,
+          "context": 32768
+        },
+        "validation": {
+          "min": 32,
+          "max": 862,
+          "output_budget": 2048,
+          "context": 32768
+        },
+        "math500": {
+          "min": 31,
+          "max": 813,
+          "output_budget": 2048,
+          "context": 32768
+        }
+      }
+    }
+  },
+  "warnings": [
+    "Model-card base_model is a documented claim; equal size or architecture does not establish lineage"
+  ],
+  "relationship_evidence": {
+    "base": null,
+    "rl": null
+  },
+  "grader": {
+    "policy": "math_verify_no_fallback_v3_fail_on_grader_exception",
+    "packages": {
+      "math-verify": "0.8.0",
+      "sympy": "1.14.0",
+      "latex2sympy2_extended": "1.10.2",
+      "antlr4-python3-runtime": "4.13.2"
+    }
+  },
+  "manifest_hash": "29a19eb601df004af64b9d03c68d72a4941f249e71335b914ed741774cc73bcc"
+}

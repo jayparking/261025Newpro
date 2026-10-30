@@ -1,0 +1,45 @@
+# bash scripts/run.sh download --config /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json --only all
+
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+
+Fetching 10 files:  80%|████████  | 8/10 [00:00<00:00, 11.83it/s]
+Fetching 10 files: 100%|██████████| 10/10 [00:10<00:00,  1.04s/it]
+Prepared Qwen/Qwen2.5-1.5B@8faed761d45a263340a0528343f099c05c9a4323 -> models/Qwen2.5-1.5B
+
+Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+
+Fetching 14 files:  57%|█████▋    | 8/14 [00:00<00:00,  9.88it/s]
+Fetching 14 files:  86%|████████▌ | 12/14 [00:15<00:02,  1.27s/it]
+Fetching 14 files:  93%|█████████▎| 13/14 [00:15<00:01,  1.21s/it]
+Fetching 14 files: 100%|██████████| 14/14 [00:30<00:00,  2.15s/it]
+Fetching 14 files: 100%|██████████| 14/14 [00:30<00:00,  2.15s/it]
+Prepared hkust-nlp/Qwen-2.5-1.5B-SimpleRL-Zoo@c014edac2e4bbaba644d7af74dc22d4526ec51c9 -> models/Qwen-2.5-1.5B-SimpleRL-Zoo
+
+Fetching 16 files:   0%|          | 0/16 [00:00<?, ?it/s]Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+
+Fetching 16 files:  50%|█████     | 8/16 [00:00<00:00,  9.13it/s]Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
+
+Fetching 16 files: 100%|██████████| 16/16 [00:01<00:00, 11.18it/s]
+Fetching 16 files: 100%|██████████| 16/16 [00:01<00:00, 11.18it/s]
+Prepared EleutherAI/hendrycks_math@21a5633873b6a120296cce3e2df9d5550074f4a3 -> data/raw/hendrycks_math
+
+Fetching 4 files:   0%|          | 0/4 [00:00<?, ?it/s]
+Fetching 4 files:  25%|██▌       | 1/4 [00:00<00:00,  6.10it/s]
+Fetching 4 files:  75%|███████▌  | 3/4 [00:00<00:00,  8.90it/s]
+Fetching 4 files: 100%|██████████| 4/4 [00:00<00:00, 11.18it/s]
+Prepared HuggingFaceH4/MATH-500@6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be -> data/raw/MATH-500
+Asset preparation finished. No GPU training was started.

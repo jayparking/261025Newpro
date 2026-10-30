@@ -1,0 +1,12 @@
+Evaluation diagnostic step=0: 3 questions, 8 samples + greedy, max_new_tokens=32
+Step-0 diagnostic: verifying initial output before cache lookup
+  diagnostic step=0: generating questions 1-3/3
+  batch elapsed=2.6s
+  diagnostic step=0: 3/3, avg@8=0.0833, pass@8=0.3333, elapsed=2.6s
+Evaluation diagnostic step=0: cache_hit=False, avg@8=0.0833, greedy=0.0000
+base/random/seed1: exposure 1/3, reward=0.00, optimizer_steps=1, 4.2s/update, 30.2 training tok/s, peak=3.22 GiB
+Evaluation smoke_pause step=1: 1 questions, 8 samples + greedy, max_new_tokens=32
+  smoke_pause step=1: generating questions 1-1/1
+  batch elapsed=5.2s
+  smoke_pause step=1: 1/1, avg@8=0.0000, pass@8=0.0000, elapsed=5.2s
+Smoke stopped after checkpoint 1; resume with --resume-failed

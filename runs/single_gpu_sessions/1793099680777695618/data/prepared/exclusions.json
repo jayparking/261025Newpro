@@ -1,0 +1,759 @@
+[
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/4dc8699faccf29cfdfbf3cb894662f2100d1b5974aef694b3858161aa3eb6e7a",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "-\\frac{5}{3}.",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Algebra",
+      "subset": "algebra",
+      "level": "Level 4",
+      "difficulty": "Hard",
+      "original_id": null,
+      "source_file": "algebra/train-00000-of-00001.parquet",
+      "source_row": 1652
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/85ce10f72d8a5659d7d81bb1ebba4bc3e7be80201b5f770c6c8f3b204eecfc66",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\approx 8.24 \\text{ mph}",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Algebra",
+      "subset": "algebra",
+      "level": "Level 5",
+      "difficulty": "Hard",
+      "original_id": null,
+      "source_file": "algebra/train-00000-of-00001.parquet",
+      "source_row": 1556
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/f789542310ae2c1a66de14e544eb4870c112aa38671da4c5357dc178140d17bb",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\dfrac{1}{29,\\!322,\\!216}",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Counting & Probability",
+      "subset": "counting_and_probability",
+      "level": "Level 4",
+      "difficulty": "Hard",
+      "original_id": null,
+      "source_file": "counting_and_probability/train-00000-of-00001.parquet",
+      "source_row": 163
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/b7dc6fb275c046427e4e75ac86f54f21f2def1c39e9b7768d11df0c62d134e52",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "30^\\circ.",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Geometry",
+      "subset": "geometry",
+      "level": "Level 2",
+      "difficulty": "Easy",
+      "original_id": null,
+      "source_file": "geometry/train-00000-of-00001.parquet",
+      "source_row": 358
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/dc330cc2f964e0996b583e174efb59a037fc3b53bb397f326efb55d1867aa7b0",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "a + b + c",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Intermediate Algebra",
+      "subset": "intermediate_algebra",
+      "level": "Level 5",
+      "difficulty": "Hard",
+      "original_id": null,
+      "source_file": "intermediate_algebra/train-00000-of-00001.parquet",
+      "source_row": 579
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/2c94d1743ef36d3214e8ee8cd0215740584279214cdf4e8efda37e02a1f5e0fa",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\dfrac{2469}{20,\\!000}",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Number Theory",
+      "subset": "number_theory",
+      "level": "Level 2",
+      "difficulty": "Easy",
+      "original_id": null,
+      "source_file": "number_theory/train-00000-of-00001.parquet",
+      "source_row": 737
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/9956c6eb86edb7f4084f1d4b46001d3018f936094ae681450d8973c74aba49b0",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\text{(E)},",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Number Theory",
+      "subset": "number_theory",
+      "level": "Level 3",
+      "difficulty": "Medium",
+      "original_id": null,
+      "source_file": "number_theory/train-00000-of-00001.parquet",
+      "source_row": 8
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/a9c3c1c7be740e3d40c3ff58ef5ba225113bf383c3741073680438600dfa19ac",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "43_5.",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Number Theory",
+      "subset": "number_theory",
+      "level": "Level 4",
+      "difficulty": "Hard",
+      "original_id": null,
+      "source_file": "number_theory/train-00000-of-00001.parquet",
+      "source_row": 775
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/43671a2469fea42d8bd52bf5b00b4972c9d203a5fbbe233fc50b54a832207751",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "7\\text{ hours}.",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Prealgebra",
+      "subset": "prealgebra",
+      "level": "Level 3",
+      "difficulty": "Medium",
+      "original_id": null,
+      "source_file": "prealgebra/train-00000-of-00001.parquet",
+      "source_row": 928
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/46dee557151b0528cbbd2cad4408466f5db0568e0a2ff1c70ada1d4bd5ae68c9",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\sin^2 t",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Precalculus",
+      "subset": "precalculus",
+      "level": "Level 5",
+      "difficulty": "Hard",
+      "original_id": null,
+      "source_file": "precalculus/train-00000-of-00001.parquet",
+      "source_row": 189
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/536628edc7f185e51bed4e77527c14f5c8ba1d583e3202cdd7084976ba1ba3bf",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\begin{pmatrix} 1 & -1 \\\\ 1 & \\phantom -1 \\end{pmatrix}",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Precalculus",
+      "subset": "precalculus",
+      "level": "Level 3",
+      "difficulty": "Medium",
+      "original_id": null,
+      "source_file": "precalculus/train-00000-of-00001.parquet",
+      "source_row": 32
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/d0c89d9063b1717e69f5d4e6a824b86f2f8e3fdca9b3f63ed416eda6beff58c3",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "\\begin{pmatrix} -1 & 0 \\\\ 0 & -1 \\end{pmatrix}.",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Precalculus",
+      "subset": "precalculus",
+      "level": "Level 2",
+      "difficulty": "Easy",
+      "original_id": null,
+      "source_file": "precalculus/train-00000-of-00001.parquet",
+      "source_row": 185
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/e86fc9c237d4831acab6f9cfb3ff982f5c84a82178aef90c7efb9c1e07b136fe",
+    "split": "pool",
+    "category": "parser_limitation",
+    "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+    "answer": "2007 + \\frac\\pi 2",
+    "origin": {
+      "source": "EleutherAI/hendrycks_math",
+      "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "split": "train",
+      "subject": "Precalculus",
+      "subset": "precalculus",
+      "level": "Level 3",
+      "difficulty": "Medium",
+      "original_id": null,
+      "source_file": "precalculus/train-00000-of-00001.parquet",
+      "source_row": 57
+    }
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/2a8d66749e57064d5313d1b589caf2ea2c8c22e88b25059a84a9ddbd635db3a7",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/00c42eb96e3467014b28dcca3d8e2d22bca0343fbb02ac6a6f425e370ea54eb2",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9259259259259259
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/336ca06267a48037d7fc36c8a8c96358c43107c20295178d4efa657a25ba5804",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/0ef960c75b856ac4cadac88ae0220559dd9216787d53cb53dc930a85ee9f1ef8",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.917910447761194
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/792aedd716bcc78224b35b55ed1b81e9b960e8e6ada3a9f7d1a9c473139ce25a",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/74c0dec535d96dc8d2120f1a9d4829560d38f4c14e38a4850cd7b20ffde110ee",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9027397260273973
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/90309af3e8a47cdf5d165dd10dc73309cf4817e1408467ef8bdd031959d5c601",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/57dbcaf14fa8c849b7da689ec90735fd5b4d1d7599794c93672df5a7faecfec0",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9016393442622951
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/9045fe79a257810e99d1b19c3a8cbfc9baf508e09576dac63d64da5551009540",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/9045fe79a257810e99d1b19c3a8cbfc9baf508e09576dac63d64da5551009540",
+      "pool"
+    ],
+    "reason": "exact_id_or_text",
+    "similarity": 1.0
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/929bd8f2dbb5a015fd40cbada26f378a9b08f79296547a5c8108121f31001db7",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/658d81813e043fec3ba0955d05779359e6c54d54f7a42c92e0ffc52c75dd45c6",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9333333333333333
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/959430717b00af077e744fd27eb8763e5716fdc4583b441bbd39ece8a39efcdd",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/41f30959572b87c5e745417ae38ecf7e67fca7b9215d43622011f2c8bb28ae30",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9032258064516129
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/b535d76799223f9d0e508120c7c026597c42ea5fb0b997be20c8f43856761bbc",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/0ffc2030851d634661ce8f24007d5e01a47005abc39b08ffae993cd76ac310f5",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9135802469135802
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/c35fbcbf2e2d028106fef2fc380aa762d3eb795acc979ab8ed066adaef43251e",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/7d3c529352a003decd33a3c98f4af33ee6bb1aeb17d8a4ecf6283d37a91cbe09",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9466666666666667
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/c8ced9cae26f92583216241a6b05e31bc6c2f53ca9c92b4d72d9cc65a73d2053",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/0128683fe95447b64321905f7a5d2d6e59b0d30776b874be6af3290d94ef5a81",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9280575539568345
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/d00a004f1f34cd18fdb02bc451e3434f32f65f0e18e445df009d04faaa8762ea",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/56795178277083bd63950c7ff809f37649e9d0d92be74f554c965f9a5144c3e1",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9078014184397163
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/f33cbd0fd57f450b4ba6a79c2bf646d918283fb15ce7af88f3e91a5f02ff4698",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/304bd36f1cccb5893d6bef1efccb096e33cf9971acd30d2d7a6cc1e7fa806839",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9436619718309859
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/algebra/f76da0b7616042a2fa5a7ade48769b5573ece48a5648643747792ea4e219f07c",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/f3363bfa6eff80ccd8f109354fda74e135dbb99ed5fba8a73b65a4ced41e9a82",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9532163742690059
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/38ce84d2bab3dcf1778d27d4744a94ce65529485b8d3dbcfd8aa6e4fdee2ff73",
+    "split": "pool",
+    "retained": [
+      "HuggingFaceH4/MATH-500/test/counting_and_probability/71.json",
+      "math500"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.900990099009901
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/3cead3cdecef3840de7d73a20c106308a2274ef88c33570e92a3a9b32f6760c6",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/088230d2181528faeba403fd3161aad6f014f39683660b45d459ef3e1ac03032",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9027777777777778
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/964978fdd5dcd577c8dbc356ec91e3c8da557ecaf3fba3aefde162509ea4e8dd",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/3fac393aef55ebb0c7da8e1fdf65c09f6f9766e91b62d20619fd0df53a60df98",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9348837209302325
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/c1d3d5c8ac71da6b8c1e4e48b7f03ac37fa83b16e7bf0f068e1ccdf6ac1c436f",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/9dc39f144279b0cd77c23c486c983e7799288dca31b161542ecb20688f73675e",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9042553191489362
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/d75b01cf685bffe52937f30a90e01223f413a664818f1854b56891a0cbbbab82",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/13e4ad2d7ccb1f013de68a97ce10ec70721d7f5fd350f134023981bb132cafb5",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9042553191489362
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/ee495fc2cb6905218b6a3a27bb0a243a695e3ec5596dfde892e2c033bacbd986",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/13536b0818c9fd7821fcf2f642061ef1402920f15c75e8a2030547936572bc21",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9428571428571428
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/5d95dfba5c12a091b3df97d3da4ff95dff2094942895446ccf761a4a061ef8bf",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/13550b35aac8c291afd1b45cd91341084390a56650d64e6c11957cab93ab1f6e",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9292452830188679
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/8a7ef6edda02359e0224f745a4270dbfd417e240d113c4fc695b512d7abe812a",
+    "split": "pool",
+    "retained": [
+      "HuggingFaceH4/MATH-500/test/geometry/283.json",
+      "math500"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9146608315098468
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/8a9ca8ce7d14f19a1381ed06b620084986c443e979e3505730f8ef047c175569",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/69652eca86b0cbc47603626311f695d08ad7fed44919284ca6b5d70ef7d24d57",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9686609686609686
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/aae76b8dd2a9f6dcf4081a264f9f785c58895df26e2eee3efc7c8acdcc1b819c",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/705ae6bd4d2833e881e89b3528e2d7c8026a850c847f078d3e8d32b8088b72ed",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9723756906077348
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/c65982f7c1712a3865308f38c23b2b3fccbeb2f2dcaabe54f4e2758e45207268",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/29104bc84d8625c08228f8d956c91f3235c617dc6a14ad8ec92ebc8dc992e92d",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9329758713136729
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/d587ab38f50347e3bd0ceaeef0aac8967b3b4c8eea627b2566bfca6eed42d96d",
+    "split": "pool",
+    "retained": [
+      "HuggingFaceH4/MATH-500/test/geometry/947.json",
+      "math500"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9663865546218487
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/e8c5ea0f853d98af78d8b934306918a28c9f919fbdc099c912262ca2ef930977",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/cee68ccd2601a19f1f6e08cb7578f08df1f6d4f23b3e5d690557079fb9bc95d1",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9069148936170213
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/geometry/eba2961b3fd55e583c9eae1c5d449c447edb02ecee676911e924c21bb7aef215",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/7bd122eea2f83556728356eefdea22d721a62779f33db998de8b3d4155d5f595",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9322033898305084
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/895464b0a9e1c6f7202134ce54dfe88da55ae1bfe3b46cd863cfc2e5bc83153b",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/intermediate_algebra/0e337b6a0753d93ec90f1aefa6c002ca6025dd123737f46c42f0172e186acba0",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9401709401709402
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/9bf2b3e874e9508943cdc51b0ed89d0a11086aa73f4da45b73dbd7dde654e49c",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/intermediate_algebra/6a34412ebbcef8610112e0aebf66e0fab96cf5bdd87483c659e863ccd2200e4a",
+      "validation"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9619289340101523
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/d827d91e50386dc5aa7640f38a897704c2cfd252e104e3f92356a9de863f8539",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/intermediate_algebra/06cd4f45611e7508daed8498dbe8905f1dff728a93b8e331618b5c7b5a54d293",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9285714285714286
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/e65578c559f53992029cdac22427e6607c94bd10e8901543c63d0b00464ab969",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/intermediate_algebra/a539de30b26a4562098b2d630891985ece1b434434e3305bc41e10b9f2458e88",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9535962877030162
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/09b5b6a613d56a7533b7a0839b618b45c809e73d6bfe75086a86eb9c2d2c248c",
+    "split": "pool",
+    "retained": [
+      "HuggingFaceH4/MATH-500/test/number_theory/466.json",
+      "math500"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9459459459459459
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/f0729f6cc42817e4e537ddc86ce9c952979cf3de81b310d3b3c4ad5e660be99a",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/number_theory/0288517a84599d23fe587874769a465669013b636b0327d5b31f86c8d64484b2",
+      "validation"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9130434782608695
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/3256a1c83cdd4d154ecf7e0ef3a7c4522d12166f4237877f413ff3b256566dd5",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/300e8e4b8bdac27597506c8ad0cf9161e06d63abf23b741a291ff8fa1191617d",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9136490250696379
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/6f2bbd7d17728c7827706694daf1e50588d38413457ba597518468b67b5af9c9",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/f4a20fcbbb45147ae8ca6567f28a4ed55eedc794df15639bf46295727ef73eb8",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9175824175824175
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/8192b32e9e2b12e2269403ebf379f9d2a242ac7a5e8c4a4a3a09d6801da68b4b",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/counting_and_probability/300e8e4b8bdac27597506c8ad0cf9161e06d63abf23b741a291ff8fa1191617d",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9085872576177285
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/a6224f3a4f567b56172b797e35018c2d9efcc9c3ef4afed75785e70e13f837a1",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/prealgebra/30e3ef4711966223c6cbb889496b207f6b7e2637e9f6334f3ab154c79276ed86",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9253731343283582
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/b9cf28e4aacdabd91cc97a80879836b6878f10793b37fe1e6e9d9a4074744938",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/prealgebra/1a45ced81ea1c0bb055968ed78af5cb2775432c197c5ed224e5574bbd7b71e67",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9038461538461539
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/c23c5591d3203be606bbbd6144899023b3021be73219229533c44b3390e2fc51",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/algebra/1580fa5a157e820e7a0962f3007f4661fea42703b5310d7c9af73f18fd8dc160",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9439252336448598
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/cbec075076b4263d75f367d1f69aec3fc470658aeafd59a31479c2fc114f84b3",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/prealgebra/3ab2d626e98324f21be089a0e29f907350a658cd04dbdb98f43b4ec552187546",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9819819819819819
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/d870a2dfff3ac18af8aa589f951a82c7a3e9b37700e8dfc2d7f3223423d7ba88",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/prealgebra/a8bbe5e9882be08cf13776d144ba0e06e3cae19ed5476451c729cb7d73e4b9d5",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9038461538461539
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/f51b90705ea8ca53ad72aed82178471e73919b60a1daa32b6ef2b474cb8a3b97",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/geometry/2fa1a4f1aa604a0c199cdef7b779ae19d7ceb3718883994aad1cf4c4f3a24b3f",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9514563106796117
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/fb1f9b430b26d741fc954bafff39f42f9dfd945918ecae075f20ea8bb28dfdbe",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/prealgebra/d0fbefcadc66c5e1c35477b6938908558238e1117bb90edf6cdcc968c19b93b3",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9105058365758755
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/125a93e775a7d158245d58bb0b9e108faf7d1586e5768523b06b0718769156d4",
+    "split": "pool",
+    "retained": [
+      "HuggingFaceH4/MATH-500/test/precalculus/819.json",
+      "math500"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9392523364485982
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/2245c3a2d0e6a2ed03bd8d4652253b9ac76128a94e494850292be110d637a221",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/precalculus/13d3119026c52a33a5f51f74b843ac1a13a83a310497e36050796725515736fc",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9736147757255936
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/9806ea0db9e89b786956280d1e3f9a9d68e41a28de61b7c59d7a22a287a26f59",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/precalculus/13d3119026c52a33a5f51f74b843ac1a13a83a310497e36050796725515736fc",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.984
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/a8746710c2ffc673614439d282ae1a3dd46c49b054a0b1ecfee057718bac7352",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/precalculus/2ca96580e13057f4e0b0986eefd2eeefb9bf94cbd5960a7ef71399581fb18e0b",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9050632911392406
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/c1e74751e732146c9140a776cb3fe127d5c79cc7ce6c32d0f8d5971f2835c861",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/precalculus/bcba80875e10334fe60cdbac4e0ef319b60ac6dc4ba5974e9a0f4455111192a9",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9022988505747126
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/c66a6ed8791845fdfce4c304d4c678b2e6e3b5ef1fa3b264f400634a191b03de",
+    "split": "pool",
+    "retained": [
+      "HuggingFaceH4/MATH-500/test/precalculus/285.json",
+      "math500"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9152542372881356
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/de309bf1bee34fb91db490670e4e06002ed699ae134c700d66150f405a62d5da",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/precalculus/abf69ec2302965aff71aa3b90d563126129baca623450978b60c9e1b266606c7",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9366515837104072
+  },
+  {
+    "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/e5f084c56122622a47ea878c2174a655173509fe1d990785c2deac094c7c2a4e",
+    "split": "pool",
+    "retained": [
+      "EleutherAI/hendrycks_math/train/precalculus/4f9937102769af9f9562746d4bc35d40afd51de18e45d2919ac3ca978b77d1ea",
+      "pool"
+    ],
+    "reason": "near_char5_jaccard",
+    "similarity": 0.9154078549848943
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "setup_session": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618",
+  "code": "236b3aaa11c35c6d24e743d75f6042ae87be56e1dbc94db092329d6295cf521d",
+  "limit_seconds": 3600,
+  "train_problems": 12,
+  "gpu": "0",
+  "status": "completed",
+  "elapsed_seconds": 2721.538173828041,
+  "exit_code": 0
+}

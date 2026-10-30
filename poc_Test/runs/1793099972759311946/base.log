@@ -1,0 +1,22 @@
+base/random/seed1: exposure 1/12, reward=0.50, optimizer_steps=1, 44.0s/update, 42.1 training tok/s, peak=3.71 GiB
+base/random/seed1: exposure 2/12, reward=0.00, optimizer_steps=2, 46.2s/update, 36.8 training tok/s, peak=4.30 GiB
+base/random/seed1: exposure 3/12, reward=0.00, optimizer_steps=3, 51.4s/update, 44.2 training tok/s, peak=3.97 GiB
+base/random/seed1: exposure 4/12, reward=0.25, optimizer_steps=4, 16.1s/update, 22.1 training tok/s, peak=3.59 GiB
+base/random/seed1: exposure 5/12, reward=0.25, optimizer_steps=5, 48.6s/update, 26.1 training tok/s, peak=3.88 GiB
+base/random/seed1: exposure 6/12, reward=0.25, optimizer_steps=6, 144.7s/update, 23.0 training tok/s, peak=5.20 GiB
+base/random/seed1: exposure 7/12, reward=0.00, optimizer_steps=7, 20.1s/update, 30.7 training tok/s, peak=3.62 GiB
+base/random/seed1: exposure 8/12, reward=0.75, optimizer_steps=8, 145.0s/update, 18.7 training tok/s, peak=5.12 GiB
+base/random/seed1: exposure 9/12, reward=0.00, optimizer_steps=9, 42.0s/update, 36.8 training tok/s, peak=3.83 GiB
+base/random/seed1: exposure 10/12, reward=0.25, optimizer_steps=10, 18.2s/update, 31.8 training tok/s, peak=3.60 GiB
+base/random/seed1: exposure 11/12, reward=0.25, optimizer_steps=11, 36.4s/update, 34.9 training tok/s, peak=3.77 GiB
+base/random/seed1: exposure 12/12, reward=0.00, optimizer_steps=12, 152.2s/update, 29.9 training tok/s, peak=5.43 GiB
+Evaluation validation step=12: 12 questions, 8 samples + greedy, max_new_tokens=2048
+  validation step=12: generating questions 1-4/12
+  batch elapsed=318.4s
+  validation step=12: 4/12, avg@8=0.5938, pass@8=1.0000, elapsed=318.4s
+  validation step=12: generating questions 5-8/12
+  batch elapsed=256.9s
+  validation step=12: 8/12, avg@8=0.4688, pass@8=0.7500, elapsed=575.4s
+  validation step=12: generating questions 9-12/12
+  batch elapsed=229.3s
+  validation step=12: 12/12, avg@8=0.5104, pass@8=0.8333, elapsed=804.7s

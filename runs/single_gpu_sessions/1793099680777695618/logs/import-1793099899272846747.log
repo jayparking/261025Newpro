@@ -1,0 +1,37 @@
+# bash scripts/run.sh import --config /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json
+{
+  "hash": "7d55e95cb04f5827775a14dc3c353bf9ea466a1c97d6f5d53dd1abdc10b63a2d",
+  "subject_counts": {
+    "algebra": {
+      "train": 1744,
+      "test": 1187
+    },
+    "counting_and_probability": {
+      "train": 771,
+      "test": 474
+    },
+    "geometry": {
+      "train": 870,
+      "test": 479
+    },
+    "intermediate_algebra": {
+      "train": 1295,
+      "test": 903
+    },
+    "number_theory": {
+      "train": 869,
+      "test": 540
+    },
+    "prealgebra": {
+      "train": 1205,
+      "test": 871
+    },
+    "precalculus": {
+      "train": 746,
+      "test": 546
+    }
+  },
+  "eligible_training_candidates": 7344,
+  "conversion_exclusions": 6
+}
+Converted only. Next: python -m grpo_order prepare-data

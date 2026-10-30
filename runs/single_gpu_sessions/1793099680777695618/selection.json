@@ -1,0 +1,12 @@
+{
+  "config": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/real.json",
+  "config_hash": "c63e812f0c43f3d68fb9f510e9cdfaa3929cb0a52d1d613739915d8fbd3d717a",
+  "method": "Explicit runreal stage uses the setup configuration; no tuning pilots or automatic hyperparameter selection",
+  "prompt": {
+    "mode": "plain",
+    "template": "Solve the following mathematics problem. Show your reasoning and put the final answer in \\boxed{{}}.\n\n{problem}\n\nSolution:\n"
+  },
+  "train_max_new_tokens": 2048,
+  "evaluation_max_new_tokens": 2048,
+  "lr": 5e-06
+}

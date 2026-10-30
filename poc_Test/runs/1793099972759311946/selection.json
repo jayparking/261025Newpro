@@ -1,0 +1,106 @@
+{
+  "manifest_hash": "29a19eb601df004af64b9d03c68d72a4941f249e71335b914ed741774cc73bcc",
+  "questions": {
+    "train": [
+      {
+        "id": "EleutherAI/hendrycks_math/train/number_theory/c7966cc38fe68ba5da272c13d07f5005e53cc8fc964af32bbf75dd976a70bc1e",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/counting_and_probability/04a4002a3888dcfc1f9e35d1283841f8e4ec0ea8038c31721b2d14f26a1071e0",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/intermediate_algebra/bf26621cf3cf2e74403e33d15a6e998896562b4f36c467e7c56123f306efe166",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/a1fc4d243817e08cb3b84789df8a925b6a16fd12562e39157daf5c115b3ed419",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/geometry/cea6e03892a62bc93bd555a260efbd8f2a08bef39329c99efa787f35e65c5ab2",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/5bec61168d97c0da8a9a3bd1fb1bab6eeb6612d8530068d0682b5e59f52fdf7b",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/prealgebra/2c742c3d13466498e71459dd8c42c3e1ab78a6582a644fac30a95fa54e6ea95d",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/number_theory/657e8f4aedcc3d78868242be3b88b99ead6cfe1be80ddc67a9d9db57eb5925bc",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/intermediate_algebra/5abecca943fadc5ad8ddb6cd55f55ac3a3993cebc965563aa2fe90dc313911f1",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/prealgebra/1c42be3772e8698fbbc2587b242e80cf1afa909ff3193d7109c8c93e308a0166",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/8b78adddbeaf67f95dc5b6de87b11f0ba094a892de31ba6aef8f77dc39abf96b",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/geometry/f11f69b2fece9f9809630482aeddf37232ad4893ddc1576af16eb175d55a33ab",
+        "difficulty": "Medium"
+      }
+    ],
+    "validation": [
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/4381b2c53238feb3bb1d68fb194af73b8a7e3d9c1f3a0352971b30075b14e2ca",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/1c97caf6de1ea6b6375c2cdac641a88ae10da2b188ad837cd9888fcfe8b8ffb9",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/precalculus/1cf06dd5e6953fc315f68511ba0eeab3e23b7efd7357f5d1a12607a7bf7c521d",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/9918dea0d40ed66da8923e90e85a2ce86ffe09658e0b115aeec4ba9e0d0fbecc",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/geometry/b921b68bece241cb088c0a52746a68364bd5e1769c1ebf5beca70a27762cf4de",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/algebra/68011a143d52c31dd725bf6578bc4b45560243e023dcfe55d3761c546df093ba",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/intermediate_algebra/6af87095927d5ac90af68312c24e786dd39a7570202b7eb52d405777f02220a0",
+        "difficulty": "Hard"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/intermediate_algebra/6a3cb33ddaac064c875c5e3942f519ee197eb3ba999f6fc03af1f8fa590782da",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/intermediate_algebra/fe1f4dabab150d598c5f68ee7cd264d54e5af76ee5551ade4b879e1e48fe8a90",
+        "difficulty": "Easy"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/number_theory/e10318cac9be9c7c5f736156b3a449a08a079fc1dab1ee7f952b382ae30a7151",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/geometry/d1707ecf7467b20453d315eea191f2a7e2e96e35ea1bfe03e7e6da42a958967d",
+        "difficulty": "Medium"
+      },
+      {
+        "id": "EleutherAI/hendrycks_math/train/prealgebra/af2ffa23e58b7d83b4bc52bd98cb569c214fc23372bc00c08060ccb498bfded5",
+        "difficulty": "Easy"
+      }
+    ]
+  },
+  "hash": "32dd3f55f37ac59fee919e0999fb66e91675509d5e5c3179bed60a1daec676bf"
+}

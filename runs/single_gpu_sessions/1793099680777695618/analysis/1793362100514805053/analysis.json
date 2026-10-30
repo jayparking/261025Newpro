@@ -1,0 +1,151 @@
+{
+  "seed_results": [
+    {
+      "metric": "avg_at_8",
+      "seed": 1,
+      "base_random": 0.48675,
+      "base_curriculum": 0.48375,
+      "rl_random": 0.56725,
+      "rl_curriculum": 0.5665,
+      "delta_base": -0.003,
+      "delta_rl": -0.00075,
+      "interaction": 0.00225
+    },
+    {
+      "metric": "pass_at_8",
+      "seed": 1,
+      "base_random": 0.784,
+      "base_curriculum": 0.768,
+      "rl_random": 0.796,
+      "rl_curriculum": 0.794,
+      "delta_base": -0.016,
+      "delta_rl": -0.002,
+      "interaction": 0.014
+    },
+    {
+      "metric": "greedy",
+      "seed": 1,
+      "base_random": 0.552,
+      "base_curriculum": 0.542,
+      "rl_random": 0.602,
+      "rl_curriculum": 0.588,
+      "delta_base": -0.01,
+      "delta_rl": -0.014,
+      "interaction": -0.004
+    }
+  ],
+  "summary": [
+    {
+      "metric": "avg_at_8",
+      "contrast": "delta_base",
+      "seeds": 1,
+      "mean": -0.003,
+      "seed_sample_sd": null,
+      "seed_min": -0.003,
+      "seed_max": -0.003,
+      "question_bootstrap_ci_low": -0.0145,
+      "question_bootstrap_ci_high": 0.009,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "avg_at_8",
+      "contrast": "delta_rl",
+      "seeds": 1,
+      "mean": -0.00075,
+      "seed_sample_sd": null,
+      "seed_min": -0.00075,
+      "seed_max": -0.00075,
+      "question_bootstrap_ci_low": -0.0115,
+      "question_bootstrap_ci_high": 0.00975,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "avg_at_8",
+      "contrast": "interaction",
+      "seeds": 1,
+      "mean": 0.00225,
+      "seed_sample_sd": null,
+      "seed_min": 0.00225,
+      "seed_max": 0.00225,
+      "question_bootstrap_ci_low": -0.01375,
+      "question_bootstrap_ci_high": 0.01875,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "pass_at_8",
+      "contrast": "delta_base",
+      "seeds": 1,
+      "mean": -0.016,
+      "seed_sample_sd": null,
+      "seed_min": -0.016,
+      "seed_max": -0.016,
+      "question_bootstrap_ci_low": -0.042,
+      "question_bootstrap_ci_high": 0.01,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "pass_at_8",
+      "contrast": "delta_rl",
+      "seeds": 1,
+      "mean": -0.002,
+      "seed_sample_sd": null,
+      "seed_min": -0.002,
+      "seed_max": -0.002,
+      "question_bootstrap_ci_low": -0.032,
+      "question_bootstrap_ci_high": 0.026,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "pass_at_8",
+      "contrast": "interaction",
+      "seeds": 1,
+      "mean": 0.014,
+      "seed_sample_sd": null,
+      "seed_min": 0.014,
+      "seed_max": 0.014,
+      "question_bootstrap_ci_low": -0.024,
+      "question_bootstrap_ci_high": 0.052,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "greedy",
+      "contrast": "delta_base",
+      "seeds": 1,
+      "mean": -0.01,
+      "seed_sample_sd": null,
+      "seed_min": -0.01,
+      "seed_max": -0.01,
+      "question_bootstrap_ci_low": -0.038,
+      "question_bootstrap_ci_high": 0.016,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "greedy",
+      "contrast": "delta_rl",
+      "seeds": 1,
+      "mean": -0.014,
+      "seed_sample_sd": null,
+      "seed_min": -0.014,
+      "seed_max": -0.014,
+      "question_bootstrap_ci_low": -0.042,
+      "question_bootstrap_ci_high": 0.018,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "greedy",
+      "contrast": "interaction",
+      "seeds": 1,
+      "mean": -0.004,
+      "seed_sample_sd": null,
+      "seed_min": -0.004,
+      "seed_max": -0.004,
+      "question_bootstrap_ci_low": -0.042,
+      "question_bootstrap_ci_high": 0.034,
+      "bootstrap_repeats": 2000
+    }
+  ],
+  "missing_runs": [],
+  "uncertainty": "Only 1 training seed; seed SD is undefined and training-seed variation cannot be estimated. Bootstrap resamples evaluation questions jointly across conditions/seeds conditional on observed seeds. It excludes training-seed uncertainty. Eight responses and two reward groups are NOT independent questions.",
+  "primary_endpoint": "MATH500 step 300; Curriculum - Random and (RL difference) - (Base difference)",
+  "diagnostic_claim": "Not used in this additional training; public model historical exposure unknown"
+}

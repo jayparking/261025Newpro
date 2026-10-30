@@ -1,0 +1,11 @@
+# bash scripts/run.sh analyze --config /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/real.json --mode full --output /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/analysis/1793362100514805053
+metric contrast mean seed_SD question_bootstrap_95% (conditional on observed seeds)
+avg_at_8 delta_base -0.003000 None [-0.014500, 0.009000]
+avg_at_8 delta_rl -0.000750 None [-0.011500, 0.009750]
+avg_at_8 interaction 0.002250 None [-0.013750, 0.018750]
+pass_at_8 delta_base -0.016000 None [-0.042000, 0.010000]
+pass_at_8 delta_rl -0.002000 None [-0.032000, 0.026000]
+pass_at_8 interaction 0.014000 None [-0.024000, 0.052000]
+greedy delta_base -0.010000 None [-0.038000, 0.016000]
+greedy delta_rl -0.014000 None [-0.042000, 0.018000]
+greedy interaction -0.004000 None [-0.042000, 0.034000]

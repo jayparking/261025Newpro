@@ -1,0 +1,33 @@
+{
+  "cursor": 300,
+  "contract": {
+    "config": "c63e812f0c43f3d68fb9f510e9cdfaa3929cb0a52d1d613739915d8fbd3d717a",
+    "data": "29a19eb601df004af64b9d03c68d72a4941f249e71335b914ed741774cc73bcc",
+    "model": "ec8c99b4b8f1154cc3db60619d084677fcdcc4b1cebbce54f6add1850a5b451a",
+    "model_revision": "8faed761d45a263340a0528343f099c05c9a4323",
+    "tokenizer_revision": "8faed761d45a263340a0528343f099c05c9a4323",
+    "model_card": "84cc3bdbfd781149913126b70981cf1e341176fe4bc9d878601a83f18b035ddf",
+    "code": "236b3aaa11c35c6d24e743d75f6042ae87be56e1dbc94db092329d6295cf521d",
+    "packages": {
+      "torch": "2.7.1+cu128",
+      "transformers": "4.52.4",
+      "peft": "0.15.2",
+      "accelerate": "1.7.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.10.3",
+      "math-verify": "0.8.0",
+      "huggingface-hub": "0.31.4",
+      "tokenizers": "0.21.4",
+      "safetensors": "0.8.0",
+      "sympy": "1.14.0",
+      "latex2sympy2_extended": "1.10.2",
+      "antlr4-python3-runtime": "4.13.2"
+    },
+    "role": "base",
+    "order": "random",
+    "seed": 1,
+    "mode": "full",
+    "sequence": "c663b82c68574f87401a54f5c88c786b6f70f54d0a14909e02b3cdde70ad8564"
+  },
+  "sha256": "89dfeb84815b4ffa6b12930258ec8158d845ea2bd4252fd8e5e340c222236e6c"
+}

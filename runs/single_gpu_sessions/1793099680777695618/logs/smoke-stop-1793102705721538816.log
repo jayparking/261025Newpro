@@ -1,0 +1,58 @@
+# bash scripts/run.sh smoke --config /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json --stop-after 1 --resume-failed
+Report: /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/runs/smoke/preflight/1793102705801603706.json
+Start base/random/seed1 on GPU-ddb660cc-cefb-4b1a-f2ca-8601d4ce236b; log: /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/runs/smoke/launcher_logs/smoke_base_1_random_1793102735316830940.log
+Evaluation diagnostic step=0: 3 questions, 8 samples + greedy, max_new_tokens=32
+Step-0 diagnostic: verifying initial output before cache lookup
+  diagnostic step=0: generating questions 1-3/3
+  batch elapsed=2.6s
+  diagnostic step=0: 3/3, avg@8=0.0833, pass@8=0.3333, elapsed=2.6s
+Evaluation diagnostic step=0: cache_hit=False, avg@8=0.0833, greedy=0.0000
+base/random/seed1: exposure 1/3, reward=0.00, optimizer_steps=1, 4.2s/update, 30.2 training tok/s, peak=3.22 GiB
+Evaluation smoke_pause step=1: 1 questions, 8 samples + greedy, max_new_tokens=32
+  smoke_pause step=1: generating questions 1-1/1
+  batch elapsed=5.2s
+  smoke_pause step=1: 1/1, avg@8=0.0000, pass@8=0.0000, elapsed=5.2s
+Smoke stopped after checkpoint 1; resume with --resume-failed
+Start base/curriculum/seed1 on GPU-ddb660cc-cefb-4b1a-f2ca-8601d4ce236b; log: /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/runs/smoke/launcher_logs/smoke_base_1_curriculum_1793102779527471117.log
+Evaluation diagnostic step=0: 3 questions, 8 samples + greedy, max_new_tokens=32
+Step-0 diagnostic: verifying initial output before cache lookup
+Evaluation diagnostic step=0: cache_hit=True, avg@8=0.0833, greedy=0.0000
+base/curriculum/seed1: exposure 1/3, reward=0.50, optimizer_steps=1, 5.1s/update, 25.0 training tok/s, peak=3.22 GiB
+Evaluation smoke_pause step=1: 1 questions, 8 samples + greedy, max_new_tokens=32
+  smoke_pause step=1: generating questions 1-1/1
+  batch elapsed=4.6s
+  smoke_pause step=1: 1/1, avg@8=0.0000, pass@8=0.0000, elapsed=4.6s
+Smoke stopped after checkpoint 1; resume with --resume-failed
+Start rl/random/seed1 on GPU-ddb660cc-cefb-4b1a-f2ca-8601d4ce236b; log: /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/runs/smoke/launcher_logs/smoke_rl_1_random_1793102822863554734.log
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:06<00:06,  6.41s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  3.96s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  4.33s/it]
+Evaluation diagnostic step=0: 3 questions, 8 samples + greedy, max_new_tokens=32
+Step-0 diagnostic: verifying initial output before cache lookup
+  diagnostic step=0: generating questions 1-3/3
+  batch elapsed=2.5s
+  diagnostic step=0: 3/3, avg@8=0.0000, pass@8=0.0000, elapsed=2.5s
+Evaluation diagnostic step=0: cache_hit=False, avg@8=0.0000, greedy=0.0000
+rl/random/seed1: exposure 1/3, reward=0.00, optimizer_steps=1, 4.3s/update, 30.0 training tok/s, peak=3.22 GiB
+Evaluation smoke_pause step=1: 1 questions, 8 samples + greedy, max_new_tokens=32
+  smoke_pause step=1: generating questions 1-1/1
+  batch elapsed=4.7s
+  smoke_pause step=1: 1/1, avg@8=0.0000, pass@8=0.0000, elapsed=4.7s
+Smoke stopped after checkpoint 1; resume with --resume-failed
+Start rl/curriculum/seed1 on GPU-ddb660cc-cefb-4b1a-f2ca-8601d4ce236b; log: /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/runs/smoke/launcher_logs/smoke_rl_1_curriculum_1793102889217394171.log
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:06<00:06,  6.82s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:09<00:00,  4.19s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:09<00:00,  4.58s/it]
+Evaluation diagnostic step=0: 3 questions, 8 samples + greedy, max_new_tokens=32
+Step-0 diagnostic: verifying initial output before cache lookup
+Evaluation diagnostic step=0: cache_hit=True, avg@8=0.0000, greedy=0.0000
+rl/curriculum/seed1: exposure 1/3, reward=0.75, optimizer_steps=1, 4.4s/update, 28.8 training tok/s, peak=3.22 GiB
+Evaluation smoke_pause step=1: 1 questions, 8 samples + greedy, max_new_tokens=32
+  smoke_pause step=1: generating questions 1-1/1
+  batch elapsed=4.6s
+  smoke_pause step=1: 1/1, avg@8=0.0000, pass@8=0.0000, elapsed=4.6s
+Smoke stopped after checkpoint 1; resume with --resume-failed

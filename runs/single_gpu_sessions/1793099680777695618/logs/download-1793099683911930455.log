@@ -1,0 +1,40 @@
+# bash scripts/run.sh download --config /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json --only all
+Traceback (most recent call last):
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 396, in http_get
+    import hf_transfer  # type: ignore[no-redef]
+    ^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'hf_transfer'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/root/261025Newpro/grpo_order/assets.py", line 203, in <module>
+    main()
+  File "/root/261025Newpro/grpo_order/assets.py", line 194, in main
+    receipt = fetch_asset(repo_id, kind, path, lock.get(key), revision, args.offline, pin_before_download)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/261025Newpro/grpo_order/assets.py", line 156, in fetch_asset
+    snapshot_download(repo_id, repo_type=kind, revision=pinned, local_dir=stage)
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/_snapshot_download.py", line 295, in snapshot_download
+    _inner_hf_hub_download(file)
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/_snapshot_download.py", line 271, in _inner_hf_hub_download
+    return hf_hub_download(
+           ^^^^^^^^^^^^^^^^
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 988, in hf_hub_download
+    return _hf_hub_download_to_local_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1288, in _hf_hub_download_to_local_dir
+    _download_to_tmp_and_move(
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1723, in _download_to_tmp_and_move
+    http_get(
+  File "/root/261025Newpro/.venv-gpu/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 398, in http_get
+    raise ValueError(
+ValueError: Fast download using 'hf_transfer' is enabled (HF_HUB_ENABLE_HF_TRANSFER=1) but 'hf_transfer' package is not available in your environment. Try `pip install hf_transfer`.

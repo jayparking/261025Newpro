@@ -1,0 +1,435 @@
+{
+  "schema": 3,
+  "data_config": {
+    "pool": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/data/converted/pool.jsonl",
+    "validation": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/data/converted/validation.jsonl",
+    "math500": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/data/converted/math500.jsonl",
+    "prepared_dir": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/data/prepared",
+    "difficulty_field": "level",
+    "difficulty_mapping": {
+      "Level 1": "Easy",
+      "Level 2": "Easy",
+      "Level 3": "Medium",
+      "Level 4": "Hard",
+      "Level 5": "Hard"
+    },
+    "difficulty_rationale": "User-specified grouping of ORIGINAL hendrycks_math level: Easy=1-2, Medium=3, Hard=4-5. Not difficulty estimated from model accuracy.",
+    "source_provenance": "EleutherAI/hendrycks_math: all seven subjects, original train only for additional train/diagnostic/validation; original test archived separately. Final benchmark: HuggingFaceH4/MATH-500/test.",
+    "train_per_difficulty": 100,
+    "diagnostic_per_difficulty": 50,
+    "near_duplicate_threshold": 0.9,
+    "selection_seed": 20261023,
+    "import_manifest": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/data/converted/import_manifest.json",
+    "require_origin_metadata": true
+  },
+  "source_hashes": {
+    "pool": "69c78aee30d4e67d34bf3f111928b90aca35646b9683b955bdd48fc30e03d824",
+    "validation": "c431f0d7e461f8b09b57a3104916848115f3b6a469640d734dc110cc56d2a918",
+    "math500": "f0c00d975d27c9725ff355a1b35b004595379374f4f45213b5108d682f9d2157"
+  },
+  "counts": {
+    "Easy": {
+      "train": 100,
+      "diagnostic": 50,
+      "eligible_pool": 1839
+    },
+    "Medium": {
+      "train": 100,
+      "diagnostic": 50,
+      "eligible_pool": 1531
+    },
+    "Hard": {
+      "train": 100,
+      "diagnostic": 50,
+      "eligible_pool": 3910
+    }
+  },
+  "gold_audit": {
+    "grader": {
+      "policy": "math_verify_no_fallback_v3_fail_on_grader_exception",
+      "packages": {
+        "math-verify": "0.8.0",
+        "sympy": "1.14.0",
+        "latex2sympy2_extended": "1.10.2",
+        "antlr4-python3-runtime": "4.13.2"
+      }
+    },
+    "source_hashes": {
+      "pool": "69c78aee30d4e67d34bf3f111928b90aca35646b9683b955bdd48fc30e03d824",
+      "validation": "c431f0d7e461f8b09b57a3104916848115f3b6a469640d734dc110cc56d2a918",
+      "math500": "f0c00d975d27c9725ff355a1b35b004595379374f4f45213b5108d682f9d2157"
+    },
+    "failures": [
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/algebra/4dc8699faccf29cfdfbf3cb894662f2100d1b5974aef694b3858161aa3eb6e7a",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "-\\frac{5}{3}.",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Algebra",
+          "subset": "algebra",
+          "level": "Level 4",
+          "difficulty": "Hard",
+          "original_id": null,
+          "source_file": "algebra/train-00000-of-00001.parquet",
+          "source_row": 1652
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/algebra/85ce10f72d8a5659d7d81bb1ebba4bc3e7be80201b5f770c6c8f3b204eecfc66",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\approx 8.24 \\text{ mph}",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Algebra",
+          "subset": "algebra",
+          "level": "Level 5",
+          "difficulty": "Hard",
+          "original_id": null,
+          "source_file": "algebra/train-00000-of-00001.parquet",
+          "source_row": 1556
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/f789542310ae2c1a66de14e544eb4870c112aa38671da4c5357dc178140d17bb",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\dfrac{1}{29,\\!322,\\!216}",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Counting & Probability",
+          "subset": "counting_and_probability",
+          "level": "Level 4",
+          "difficulty": "Hard",
+          "original_id": null,
+          "source_file": "counting_and_probability/train-00000-of-00001.parquet",
+          "source_row": 163
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/geometry/b7dc6fb275c046427e4e75ac86f54f21f2def1c39e9b7768d11df0c62d134e52",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "30^\\circ.",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Geometry",
+          "subset": "geometry",
+          "level": "Level 2",
+          "difficulty": "Easy",
+          "original_id": null,
+          "source_file": "geometry/train-00000-of-00001.parquet",
+          "source_row": 358
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/dc330cc2f964e0996b583e174efb59a037fc3b53bb397f326efb55d1867aa7b0",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "a + b + c",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Intermediate Algebra",
+          "subset": "intermediate_algebra",
+          "level": "Level 5",
+          "difficulty": "Hard",
+          "original_id": null,
+          "source_file": "intermediate_algebra/train-00000-of-00001.parquet",
+          "source_row": 579
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/2c94d1743ef36d3214e8ee8cd0215740584279214cdf4e8efda37e02a1f5e0fa",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\dfrac{2469}{20,\\!000}",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Number Theory",
+          "subset": "number_theory",
+          "level": "Level 2",
+          "difficulty": "Easy",
+          "original_id": null,
+          "source_file": "number_theory/train-00000-of-00001.parquet",
+          "source_row": 737
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/9956c6eb86edb7f4084f1d4b46001d3018f936094ae681450d8973c74aba49b0",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\text{(E)},",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Number Theory",
+          "subset": "number_theory",
+          "level": "Level 3",
+          "difficulty": "Medium",
+          "original_id": null,
+          "source_file": "number_theory/train-00000-of-00001.parquet",
+          "source_row": 8
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/a9c3c1c7be740e3d40c3ff58ef5ba225113bf383c3741073680438600dfa19ac",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "43_5.",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Number Theory",
+          "subset": "number_theory",
+          "level": "Level 4",
+          "difficulty": "Hard",
+          "original_id": null,
+          "source_file": "number_theory/train-00000-of-00001.parquet",
+          "source_row": 775
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/43671a2469fea42d8bd52bf5b00b4972c9d203a5fbbe233fc50b54a832207751",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "7\\text{ hours}.",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Prealgebra",
+          "subset": "prealgebra",
+          "level": "Level 3",
+          "difficulty": "Medium",
+          "original_id": null,
+          "source_file": "prealgebra/train-00000-of-00001.parquet",
+          "source_row": 928
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/46dee557151b0528cbbd2cad4408466f5db0568e0a2ff1c70ada1d4bd5ae68c9",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\sin^2 t",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Precalculus",
+          "subset": "precalculus",
+          "level": "Level 5",
+          "difficulty": "Hard",
+          "original_id": null,
+          "source_file": "precalculus/train-00000-of-00001.parquet",
+          "source_row": 189
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/536628edc7f185e51bed4e77527c14f5c8ba1d583e3202cdd7084976ba1ba3bf",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\begin{pmatrix} 1 & -1 \\\\ 1 & \\phantom -1 \\end{pmatrix}",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Precalculus",
+          "subset": "precalculus",
+          "level": "Level 3",
+          "difficulty": "Medium",
+          "original_id": null,
+          "source_file": "precalculus/train-00000-of-00001.parquet",
+          "source_row": 32
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/d0c89d9063b1717e69f5d4e6a824b86f2f8e3fdca9b3f63ed416eda6beff58c3",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "\\begin{pmatrix} -1 & 0 \\\\ 0 & -1 \\end{pmatrix}.",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Precalculus",
+          "subset": "precalculus",
+          "level": "Level 2",
+          "difficulty": "Easy",
+          "original_id": null,
+          "source_file": "precalculus/train-00000-of-00001.parquet",
+          "source_row": 185
+        }
+      },
+      {
+        "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/e86fc9c237d4831acab6f9cfb3ff982f5c84a82178aef90c7efb9c1e07b136fe",
+        "split": "pool",
+        "category": "parser_limitation",
+        "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+        "answer": "2007 + \\frac\\pi 2",
+        "origin": {
+          "source": "EleutherAI/hendrycks_math",
+          "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+          "split": "train",
+          "subject": "Precalculus",
+          "subset": "precalculus",
+          "level": "Level 3",
+          "difficulty": "Medium",
+          "original_id": null,
+          "source_file": "precalculus/train-00000-of-00001.parquet",
+          "source_row": 57
+        }
+      }
+    ],
+    "math500_count": 500,
+    "math500_failed_ids": []
+  },
+  "import_manifest": {
+    "schema": 1,
+    "sources": {
+      "math": {
+        "repo_id": "EleutherAI/hendrycks_math",
+        "repo_type": "dataset",
+        "revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "tokenizer_revision": null,
+        "tokenizer_repo_id": null,
+        "files": {
+          ".gitattributes": "f4e703ea6e44bbebe53aceed2a89c11e40b88b7ae130c480c89860ab805ffc8f",
+          "README.md": "2372e22a154ca3ed5865378e270b32d8ed5b615c4592fad42630a731a950bcc0",
+          "algebra/test-00000-of-00001.parquet": "0e04a850dac9cfc758eac0c80afd2d0cc65e29ea72f916c8ac1045b12af937f5",
+          "algebra/train-00000-of-00001.parquet": "73347f5b55869f21ff094361025dbd12d291e971aa4d72142eacee10438e449f",
+          "counting_and_probability/test-00000-of-00001.parquet": "c324818949c75a6227c0328a8499d58023cbbf6757cfc1736f5ab24cc8d87966",
+          "counting_and_probability/train-00000-of-00001.parquet": "d37ae017930df41678edee50dcde18c17fb06afaff9eb505c1b95f1002bfcb31",
+          "geometry/test-00000-of-00001.parquet": "98720f3a8134ad9784fd8951195245264495df03ffc5c9485a9a54ff5ae2431a",
+          "geometry/train-00000-of-00001.parquet": "9dbf5e5b55499e696e0ba72da9d85d4f0be3acbf7eaa6cb014b0fc78bb63784f",
+          "intermediate_algebra/test-00000-of-00001.parquet": "e859f72486c951c2017da880541ca729940eaa986b0364eb23e238983df9bfeb",
+          "intermediate_algebra/train-00000-of-00001.parquet": "0c87f3798ebdfb915b1f9b6fc13c1a8d064c3cb91631ccbe85b83ed5d71150f6",
+          "number_theory/test-00000-of-00001.parquet": "ba156c9c9fa2040836ba12135fd964e6e67d6bccd8c469ec4a3ad941f8f6fbe9",
+          "number_theory/train-00000-of-00001.parquet": "81c08649149b39811f2d1d7ddf5dfccf6c4c8044a2e169cfb24db09160c941f4",
+          "prealgebra/test-00000-of-00001.parquet": "301e5d8ade5c7b5038032532e498bdc9dca799e7f1061a63f2e7d980803240cc",
+          "prealgebra/train-00000-of-00001.parquet": "765b526fb5c0b8385cb7be2c16bf4f6f28cf71f2bc15c826abfbb5fa7f8616cc",
+          "precalculus/test-00000-of-00001.parquet": "da37474ba3761ae5727af3844a7ba963a735bd6a14c65e6137593669a4fe3b9c",
+          "precalculus/train-00000-of-00001.parquet": "28bb1ff95525c8d32521509bef91de76339659f5467a381e6e8deea204538f0e"
+        },
+        "stored_parameter_dtypes": null,
+        "receipt_hash": "fc5c7d2bfcb6e1f46306cac0e4d1e6ab84aae9b8f53a26e421d5a13f96f38e05"
+      },
+      "math500": {
+        "repo_id": "HuggingFaceH4/MATH-500",
+        "repo_type": "dataset",
+        "revision": "6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be",
+        "tokenizer_revision": null,
+        "tokenizer_repo_id": null,
+        "files": {
+          ".gitattributes": "a2bdf429c1bc3858213bb4b7a748fa36a71536a5a1ff98861281853c3c2be1f2",
+          "README.md": "5d32f78943f75423da61419c5bb98cee964d5a29183b11a5294f661fb96f69f7",
+          "eval.yaml": "3b27aa1c196f11345dd75a1333fa47044605eced79bfa2cd770ccae65fe12621",
+          "test.jsonl": "35dc41080a3680858b27fa7e0533d2d547825316fc5dafe5d316f4ccc5a06132"
+        },
+        "stored_parameter_dtypes": null,
+        "receipt_hash": "b5e803f2d6d11f236d3e4fb1630bc1dda8d9c82bbc9d10309e30a2d52295f96d"
+      }
+    },
+    "conversion_packages": {
+      "pyarrow": "20.0.0",
+      "huggingface-hub": "0.31.4"
+    },
+    "subject_counts": {
+      "algebra": {
+        "train": 1744,
+        "test": 1187
+      },
+      "counting_and_probability": {
+        "train": 771,
+        "test": 474
+      },
+      "geometry": {
+        "train": 870,
+        "test": 479
+      },
+      "intermediate_algebra": {
+        "train": 1295,
+        "test": 903
+      },
+      "number_theory": {
+        "train": 869,
+        "test": 540
+      },
+      "prealgebra": {
+        "train": 1205,
+        "test": 871
+      },
+      "precalculus": {
+        "train": 746,
+        "test": 546
+      }
+    },
+    "level_mapping": {
+      "Level 1": "Easy",
+      "Level 2": "Easy",
+      "Level 3": "Medium",
+      "Level 4": "Hard",
+      "Level 5": "Hard"
+    },
+    "difficulty_definition": "Original dataset level grouping, NOT model empirical accuracy",
+    "validation_selection_seed": 20261024,
+    "validation_per_difficulty_before_near_dedup": 50,
+    "files": {
+      "all_test.jsonl": "343cd3acd146e2abf57ad100433cb3d8369d980f2715411f1b55a2e940ec6725",
+      "all_train.jsonl": "be23bfe55fbed776b37cb553920edd5b97859a6dcc6731969ea9e37422b4baa5",
+      "conversion_exclusions.json": "dfab861d75daea5099d5870fe8992245ce1fb36210a064bca48cfbd6041c25b4",
+      "math500.jsonl": "f0c00d975d27c9725ff355a1b35b004595379374f4f45213b5108d682f9d2157",
+      "pool.jsonl": "69c78aee30d4e67d34bf3f111928b90aca35646b9683b955bdd48fc30e03d824",
+      "validation.jsonl": "c431f0d7e461f8b09b57a3104916848115f3b6a469640d734dc110cc56d2a918"
+    },
+    "eligible_training_candidates": 7344,
+    "conversion_exclusions": 6,
+    "test_policy": "Original 5000 test rows archived only; never used to populate training pool",
+    "id_policy": "SHA256 of source/split/subset/normalized problem; independent of row order and random seed",
+    "hash": "7d55e95cb04f5827775a14dc3c353bf9ea466a1c97d6f5d53dd1abdc10b63a2d"
+  },
+  "split_counts": {
+    "train": 300,
+    "diagnostic": 150,
+    "validation": 150,
+    "math500": 500
+  },
+  "files": {
+    "diagnostic.json": "614b3eb1b5714bb288c7c0234ce5c3e7e48c5fcf8ab895482713f2affb6eb0e4",
+    "exclusions.json": "c5115abcae78f3db57b3dab7d5b552ca2dad17ae8acd3945e4c5bd976ba08313",
+    "gold_audit.json": "c92eeceb65ee22fc2128a0e039222135a34a44427b8e9372204ed0498ed00302",
+    "math500.json": "66bc272dfb0106be20a0f494b43a9b79c3aabdc9cabc7421143f18d56985cd7f",
+    "train.json": "1d4e369a49acd1d5f873f4490cf9abad77f0e10be7b0bc6a47b09409bf2483d5",
+    "validation.json": "b386f0b95dd3950aaaadbc2dec012cbd2a57854a235412401c49890b39fb4ca2"
+  },
+  "dedup": "global IDs, NFKC/casefold/whitespace text, character 5-gram Jaccard; semantic paraphrases not guaranteed",
+  "diagnostic_claim": "not used in this additional training; historical exposure unknown",
+  "hash": "29a19eb601df004af64b9d03c68d72a4941f249e71335b914ed741774cc73bcc"
+}

@@ -1,0 +1,129 @@
+{
+  "schema": "single-gpu-stages-v1",
+  "code": "236b3aaa11c35c6d24e743d75f6042ae87be56e1dbc94db092329d6295cf521d",
+  "packages": {
+    "torch": "2.7.1+cu128",
+    "transformers": "4.52.4",
+    "peft": "0.15.2",
+    "accelerate": "1.7.0",
+    "numpy": "2.2.6",
+    "matplotlib": "3.10.3",
+    "math-verify": "0.8.0",
+    "huggingface-hub": "0.31.4",
+    "tokenizers": "0.21.4",
+    "safetensors": "0.8.0",
+    "sympy": "1.14.0",
+    "latex2sympy2_extended": "1.10.2",
+    "antlr4-python3-runtime": "4.13.2"
+  },
+  "config_hash": "a1fb554f29b51aca5353db8031a4131fc68c12b75635a7980c9a715e8c1023a5",
+  "completed": {
+    "environment-lock": [
+      "/root/261025Newpro/.venv-gpu/bin/python",
+      "-m",
+      "pip",
+      "freeze"
+    ],
+    "environment": [
+      "bash",
+      "scripts/run.sh",
+      "preflight",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json",
+      "--environment-only",
+      "--report",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/logs/environment-1793099841705862220.json"
+    ],
+    "download": [
+      "bash",
+      "scripts/run.sh",
+      "download",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json",
+      "--only",
+      "all"
+    ],
+    "import": [
+      "bash",
+      "scripts/run.sh",
+      "import",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json"
+    ],
+    "prepare": [
+      "bash",
+      "scripts/run.sh",
+      "prepare",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json"
+    ],
+    "preflight": [
+      "bash",
+      "scripts/run.sh",
+      "preflight",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json",
+      "--report",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/logs/preflight-1793099931574724523.json"
+    ],
+    "smoke-stop": [
+      "bash",
+      "scripts/run.sh",
+      "smoke",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json",
+      "--stop-after",
+      "1",
+      "--resume-failed"
+    ],
+    "smoke-resume": [
+      "bash",
+      "scripts/run.sh",
+      "resume",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json",
+      "--mode",
+      "smoke"
+    ],
+    "freeze": [
+      "bash",
+      "scripts/run.sh",
+      "freeze",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/real.json"
+    ],
+    "full-4-runs": [
+      "bash",
+      "scripts/run.sh",
+      "full",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/real.json",
+      "--resume-failed"
+    ],
+    "analyze": [
+      "bash",
+      "scripts/run.sh",
+      "analyze",
+      "--config",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/real.json",
+      "--mode",
+      "full",
+      "--output",
+      "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/analysis/1793362100514805053"
+    ]
+  },
+  "choices": {},
+  "assets": {
+    "base": "cd77fc5a8636d64b216c11aca2577726f98be3f2e4c9f8c9b6b085c1035490d1",
+    "rl": "d82c47f35ed1f4fde1cf737e7ef6de9d40a654d8bda0bcbfa56000c7d676c21a",
+    "math": "3d27b6b90807502290ed42426df109d55ba5d6673d4f762e344417055f824397",
+    "math500": "a8c790766fd80d7c97c7a46f0556bbbcfd024f0874834e1bf6d438887c101e46"
+  },
+  "setup_complete": true,
+  "smoke_complete": true,
+  "analysis": "/root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/analysis/1793362100514805053",
+  "real_complete": true,
+  "real_attempt_seconds": [
+    258841.293783964
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "runs": 4,
+  "training_updates": 1200,
+  "training_responses": 4800,
+  "evaluation_problem_visits_excluding_witnesses": 3900,
+  "evaluation_responses_excluding_witnesses": 35100,
+  "step0_witness_responses": 288,
+  "evaluation_problem_batch_size": 4,
+  "assumptions": "All eligible initial-cache requests hit; excludes retries. No time estimate without GPU measurements."
+}

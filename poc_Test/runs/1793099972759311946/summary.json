@@ -1,0 +1,152 @@
+{
+  "status": "completed",
+  "elapsed_seconds": 2721.538173828041,
+  "phases": [
+    {
+      "phase": "prepare",
+      "seconds": 0.2157163639785722,
+      "exit_code": 0
+    },
+    {
+      "phase": "environment",
+      "seconds": 2.384050949010998,
+      "exit_code": 0
+    },
+    {
+      "phase": "base",
+      "seconds": 1612.0002536110114,
+      "exit_code": 0
+    },
+    {
+      "phase": "rl",
+      "seconds": 1106.9342936850153,
+      "exit_code": 0
+    }
+  ],
+  "error": null,
+  "models": [
+    {
+      "model": "base",
+      "run": "/root/261025Newpro/poc_Test/runs/1793099972759311946/runs/poc/base_seed1_random",
+      "complete": true,
+      "committed_updates": 12,
+      "original_model_hash": "ec8c99b4b8f1154cc3db60619d084677fcdcc4b1cebbce54f6add1850a5b451a",
+      "group_counts": {
+        "mixed": 7,
+        "all_wrong": 5
+      },
+      "training_seconds": 764.9431767778005,
+      "seconds_per_update": 63.74526473148338,
+      "training_truncation_fraction": 0.0625,
+      "training_mean_tokens": 459.5,
+      "training_failure_reasons": {
+        "incorrect_answer": 38
+      },
+      "training_peak_allocated_gib": 5.428646564483643,
+      "training_peak_reserved_gib": 12.947265625,
+      "groups_by_difficulty": {
+        "Easy": {
+          "mixed": 3,
+          "all_wrong": 1
+        },
+        "Medium": {
+          "all_wrong": 3,
+          "mixed": 1
+        },
+        "Hard": {
+          "mixed": 3,
+          "all_wrong": 1
+        }
+      },
+      "adapter_changed": true,
+      "validation_metrics": {
+        "questions": 12,
+        "avg_at_8": 0.5104166666666666,
+        "pass_at_8": 0.8333333333333334,
+        "greedy": 0.5,
+        "mixed_fraction": 0.5,
+        "all_wrong_fraction": 0.25,
+        "all_correct_fraction": 0.25,
+        "sampled_truncation_fraction": 0.020833333333333332,
+        "sampled_mean_tokens": 499.3645833333333,
+        "greedy_truncation": 0.16666666666666666,
+        "greedy_tokens": 863.9166666666666
+      },
+      "validation_seconds": 805.3993692549411,
+      "seconds_per_evaluation_batch": 268.4664564183137,
+      "validation_failure_reasons": {
+        "incorrect_answer": 53
+      },
+      "validation_peak_allocated_gib": 5.57729959487915,
+      "validation_peak_reserved_gib": 12.947265625
+    },
+    {
+      "model": "rl",
+      "run": "/root/261025Newpro/poc_Test/runs/1793099972759311946/runs/poc/rl_seed1_random",
+      "complete": true,
+      "committed_updates": 12,
+      "original_model_hash": "05bc74aa464a932467557d0dd1d1c62fa349334f143192361e45da4baa254621",
+      "group_counts": {
+        "all_correct": 5,
+        "all_wrong": 4,
+        "mixed": 3
+      },
+      "training_seconds": 515.1937831620453,
+      "seconds_per_update": 42.93281526350378,
+      "training_truncation_fraction": 0.0,
+      "training_mean_tokens": 409.6041666666667,
+      "training_failure_reasons": {
+        "incorrect_answer": 20
+      },
+      "training_peak_allocated_gib": 4.240747451782227,
+      "training_peak_reserved_gib": 6.439453125,
+      "groups_by_difficulty": {
+        "Easy": {
+          "mixed": 2,
+          "all_correct": 2
+        },
+        "Medium": {
+          "all_wrong": 3,
+          "all_correct": 1
+        },
+        "Hard": {
+          "all_correct": 2,
+          "all_wrong": 1,
+          "mixed": 1
+        }
+      },
+      "adapter_changed": true,
+      "validation_metrics": {
+        "questions": 12,
+        "avg_at_8": 0.6875,
+        "pass_at_8": 0.8333333333333334,
+        "greedy": 0.75,
+        "mixed_fraction": 0.125,
+        "all_wrong_fraction": 0.25,
+        "all_correct_fraction": 0.625,
+        "sampled_truncation_fraction": 0.020833333333333332,
+        "sampled_mean_tokens": 592.21875,
+        "greedy_truncation": 0.0,
+        "greedy_tokens": 602.5833333333334
+      },
+      "validation_seconds": 539.4006644659676,
+      "seconds_per_evaluation_batch": 179.80022148865586,
+      "validation_failure_reasons": {
+        "incorrect_answer": 33
+      },
+      "validation_peak_allocated_gib": 5.482067584991455,
+      "validation_peak_reserved_gib": 6.439453125
+    }
+  ],
+  "full_experiment_projection": {
+    "training_hours": 17.779679999164525,
+    "evaluation_hours": 61.387631168926674,
+    "compute_hours": 79.16731116809119,
+    "runs": 4,
+    "evaluation_batches": 986,
+    "scope": "Excludes setup, loading, checkpoints, final analysis and retries. Assumes initial-cache hits.",
+    "uncertainty": "Only 12/24 training and 12 validation questions per model. Length/difficulty and throughput can change; this is not a completion-time guarantee."
+  },
+  "meaning": "Execution feasibility only. No score-improvement requirement; no automatic full run.",
+  "billing": "Stopping POC processes does not stop or release the rented server."
+}

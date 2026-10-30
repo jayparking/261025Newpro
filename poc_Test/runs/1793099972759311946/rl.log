@@ -1,0 +1,27 @@
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:05<00:05,  5.35s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.11s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.45s/it]
+rl/random/seed1: exposure 1/12, reward=1.00, optimizer_steps=1, 40.9s/update, 48.4 training tok/s, peak=3.64 GiB
+rl/random/seed1: exposure 2/12, reward=0.00, optimizer_steps=2, 38.6s/update, 41.9 training tok/s, peak=4.12 GiB
+rl/random/seed1: exposure 3/12, reward=0.00, optimizer_steps=3, 49.6s/update, 36.1 training tok/s, peak=3.93 GiB
+rl/random/seed1: exposure 4/12, reward=0.75, optimizer_steps=4, 30.5s/update, 33.6 training tok/s, peak=3.74 GiB
+rl/random/seed1: exposure 5/12, reward=1.00, optimizer_steps=5, 24.9s/update, 34.8 training tok/s, peak=3.67 GiB
+rl/random/seed1: exposure 6/12, reward=0.50, optimizer_steps=6, 42.7s/update, 34.5 training tok/s, peak=3.83 GiB
+rl/random/seed1: exposure 7/12, reward=1.00, optimizer_steps=7, 28.8s/update, 46.4 training tok/s, peak=3.70 GiB
+rl/random/seed1: exposure 8/12, reward=1.00, optimizer_steps=8, 49.0s/update, 25.4 training tok/s, peak=3.86 GiB
+rl/random/seed1: exposure 9/12, reward=0.00, optimizer_steps=9, 74.7s/update, 33.8 training tok/s, peak=4.24 GiB
+rl/random/seed1: exposure 10/12, reward=0.75, optimizer_steps=10, 28.6s/update, 39.3 training tok/s, peak=3.67 GiB
+rl/random/seed1: exposure 11/12, reward=1.00, optimizer_steps=11, 51.4s/update, 39.8 training tok/s, peak=3.91 GiB
+rl/random/seed1: exposure 12/12, reward=0.00, optimizer_steps=12, 55.4s/update, 47.4 training tok/s, peak=4.19 GiB
+Evaluation validation step=12: 12 questions, 8 samples + greedy, max_new_tokens=2048
+  validation step=12: generating questions 1-4/12
+  batch elapsed=175.1s
+  validation step=12: 4/12, avg@8=0.7812, pass@8=1.0000, elapsed=175.1s
+  validation step=12: generating questions 5-8/12
+  batch elapsed=252.5s
+  validation step=12: 8/12, avg@8=0.5312, pass@8=0.7500, elapsed=427.6s
+  validation step=12: generating questions 9-12/12
+  batch elapsed=111.1s
+  validation step=12: 12/12, avg@8=0.6875, pass@8=0.8333, elapsed=538.7s

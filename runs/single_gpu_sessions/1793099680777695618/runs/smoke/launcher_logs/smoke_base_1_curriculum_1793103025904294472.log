@@ -1,0 +1,10 @@
+base/curriculum/seed1: exposure 2/3, reward=0.00, optimizer_steps=2, 4.5s/update, 28.3 training tok/s, peak=3.30 GiB
+base/curriculum/seed1: exposure 3/3, reward=0.00, optimizer_steps=3, 3.8s/update, 33.5 training tok/s, peak=3.33 GiB
+Evaluation diagnostic step=3: 3 questions, 8 samples + greedy, max_new_tokens=32
+  diagnostic step=3: generating questions 1-3/3
+  batch elapsed=5.1s
+  diagnostic step=3: 3/3, avg@8=0.0833, pass@8=0.3333, elapsed=5.1s
+Evaluation smoke_resume step=3: 1 questions, 8 samples + greedy, max_new_tokens=32
+  smoke_resume step=3: generating questions 1-1/1
+  batch elapsed=4.7s
+  smoke_resume step=3: 1/1, avg@8=0.0000, pass@8=0.0000, elapsed=4.7s

@@ -1,0 +1,2 @@
+# bash scripts/run.sh preflight --config /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/configs/session.json --environment-only --report /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/logs/environment-1793099841705862220.json
+Report: /root/261025Newpro/runs/single_gpu_sessions/1793099680777695618/logs/environment-1793099841705862220.json

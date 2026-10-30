@@ -1,0 +1,10 @@
+metric,contrast,seeds,mean,seed_sample_sd,seed_min,seed_max,question_bootstrap_ci_low,question_bootstrap_ci_high,bootstrap_repeats
+avg_at_8,delta_base,1,-0.003,,-0.003,-0.003,-0.0145,0.009,2000
+avg_at_8,delta_rl,1,-0.00075,,-0.00075,-0.00075,-0.0115,0.00975,2000
+avg_at_8,interaction,1,0.00225,,0.00225,0.00225,-0.01375,0.01875,2000
+pass_at_8,delta_base,1,-0.016,,-0.016,-0.016,-0.042,0.01,2000
+pass_at_8,delta_rl,1,-0.002,,-0.002,-0.002,-0.032,0.026,2000
+pass_at_8,interaction,1,0.014,,0.014,0.014,-0.024,0.052,2000
+greedy,delta_base,1,-0.01,,-0.01,-0.01,-0.038,0.016,2000
+greedy,delta_rl,1,-0.014,,-0.014,-0.014,-0.042,0.018,2000
+greedy,interaction,1,-0.004,,-0.004,-0.004,-0.042,0.034,2000
