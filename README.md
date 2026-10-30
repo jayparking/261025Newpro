@@ -1,5 +1,9 @@
 # 261025Newpro — Qwen2.5-1.5B Base / SimpleRL-Zoo 추가 GRPO 순서 실험
 
+## 완료된 실험 결과와 전체 자료
+
+평가 결과·학습 기록·분석 그래프는 이 저장소에 포함되어 있다. 체크포인트, 모델, 데이터, 실행 환경 등 대용량 자료는 [전체 자료 Release](https://github.com/jayparking/261025Newpro/releases/tag/artifacts-2026-10-30)에서 다운로드할 수 있다. **[결과 위치·파일 목록·다운로드 및 복원 방법](ARTIFACTS.md)**을 참고한다.
+
 ## GPU 한 장에서 3단계 실행
 
 본실험 전에 실제 2048토큰 길이로 실행 가능성과 비용을 확인하려면 setup 후 `bash poc_Test/run.sh`를 실행한다. 기본은 Base/SimpleRL 각각 12문제 학습과 별도 validation 12문제 평가, 전체 최대 60분이며 본실험을 자동 시작하지 않는다. 자세한 사용법과 한계는 [poc_Test/README.md](poc_Test/README.md)에 있다.
