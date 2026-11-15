@@ -2,6 +2,15 @@
 
 > 현재 기본 서버 실행은 `1.setup.sh` → `3.runreal.sh`다. 새 설정은 별도 Smoke를 생략하고 12회 학습·진단까지만 수행한다. MATH500은 이후 `4.math500.sh`로 명시적으로 실행한다. CPU 테스트 자동 실행·test CLI·pytest 의존성은 추가하지 않았다. 이전 검증 기록은 이력이며 현재 서버 실행 명령이 아니다.
 
+## 2026-11-15 소스 재검토
+
+- 평가 chunk는 문항 수·응답 수·sample index·보상·token 수를 검증한 뒤 저장하도록 보완했다. 잘못된 응답을 캐시에 남겨 재시도까지 계속 실패하는 경우를 방지한다. 기존 캐시의 checksum 및 응답 검증도 유지한다.
+- 학습 기록의 누적 All-Wrong/Mixed/All-Correct 비율을 실제 응답 보상에서 재계산하여 확인한다. 누적 통계가 원본 보상과 다르면 Zero-Advantage 그래프를 생성하기 전에 거절한다.
+- 기존 CPU 회귀 검증 9개를 다시 통과했고, 추가 검증 9개도 통과했다(**총 18개**). 추가 항목은 GPU 1장 순차/2장 병렬 배정으로 정확히 12개 작업 구성, 작업 실패 후 다음 조건 미실행, worker 생성 실패 시 실행 중인 상대 worker 종료, 완료 run 재학습 방지, 별도 128샘플 benchmark 작업 배정, 잘못된 chunk 저장 방지와 재시도 복구, 누적 그룹 통계 변조 거절, 실제 CPU optimizer/checkpoint/RNG 재개 비교다. GPU 프로세스 배정·실패 검사는 subprocess 대역을 사용했다.
+- CPU 재개 검사는 작은 임시 모델과 실제 PyTorch tensor·GRPO objective·AdamW·checkpoint 직렬화를 사용했다. 300 updates 연속 실행과 100 update 진단 직전 중단 후 300까지 재개를 비교하여 최종 adapter·optimizer 상태·Torch/Python RNG·모든 step의 응답/보상/advantage/loss/가중치 norm이 일치함을 확인했다. 0/100/200/300 체크포인트 유지, 잘린 JSONL 복구 및 CSV/JSONL 300행, 진단 시점과 MATH500 미호출도 확인했다. 공개 모델·실제 생성·채점·CUDA 통계는 대역이며 합성 자료는 임시 폴더에서 삭제했다.
+- 추가 검사 환경은 Python 3.11.14 / **CPU PyTorch 2.14.0** / numpy 2.4.2 / PyYAML 6.0.3이다. 서버 고정 버전 PyTorch 2.7.1/CUDA 및 실제 공개 모델의 동작·VRAM·처리량을 검증한 것은 아니다. 기존 9개 검사는 앞 절차와 동일한 격리 환경(PyYAML 6.0.2, numpy 2.2.6, matplotlib 3.10.3)에서 재실행했다. 서버 requirements는 변경하지 않았다.
+- Python 32개 파일·셸 9개 파일 문법, 설정 4개 로딩, 단계별 dry-run 및 지원하지 않는 GPU 3장/중복 지정 거절을 확인했다. 임시 추가 검사와 로그는 `/tmp/test_curriculum12_review.py`, `/tmp/grpo-curriculum12-review.log`에 있다. GPU 학습·평가 및 Git commit/push는 이 검토 작업에서 실행하지 않았다.
+
 ## 2026-11-15 학습/진단과 MATH500 분리
 
 - 새 YAML 설정의 seed 42/123/777, 12회 실행, 진단 0/100/200/300, MATH500 지연, Smoke 생략 정책을 확인했다. 기존 JSON 설정과 학습·LoRA·모델·prompt·데이터 설정이 동일함을 검사했다. 학습 temperature=1.0/top-p=1.0을 유지한다.
