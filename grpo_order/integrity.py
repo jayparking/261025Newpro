@@ -33,6 +33,7 @@ def validate_steps(c, metadata, steps, expected_rows):
     if len(steps) != len(expected_rows):
         raise ValueError("Missing or extra committed training steps")
     tokens = 0
+    counts = {"all_wrong": 0, "mixed": 0, "all_correct": 0}
     for index, (r, row) in enumerate(zip(steps, expected_rows), 1):
         if (r["exposure"] != index or r["problem_id"] != row["id"] or r["difficulty"] != row["difficulty"]
                 or r["optimizer_steps"] != index or r["skipped_steps"] != 0 or not r["optimizer_step_performed"]):
@@ -42,6 +43,9 @@ def validate_steps(c, metadata, steps, expected_rows):
         if (r["reward_mean"] != mean or not math.isclose(r["reward_std_population"], std)
                 or r["advantages"] != adv or r["group_type"] != kind):
             raise ValueError("Saved rewards/advantages disagree")
+        counts[kind] += 1
+        if r["cumulative_group_fractions"] != {k: v / index for k, v in counts.items()}:
+            raise ValueError("Cumulative group fractions disagree with saved rewards")
         if any(r.get(k) is None or not math.isfinite(r[k]) for k in ("loss", "gradient_norm_pre_clip", "token_entropy_nats")):
             raise ValueError("Non-finite training statistics in completed run")
         tokens += sum(x["generated_tokens"] for x in r["responses"])
@@ -54,18 +58,25 @@ def validate_evaluation(result, contract, rows, split, step):
     if result["contract"] != contract or result["split"] != split or result["step"] != step:
         raise ValueError("Evaluation contract/split/step differs from experiment")
     questions = result["questions"]
+    settings = result["settings"]
+    n = settings["samples"]
     if [q["id"] for q in questions] != [r["id"] for r in rows]:
         raise ValueError(f"{split} evaluation has missing, extra or reordered questions")
     for q, row in zip(questions, rows):
         if q["difficulty"] != row["difficulty"]:
             raise ValueError("Evaluation difficulty differs from prepared data")
-        validate_responses(q["sampled"], 8)
-        validate_responses([q["greedy_response"]], 1)
-        derived = question_metrics([r["reward"] for r in q["sampled"]], q["greedy_response"]["reward"])
-        derived.update(sampled_truncation_fraction=sum(r["truncated"] for r in q["sampled"]) / 8,
-                       sampled_mean_tokens=sum(r["generated_tokens"] for r in q["sampled"]) / 8,
-                       greedy_truncation=float(q["greedy_response"]["truncated"]),
-                       greedy_tokens=q["greedy_response"]["generated_tokens"])
+        validate_responses(q["sampled"], n)
+        greedy = q.get("greedy_response")
+        if settings["greedy"]:
+            validate_responses([greedy], 1)
+        elif greedy is not None:
+            raise ValueError("Unexpected greedy response in sampling-only benchmark")
+        derived = question_metrics([r["reward"] for r in q["sampled"]],
+                                   greedy["reward"] if greedy else None, settings.get("pass_k"))
+        derived.update(sampled_truncation_fraction=sum(r["truncated"] for r in q["sampled"]) / n,
+                       sampled_mean_tokens=sum(r["generated_tokens"] for r in q["sampled"]) / n)
+        if greedy:
+            derived.update(greedy_truncation=float(greedy["truncated"]), greedy_tokens=greedy["generated_tokens"])
         if any(q[k] != v for k, v in derived.items()):
             raise ValueError("Evaluation metrics disagree with saved responses")
     if result["metrics"] != summarize(questions):

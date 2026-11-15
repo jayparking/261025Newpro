@@ -1,5 +1,5 @@
 """Summarize observed full-run quality and cost without projecting GPU throughput."""
-from .core import digest, read_json
+from .core import digest, read_json, training_evaluation_splits
 from .storage import run_path
 
 
@@ -11,7 +11,7 @@ def experiment_workload(c, splits):
     initial_groups = (len(c['models']) if e.get('step0_share_across_seeds', False)
                       else len(c['models']) * len(c['seeds']['training'])) if e.get('step0_cache') else runs
     evaluated = witnesses = 0
-    for split in ('diagnostic', 'math500'):
+    for split in training_evaluation_splits(c):
         n = len(splits[split])
         schedule = e[split + '_steps']
         evaluated += n * (runs * sum(step != 0 for step in schedule) + initial_groups * int(0 in schedule))
@@ -23,6 +23,7 @@ def experiment_workload(c, splits):
             'evaluation_responses_excluding_witnesses': evaluated * 9,
             'step0_witness_responses': witnesses * 9,
             'evaluation_problem_batch_size': batches,
+            'math500_deferred': bool(e.get('defer_math500', False)),
             'assumptions': 'All eligible initial-cache requests hit; excludes retries. No time estimate without GPU measurements.'}
 
 

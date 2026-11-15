@@ -24,7 +24,7 @@ case "$cmd" in
   download) exec "$PY" -m grpo_order.assets "$@" ;;
   import) exec "$PY" -m grpo_order.import_math "$@" ;;
   prepare) exec "$PY" -m grpo_order prepare-data "$@" ;;
-  preflight|freeze|train|evaluate|analyze) exec "$PY" -m grpo_order "$cmd" "$@" ;;
+  preflight|freeze|train|evaluate|analyze|benchmark) exec "$PY" -m grpo_order "$cmd" "$@" ;;
   presmoke) exec "$PY" -m grpo_order train --model base --order random --seed 1 --mode presmoke --resume "$@" ;;
   smoke|pilot|full) exec "$PY" -m grpo_order launch --mode "$cmd" "$@" ;;
   resume) exec "$PY" -m grpo_order launch --resume-failed "$@" ;;

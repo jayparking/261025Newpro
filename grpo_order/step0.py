@@ -42,10 +42,11 @@ def cache_identity(model, tok, c, rows, split, contract):
     first_batch = rows[:e.get("problem_batch_size", 1)]
     with isolated_rng(evaluation_batch_seed(c["seeds"]["evaluation"], split, [r["id"] for r in first_batch])):
         ids = [prompt_ids(tok, c, r["problem"]) for r in first_batch]
-        samples = generate_batch(model, tok, ids, count=8, max_new_tokens=e["max_new_tokens"],
+        samples = generate_batch(model, tok, ids, count=e.get("sample_batch_size", e["samples"]), max_new_tokens=e["max_new_tokens"],
                                  temperature=e["temperature"], top_p=e["top_p"])
-        greedy = generate_batch(model, tok, ids, count=1, max_new_tokens=e["max_new_tokens"],
-                                temperature=1, top_p=1, greedy=True)
+        greedy = (generate_batch(model, tok, ids, count=1, max_new_tokens=e["max_new_tokens"],
+                                 temperature=1, top_p=1, greedy=True)
+                  if e["greedy"] else [[] for _ in first_batch])
         witness = [r for sample, g in zip(samples, greedy) for r in sample + g]
     return {"schema": 2, "model": contract["model"],
             "initial_adapter": "verified_zero_B_disabled_adapter" if canonical else initial,

@@ -11,11 +11,19 @@ from .integrity import validate_completion
 from .storage import run_path
 
 
-def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=None):
+def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=None, task="train", samples=None):
+    if task not in ("train", "benchmark-run") or (task != "train" and mode != "full"):
+        raise ValueError("Benchmark launcher requires completed full training runs")
     if stop_after is not None and mode != "smoke":
         raise ValueError("--stop-after is only supported for smoke")
     if mode == "full":
         verify_freeze(config)
+    if task == "benchmark-run":
+        for s in config["seeds"]["training"]:
+            for role in ("base", "rl"):
+                for order in ("random", "curriculum"):
+                    root = run_path(config, mode, role, order, s)
+                    validate_completion(read_json(root / "metadata.json"), read_json(root / "complete.json"), 300)
     # Probe in a child that exits before training; a CUDA-probing parent would keep
     # contexts resident and appear as an unexpected GPU process to the workers.
     stamp = time.time_ns()
@@ -47,7 +55,9 @@ def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=No
             try:
                 for slot, order in ((0, "random"), (0 if single_gpu else 1, "curriculum")):
                     root = run_path(config, mode, role, order, s)
-                    if (root / "complete.json").exists() and resume_failed:
+                    if task == "benchmark-run" and not (root / "complete.json").exists():
+                        raise ValueError(f"Finish all training first; incomplete run: {root}")
+                    if task == "train" and (root / "complete.json").exists() and resume_failed:
                         # Finished jobs are never retrained. Refuse changed identity even here.
                         metadata = read_json(root / "metadata.json")
                         expected_updates = 300 if mode == "full" else (3 if mode == "smoke" else config["pilot"]["updates"])
@@ -60,21 +70,23 @@ def launch(config, config_path, mode, resume_failed=False, seed=1, stop_after=No
                             raise ValueError(f"Completed run identity changed: {root}")
                         print(f"Skip completed: {root}", flush=True)
                         continue
-                    if root.exists() and not resume_failed:
+                    if task == "train" and root.exists() and not resume_failed:
                         raise FileExistsError(f"Existing run {root}; use --resume-failed")
                     log_dir = Path(config["output_dir"]) / "launcher_logs"
                     log_dir.mkdir(parents=True, exist_ok=True)
-                    log = (log_dir / f"{mode}_{role}_{s}_{order}_{time.time_ns()}.log").open("w")
+                    log = (log_dir / f"{task}_{mode}_{role}_{s}_{order}_{time.time_ns()}.log").open("w")
                     handles.append(log)
                     env = os.environ.copy()
                     uuid = mapping[slot]["uuid"]
                     env.update(CUDA_VISIBLE_DEVICES=uuid, CUDA_DEVICE_ORDER="PCI_BUS_ID",
                                GRPO_ALLOCATED_SLOT=str(slot), GRPO_ASSIGNED_GPU_UUID=uuid, TOKENIZERS_PARALLELISM="false",
                                HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", CUBLAS_WORKSPACE_CONFIG=":4096:8")
-                    cmd = [sys.executable, "-m", "grpo_order", "train", "--config", str(config_path),
+                    cmd = [sys.executable, "-m", "grpo_order", task, "--config", str(config_path),
                            "--model", role, "--order", order, "--seed", str(s), "--mode", mode]
-                    if resume_failed:
+                    if resume_failed and task == "train":
                         cmd.append("--resume")
+                    if samples is not None and task == "benchmark-run":
+                        cmd.extend(["--samples", str(samples)])
                     if stop_after is not None:
                         cmd.extend(["--stop-after", str(stop_after)])
                     print(f"Start {role}/{order}/seed{s} on {uuid}; log: {log.name}", flush=True)

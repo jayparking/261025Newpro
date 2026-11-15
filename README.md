@@ -1,5 +1,90 @@
 # 261025Newpro — Qwen2.5-1.5B Base / SimpleRL-Zoo 추가 GRPO 순서 실험
 
+## 현재 실행: 12회 학습·진단 먼저, MATH500은 나중에
+
+기본 설정은 [`configs/curriculum12.yaml`](configs/curriculum12.yaml)이다. 기존 `experiment.json`을 상속한 뒤 변경 사항만 지정하며, setup 시 전체 설정을 세션 JSON으로 확정한다. **새 Curriculum 알고리즘은 추가하지 않았다.** 고정된 동일 300문제의 Random / Easy→Medium→Hard 순서를 비교한다.
+
+| 항목 | 새 본실험 |
+|---|---|
+| 조건 | Qwen2.5-1.5B Base / SimpleRL-Zoo × Random / Curriculum × seed 42, 123, 777 = 12회 |
+| 학습 | 300 updates, 문제당 4응답, LoRA 16/32/0, AdamW LR=5e-6, KL=0 |
+| 학습 생성 | 기존 temperature=1.0, top-p=1.0, 최대 2048토큰 유지 |
+| 진단 | 고정 진단셋, step 0/100/200/300, 8샘플+greedy, temperature=0.6/top-p=0.95/2048토큰 |
+| 체크포인트 | step 0/100/200/300 및 최신 재개 상태, adapter·optimizer·RNG·cursor 저장 |
+| MATH500 | 학습 단계에서는 생성하지 않음. 별도 4번 단계에서 step 0/300, 64샘플, pass@1/4/16/64 |
+| Smoke | 새 기본 설정은 별도 Smoke/POC를 요구하지 않음. 자산·데이터·GPU preflight 및 freeze는 유지 |
+
+Linux NVIDIA GPU 서버에서:
+
+```bash
+# 새 세션: 설치·모델/데이터 준비만 수행. 학습은 시작하지 않는다.
+bash 1.setup.sh --gpu 0
+
+# 12회 학습 + 진단 + Zero-Advantage 분석. 여기서 종료한다.
+bash 3.runreal.sh --gpu 0
+
+# 나중에 별도로 실행할 때만 MATH500을 생성한다. 재학습하지 않는다.
+bash 4.math500.sh --gpu 0
+```
+
+두 GPU를 쓰려면 **setup부터 모든 명령에 `--gpu 0,1`**을 지정한다. 같은 모델·seed의 Random과 Curriculum을 각각 한 GPU에서 병렬 실행한다. 한 GPU 설정은 순차 실행이다. 기존 세션의 GPU 수·학습 설정은 중간에 바꾸지 않는다. OOM 시 실행 배치를 자동 변경해 결과를 혼합하지 않는다.
+
+```bash
+# 기존 서버 환경 재사용 (고정 requirements 버전은 검사)
+PYTHON=/실제/서버/python bash 1.setup.sh --skip-install --gpu 0
+
+# 설치·파일 생성·GPU 실행 없는 실행 범위 확인
+bash 3.runreal.sh --dry-run
+bash 4.math500.sh --dry-run --gpu 0,1
+
+# 중단 시 출력된 새 세션 경로로 같은 단계를 재개
+bash 3.runreal.sh --session runs/single_gpu_sessions/새세션번호 --gpu 0
+bash 4.math500.sh --session runs/single_gpu_sessions/새세션번호 --gpu 0
+
+# 같은 학습 체크포인트에서 128개 응답으로 별도 평가: 64개 결과 보존
+bash 4.math500.sh --session runs/single_gpu_sessions/새세션번호 --gpu 0 --samples 128
+```
+
+기존 seed 1의 결과·체크포인트·설정은 수정하지 않는다. **코드 identity가 달라졌으므로 과거 세션에 재개하지 말고 새 setup을 사용한다.** 원본 모델/raw 데이터는 hash와 revision을 검사하여 재사용한다. 데이터 선택 seed와 중복 제거 기준은 그대로다. 최신 세션 자동 선택 대신 `--session`을 지정하면 실행 대상을 명확히 고정할 수 있다.
+
+학습 단계 완료 표시는 **12회 학습과 진단 완료**를 뜻한다. MATH500 완료를 뜻하지 않는다. `state.json`의 `real_complete`, `finished.json`의 `math500_deferred`와 별도 `benchmark_reports`로 구분한다. 3번 단계는 4번 단계를 호출하지 않는다.
+
+## 결과와 재개
+
+| 새 세션 아래 경로 | 내용 |
+|---|---|
+| `runs/real/full/{base,rl}_seed{42,123,777}_{random,curriculum}/` | 각 독립 학습 결과 |
+| 각 run의 `steps/*.json` | 응답 원문·보상 4개·advantage·난도·그룹 유형의 원본 로그 |
+| 각 run의 `training.csv`, `training.jsonl` | 학습 중 저장하는 파생 로그. 재개 시 정상 commit에서 복구하여 중복 방지 |
+| 각 run의 `eval/diagnostic_step-*.json` | 학습 중 고정 진단셋 평가 |
+| `analysis/<번호>/` | 진단 성능·Zero-Advantage CSV와 PNG/SVG |
+| 각 run의 `benchmarks/math500-n64-<설정해시>/` | 나중에 생성하는 MATH500 문제별 응답, 평가 집계, chunk 재개 기록 |
+| `benchmark_analysis/<번호>/` | pass@k, seed 통계, 관측 해결 문제 변화, 성능/그룹 비율 비교 |
+
+진단 분석은 MATH500 파일이 없어도 완료된다. `zero_advantage.csv`에는 모델·방법·seed·난도별 전체 및 100-step 구간의 All-Wrong/All-Correct/Mixed/Zero-Advantage 비율을 저장한다. 빈 난도 구간을 0%로 처리하지 않는다. `training_curves.csv`, `diagnostic_curves.csv`, `run_metrics.csv`, `condition_summary.csv`, `seed_contrasts.csv`, `summary.csv` 및 대응 그래프를 생성한다.
+
+별도 MATH500 평가는 **4문제 × 8샘플씩** 처리하여 문제당 64개를 모은다. 완료한 chunk는 원자적으로 저장하고, 중단 후 동일한 seed·문제 배치·sample offset으로 이어간다. 초기 평가만 검증된 zero-LoRA 원본 모델 기준으로 seed/순서 간 공유하며 Base/RL 캐시는 분리한다. 이미 저장된 평가 결과는 입력 identity와 응답 수·집계를 검증하고 재사용한다. 128개 profile은 학습 설정/체크포인트를 변경하지 않고 별도 경로에 저장한다.
+
+pass@k는 `1 - C(n-c,k)/C(n,k)`로 계산한다. pass@1은 c/n이고 n=k=64일 때 문항별 pass@64는 관측 성공 여부 0/1이다. `coverage_questions.csv`와 `coverage_summary.csv`는 각 모델의 자체 step 0 대비 신규 관측 해결·관측 해결 상실·유지·모두 미해결을 구분한다. 유한 샘플의 관측 해결을 새로운 추론 능력 획득으로 단정하지 않는다.
+
+Seed 표준편차는 학습 seed 간 변동이고, 95% CI는 조건/seed를 짝지어 **평가 문항을 bootstrap**한 구간이다. 이 CI는 관측된 학습 seed에 조건부이며 학습 seed 모집단의 불확실성까지 포함하지 않는다. Zero-Advantage와 성능 변화 그래프는 기술적 연관성만 표시한다. All-Correct 증가도 Zero-Advantage를 높일 수 있다.
+
+수동 분석 명령 (실제 새 세션의 `configs/real.json` 사용):
+
+```bash
+bash scripts/run.sh analyze --config runs/single_gpu_sessions/새세션번호/configs/real.json \
+  --mode full --endpoint diagnostic --output reports/diagnostic_새이름
+bash scripts/run.sh analyze --config runs/single_gpu_sessions/새세션번호/configs/real.json \
+  --mode full --endpoint math500 --samples 64 --output reports/math500_새이름
+```
+
+출력 폴더가 이미 있으면 분석은 덮어쓰지 않고 중단한다. 학습·평가 데이터의 전역 중복 검사와 math-verify 채점은 기존 구현을 재사용한다. 모든 GPU 실행은 위 명령을 명시적으로 실행할 때만 시작한다.
+
+<details>
+<summary>기존 seed 1 / 통합 MATH500 실행 설명과 수동 CLI 참고 (이전 프로토콜)</summary>
+
+아래 내용은 기존 `configs/experiment.json`의 4회 실험 설명이다. **새 기본 실행 순서·seed·진단 시점·MATH500 분리 정책은 위 설명을 따른다.**
+
 ## 완료된 실험 결과와 전체 자료
 
 평가 결과·학습 기록·분석 그래프는 이 저장소에 포함되어 있다. 체크포인트, 모델, 데이터, 실행 환경 등 대용량 자료는 [전체 자료 Release](https://github.com/jayparking/261025Newpro/releases/tag/artifacts-2026-10-30)에서 다운로드할 수 있다. **[결과 위치·파일 목록·다운로드 및 복원 방법](ARTIFACTS.md)**을 참고한다.
@@ -446,3 +531,5 @@ python -m compileall -q grpo_order scripts
 요청에 따라 CPU 테스트 파일·실행 단계·test 명령·pytest 의존성을 제거했다. 1.setup.sh는 설치 후 GPU 환경 preflight로 진행한다. 데이터 gold 감사, GPU preflight, smoke 중단·재개 검증은 그대로 수행한다.
 
 삭제 전 검증 기록과 환경 한계는 `VALIDATION.md`에 보존한다. 현재 실행 절차에는 해당 테스트가 없다. 모델 ID·학습 원천·난도 기준은 위와 같이 확정했다. 실제 파일 다운로드와 revision lock 생성, PRO 6000 세대/VRAM/드라이버, 고정 패키지 조합에서의 GPU smoke, 본실험 공통 평가 길이는 서버에서 확인해야 한다. 이 항목들이 비어 있는 상태의 설정을 학습 성공으로 보고하지 않는다.
+
+</details>

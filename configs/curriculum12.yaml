@@ -1,0 +1,18 @@
+# New sessions only. Existing experiment.json and seed-1 results are retained.
+extends: experiment.json
+experiment: qwen15b_curriculum12_v3
+output_dir: ./runs/qwen15b_curriculum12_v3
+seeds:
+  training: [42, 123, 777]
+pipeline:
+  require_smoke: false
+evaluation:
+  defer_math500: true
+  diagnostic_steps: [0, 100, 200, 300]
+# Only the explicit math500 stage reads this evaluation profile.
+# Sampling temperature, top-p, prompt and max length inherit the frozen config.
+benchmark:
+  samples: 64
+  pass_k: [1, 4, 16, 64]
+  sample_batch_size: 8
+  problem_batch_size: 4

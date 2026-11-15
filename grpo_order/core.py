@@ -51,7 +51,7 @@ def jsonl(path):
 
 
 def packages():
-    names = ("torch", "transformers", "peft", "accelerate", "numpy", "matplotlib", "math-verify", "huggingface-hub", "tokenizers", "safetensors", "sympy", "latex2sympy2_extended", "antlr4-python3-runtime")
+    names = ("torch", "transformers", "peft", "accelerate", "numpy", "matplotlib", "math-verify", "huggingface-hub", "tokenizers", "safetensors", "sympy", "latex2sympy2_extended", "antlr4-python3-runtime", "PyYAML")
     out = {}
     for name in names:
         try:
@@ -61,8 +61,34 @@ def packages():
     return out
 
 
+def read_config(path, seen=()):
+    """Materialize JSON/YAML with optional relative base config; reject cycles."""
+    path = Path(path).resolve()
+    if path in seen:
+        raise ValueError("Configuration inheritance cycle")
+    if path.suffix in (".yaml", ".yml"):
+        import yaml
+        c = yaml.safe_load(path.read_text())
+    else:
+        c = read_json(path)
+    if not isinstance(c, dict):
+        raise ValueError("Configuration must be a mapping")
+    parent = c.pop("extends", None)
+    if parent:
+        base = read_config(path.parent / parent, (*seen, path))
+        def merge(dst, src):
+            for key, value in src.items():
+                if isinstance(value, dict) and isinstance(dst.get(key), dict):
+                    merge(dst[key], value)
+                else:
+                    dst[key] = value
+        merge(base, c)
+        c = base
+    return c
+
+
 def load_config(path):
-    c = read_json(path)
+    c = read_config(path)
     for role, spec in c["models"].items():
         if spec.get("hub_id") and spec["hub_id"] != MODEL_IDS.get(role):
             raise ValueError(f"Model substitution forbidden for {role}: expected {MODEL_IDS.get(role)}")
@@ -105,7 +131,11 @@ def load_config(path):
             and 1 <= c["evaluation"].get("problem_batch_size", 1) <= 32,
         "step0 seed sharing flag": type(c["evaluation"].get("step0_share_across_seeds", False)) is bool,
         "pilot updates 0..300": isinstance(c["pilot"]["updates"], int) and 0 <= c["pilot"]["updates"] <= 300,
-        "training seeds [1] or [1,2,3]": c["seeds"]["training"] in ([1], [1, 2, 3]),
+        "distinct nonnegative training seeds": bool(c["seeds"]["training"])
+            and all(type(s) is int and 0 <= s < 2**31 for s in c["seeds"]["training"])
+            and len(set(c["seeds"]["training"])) == len(c["seeds"]["training"]),
+        "defer MATH500 flag": type(c["evaluation"].get("defer_math500", False)) is bool,
+        "smoke requirement flag": type(c.get("pipeline", {}).get("require_smoke", True)) is bool,
         "positive output budgets": t["max_new_tokens"] > 0 and c["evaluation"]["max_new_tokens"] > 0,
         "valid evaluation sampling": c["evaluation"]["temperature"] > 0 and 0 < c["evaluation"]["top_p"] <= 1,
         "valid optimizer values": t["lr"] > 0 and t["epsilon"] > 0 and t["max_grad_norm"] > 0
@@ -114,7 +144,14 @@ def load_config(path):
     for name, valid in checks.items():
         if not valid:
             raise ValueError("Invalid protocol setting: " + name)
+    if "benchmark" in c:
+        from .benchmark import benchmark_config
+        benchmark_config(c)
     return c
+
+
+def training_evaluation_splits(c):
+    return ("diagnostic",) if c["evaluation"].get("defer_math500", False) else ("diagnostic", "math500")
 
 
 def seed_plan(c, seed):
@@ -150,7 +187,23 @@ def advantages(rewards, epsilon=1e-8):
     return mean, std, adv, kind
 
 
-def question_metrics(rewards, greedy_reward):
+def pass_at_k(n, correct, k):
+    if not (type(n) is int and type(correct) is int and type(k) is int
+            and 0 <= correct <= n and 1 <= k <= n):
+        raise ValueError("pass@k requires 0 <= c <= n and 1 <= k <= n")
+    if k == 1:
+        return correct / n
+    if n - correct < k:
+        return 1.0
+    return 1.0 - math.prod((n - correct - i) / (n - i) for i in range(k))
+
+
+def question_metrics(rewards, greedy_reward=None, ks=None):
+    if ks is not None:
+        n, correct = len(rewards), sum(rewards)
+        if not n or any(r not in (0, 1) for r in rewards):
+            raise ValueError("Expected binary sampled rewards")
+        return {f"pass_at_{k}": pass_at_k(n, correct, k) for k in ks}
     if len(rewards) != 8:
         raise ValueError("Expected eight sampled responses for ONE question")
     kinds = [advantages(rewards[:4])[3], advantages(rewards[4:])[3]]

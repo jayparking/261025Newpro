@@ -5,7 +5,9 @@ from pathlib import Path
 import time
 
 from .analysis import analyze
-from .core import atomic_json, load_config
+from .core import atomic_json, load_config, read_json
+from .benchmark import benchmark_config, benchmark_root
+from .integrity import validate_completion, validate_evaluation
 from .data import prepare
 from .evaluation import evaluate
 from .freeze import freeze
@@ -20,30 +22,34 @@ from .train import check_environment, configure_torch, open_run, train, validate
 def main():
     parser = argparse.ArgumentParser(description="Fixed-set 2 x 2 additional GRPO experiment with configured training seeds")
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ("preflight", "prepare-data", "freeze", "train", "launch", "evaluate", "analyze"):
+    for command in ("preflight", "prepare-data", "freeze", "train", "launch", "evaluate", "analyze", "benchmark", "benchmark-run"):
         p = sub.add_parser(command)
         p.add_argument("--config", default="configs/experiment.json")
         if command == "preflight":
             p.add_argument("--environment-only", action="store_true")
             p.add_argument("--report")
-        if command in ("train", "evaluate"):
+        if command in ("train", "evaluate", "benchmark-run"):
             p.add_argument("--model", choices=("base", "rl"), required=True)
             p.add_argument("--order", choices=("random", "curriculum"), required=True)
-            p.add_argument("--seed", type=int, choices=(1, 2, 3), default=1)
-        if command in ("train", "launch", "evaluate", "analyze"):
+            p.add_argument("--seed", type=int, default=1)
+        if command in ("train", "launch", "evaluate", "analyze", "benchmark-run"):
             modes = ("poc", "presmoke", "smoke", "pilot", "full") if command == "train" else ("smoke", "pilot", "full")
-            p.add_argument("--mode", choices=modes, default="pilot")
+            p.add_argument("--mode", choices=modes, default="full" if command == "benchmark-run" else "pilot")
         if command == "train":
             p.add_argument("--resume", action="store_true")
         if command in ("train", "launch"):
             p.add_argument("--stop-after", type=int, choices=(1, 2), help="smoke only: save, evaluate, exit; then resume")
         if command == "launch":
             p.add_argument("--resume-failed", action="store_true")
-            p.add_argument("--seed", type=int, choices=(1, 2, 3), default=1)
+            p.add_argument("--seed", type=int, default=1)
+        if command in ("benchmark", "benchmark-run", "evaluate", "analyze"):
+            p.add_argument("--samples", type=int, help="Separate MATH500 profile (default 64); e.g. 128")
         if command == "evaluate":
             p.add_argument("--step", type=int, required=True)
             p.add_argument("--split", choices=("diagnostic", "math500", "validation"), default="validation")
         if command == "analyze":
+            p.add_argument("--endpoint", choices=("diagnostic", "math500"),
+                           help="Defaults to diagnostic when MATH500 is deferred")
             p.add_argument("--output", required=True)
             p.add_argument("--allow-incomplete", action="store_true")
             p.add_argument("--no-plots", action="store_true")
@@ -52,7 +58,7 @@ def main():
     # Before torch import / CUDA initialization, including direct single-run launches.
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    if args.command in ("launch", "preflight", "freeze"):
+    if args.command in ("launch", "preflight", "freeze", "benchmark"):
         os.environ.setdefault("CUDA_VISIBLE_DEVICES", ",".join(map(str, c["runtime"]["allocated_gpu_slots"])))
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
@@ -83,19 +89,36 @@ def main():
         launch(c, args.config, args.mode, args.resume_failed, args.seed, args.stop_after)
     elif args.command == "evaluate":
         evaluate_saved(c, args)
+    elif args.command == "benchmark":
+        benchmark_config(c, args.samples)  # Validate before any expensive GPU work.
+        launch(c, args.config, "full", task="benchmark-run", samples=args.samples)
+    elif args.command == "benchmark-run":
+        if args.mode != "full":
+            raise ValueError("Deferred benchmark requires a full run")
+        args.split = "math500"
+        for step in c["evaluation"]["math500_steps"]:
+            args.step = step
+            evaluate_saved(c, args, separate_benchmark=True)
     elif args.command == "analyze":
-        analyze(c, args.mode, args.output, args.allow_incomplete, not args.no_plots)
+        analyze(c, args.mode, args.output, args.allow_incomplete, not args.no_plots,
+                endpoint=args.endpoint, samples=args.samples)
     return 0
 
 
-def evaluate_saved(c, args):
+def evaluate_saved(c, args, separate_benchmark=False):
     """Evaluate one retained checkpoint of an existing run; shares setup with training."""
     validate_assignment(args.order, c)
     if args.mode != "full" and args.split == "math500":
         raise ValueError("MATH500 evaluation is only allowed for frozen full runs")
     root = run_path(c, args.mode, args.model, args.order, args.seed)
+    separate_benchmark = separate_benchmark or (args.split == "math500" and
+        (c["evaluation"].get("defer_math500", False) or args.samples is not None))
+    if args.split != "math500" and args.samples is not None:
+        raise ValueError("--samples is only supported for the separate MATH500 profile")
     if not root.is_dir():
         raise FileNotFoundError(f"No run directory to evaluate: {root}")
+    if separate_benchmark:
+        validate_completion(read_json(root / "metadata.json"), read_json(root / "complete.json"), 300)
     h = check_environment(c)
     uuid = h["uuid_mapping"][0]["uuid"]
     with exclusive_lock(root.parent / (root.name + ".lock")), exclusive_lock(f"/tmp/grpo-order-{os.getuid()}-{uuid}.lock"):
@@ -109,5 +132,9 @@ def evaluate_saved(c, args):
         set_peft_model_state_dict(model, state["adapter"])
         if adapter_hash(model) != state["adapter_hash"]:
             raise ValueError("Checkpoint adapter hash differs after load")
-        evaluate(model, tok, c, splits[args.split], args.split, args.step, root, contract,
-                 subset=3 if args.mode == "smoke" and args.split == "diagnostic" else None)
+        evaluation_config = benchmark_config(c, args.samples) if separate_benchmark else c
+        destination = benchmark_root(root, c, args.samples) if separate_benchmark else root
+        result = evaluate(model, tok, evaluation_config, splits[args.split], args.split, args.step, destination, contract,
+                          subset=3 if args.mode == "smoke" and args.split == "diagnostic" else None)
+        if args.mode == "full":
+            validate_evaluation(result, contract, splits[args.split], args.split, args.step)

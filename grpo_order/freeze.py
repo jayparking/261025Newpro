@@ -19,7 +19,7 @@ def verify_freeze(c, models=None):
         raise ValueError("Finalize the common output length before full runs")
     path = freeze_path(c)
     if not path.is_file():
-        raise ValueError(f"Code/config/data are not frozen. Run freeze after smoke/pilot validation: {path}")
+        raise ValueError(f"Code/config/data are not frozen. Run the explicit freeze stage: {path}")
     record = read_json(path)
     if record["identity"] != freeze_identity(c):
         raise ValueError("Frozen code/config/data/packages changed; create a new experiment output directory")

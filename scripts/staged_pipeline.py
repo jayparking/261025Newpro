@@ -1,4 +1,4 @@
-"""Independent setup, smoke and real experiment stages on one GPU."""
+"""Independent setup, training/diagnostics and deferred MATH500 stages."""
 import argparse
 import copy
 import os
@@ -21,7 +21,8 @@ from grpo_order.storage import exclusive_lock
 
 SESSIONS = ROOT / 'runs' / 'single_gpu_sessions'
 LATEST = SESSIONS / 'latest.json'
-ENTRIES = {'setup': '1.setup.sh', 'presmoke': '2.1presmoke.sh', 'smoke': '2.SMOKE.sh', 'runreal': '3.runreal.sh'}
+ENTRIES = {'setup': '1.setup.sh', 'presmoke': '2.1presmoke.sh', 'smoke': '2.SMOKE.sh',
+           'runreal': '3.runreal.sh', 'math500': '4.math500.sh'}
 
 
 class StagedPipeline(Pipeline):
@@ -90,20 +91,23 @@ class StagedPipeline(Pipeline):
 
     def runreal(self, c):
         self.check_ready(c)
-        if not self.state.get('smoke_complete'):
-            raise ValueError('먼저 2.SMOKE.sh를 완료하세요. runreal은 SMOKE를 자동 실행하지 않습니다.')
-        verify_smoke(c)
+        if c.get('pipeline', {}).get('require_smoke', True):
+            if not self.state.get('smoke_complete'):
+                raise ValueError('이 설정은 SMOKE 완료를 요구합니다. 새 curriculum12 설정은 별도 SMOKE를 생략합니다.')
+            verify_smoke(c)
         final, path = self.real_config(c)
         _, splits = load_prepared(final)
         workload = experiment_workload(final, splits)
         runs = workload['runs']
         atomic_json(self.session / 'workload.json', workload)
-        print(f'실제 실행: GPU 1장, {runs} run × 300 updates; prompt={final["prompt"]["mode"]}, '
+        deferred = final['evaluation'].get('defer_math500', False)
+        print(f'실제 실행: GPU {len(final["runtime"]["allocated_gpu_slots"])}장, {runs} run × 300 updates; prompt={final["prompt"]["mode"]}, '
               f'학습/평가 출력 상한={final["train"]["max_new_tokens"]}/{final["evaluation"]["max_new_tokens"]}, '
               f'LR={final["train"]["lr"]}', flush=True)
-        print('설정 탐색 파일럿 없이 저장한 설정으로 실행합니다. 초기 진단/MATH500 평가부터 진행합니다.', flush=True)
+        print('저장한 설정으로 실행합니다. ' + ('진단만 평가하며 MATH500은 4.math500.sh에서 별도 실행합니다.'
+              if deferred else '초기 진단/MATH500 평가부터 진행합니다.'), flush=True)
         print(f'평가 시점(update): 진단={final["evaluation"]["diagnostic_steps"]}, '
-              f'MATH500={final["evaluation"]["math500_steps"]}; '
+              f'MATH500={"별도 실행" if deferred else final["evaluation"]["math500_steps"]}; '
               f'체크포인트 보존 시점={final["train"]["checkpoints"]}', flush=True)
         print(f'작업량: 학습 {workload["training_responses"]:,}응답, '
               f'평가 {workload["evaluation_responses_excluding_witnesses"]:,}응답 '
@@ -123,17 +127,35 @@ class StagedPipeline(Pipeline):
         try:
             self.cli(f'full-{runs}-runs', 'full', path, '--resume-failed')
             report = self.session / 'analysis' / str(time.time_ns())
-            self.cli('analyze', 'analyze', path, '--mode', 'full', '--output', report)
+            self.cli('analyze', 'analyze', path, '--mode', 'full', '--endpoint',
+                     'diagnostic' if deferred else 'math500', '--output', report)
             atomic_json(self.session / 'finished.json', {'final_config': str(path), 'full_runs': runs,
-                                                        'analysis': str(report)})
+                                                        'analysis': str(report), 'math500_deferred': deferred})
             self.state['analysis'] = str(report)
             self.state['real_complete'] = True
             self.save()
-            print(f'{runs}회 본실험·최종 평가·분석 완료: {report}', flush=True)
+            print(f'{runs}회 학습·{"진단" if deferred else "최종"} 평가·분석 완료: {report}', flush=True)
         finally:
             self.state.setdefault('real_attempt_seconds', []).append(time.monotonic() - started)
             self.save()
             self.write_performance(final)
+
+    def math500(self, c, samples=None):
+        self.check_ready(c)
+        if not self.state.get('real_complete'):
+            raise ValueError('먼저 3.runreal.sh에서 모든 학습·진단을 완료하세요.')
+        final, path = self.real_config(c)
+        if not final['evaluation'].get('defer_math500', False):
+            raise ValueError('4.math500.sh는 MATH500을 분리한 새 세션 전용입니다.')
+        verify_freeze(final)
+        options = [] if samples is None else ['--samples', str(samples)]
+        self.cli('math500', 'benchmark', path, *options)
+        report = self.session / 'benchmark_analysis' / str(time.time_ns())
+        self.cli('math500-analysis', 'analyze', path, '--mode', 'full', '--endpoint', 'math500',
+                 '--output', report, *options)
+        self.state.setdefault('benchmark_reports', []).append(str(report))
+        self.save()
+        print(f'MATH500 평가·분석 완료: {report}', flush=True)
 
     def write_performance(self, final):
         # Include committed updates even if this attempt was interrupted.
@@ -155,10 +177,12 @@ def open_session(args):
     else:
         session = SESSIONS / str(time.time_ns())
         session.mkdir(parents=True, exist_ok=False)
-        source = load_config(args.config or 'configs/experiment.json')
+        source = load_config(args.config or 'configs/curriculum12.yaml')
         c = session_config(source, session)
-        # One visible physical GPU serves both order conditions sequentially.
-        c['runtime']['allocated_gpu_slots'] = [0]
+        visible = os.getenv('CUDA_VISIBLE_DEVICES', '0').split(',')
+        if len(visible) not in (1, 2) or any(not s.strip() for s in visible):
+            raise ValueError('GPU를 한 개 또는 두 개 지정하세요.')
+        c['runtime']['allocated_gpu_slots'] = list(range(len(visible)))
         # Preserve the chosen learning rate instead of the legacy pipeline's reset.
         c['train']['lr'] = source['train']['lr']
         immutable_json(session / 'configs' / 'session.json', c)
@@ -176,13 +200,18 @@ def main():
     parser.add_argument('stage', choices=tuple(ENTRIES))
     parser.add_argument('--session', type=Path)
     parser.add_argument('--config')
+    parser.add_argument('--samples', type=int, help='math500 단계의 응답 수 (기본 64)')
     args = parser.parse_args()
+    if args.samples is not None and args.stage != 'math500':
+        parser.error('--samples는 math500 단계에서만 사용합니다.')
     if args.config and (args.stage != 'setup' or args.session):
         parser.error('--config는 새 setup에서만 사용합니다.')
     os.chdir(ROOT)
     session = open_session(args)
     gpu = os.getenv('CUDA_VISIBLE_DEVICES', '0')
     resume = f'bash {ENTRIES[args.stage]} --session {shlex.quote(str(session))} --gpu {shlex.quote(gpu)}'
+    if args.samples is not None:
+        resume += f' --samples {args.samples}'
     print(f'실행 폴더: {session}\n중단 시 재개: {resume}', flush=True)
     with exclusive_lock(session / 'pipeline.lock'):
         state = read_json(session / 'state.json')
@@ -198,14 +227,17 @@ def main():
             if args.stage == 'setup':
                 pipeline.setup(c, config)
                 atomic_json(LATEST, {'session': str(session)})
-                print(f'setup 완료. 다음: bash 2.SMOKE.sh --session {shlex.quote(str(session))} --gpu {shlex.quote(gpu)}', flush=True)
+                next_stage = '2.SMOKE.sh' if c.get('pipeline', {}).get('require_smoke', True) else '3.runreal.sh'
+                print(f'setup 완료. 다음: bash {next_stage} --session {shlex.quote(str(session))} --gpu {shlex.quote(gpu)}', flush=True)
             elif args.stage == 'presmoke':
                 pipeline.presmoke(c)
             elif args.stage == 'smoke':
                 pipeline.smoke(c, config)
                 print(f'SMOKE 완료. 다음: bash 3.runreal.sh --session {shlex.quote(str(session))} --gpu {shlex.quote(gpu)}', flush=True)
-            else:
+            elif args.stage == 'runreal':
                 pipeline.runreal(c)
+            else:
+                pipeline.math500(c, args.samples)
         except BaseException as exc:
             atomic_json(session / f'failure-{args.stage}-{time.time_ns()}.json', {'error': repr(exc)})
             print(f'중단. 결과를 보존했습니다. 재개: {resume}', flush=True)

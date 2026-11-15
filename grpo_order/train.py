@@ -4,7 +4,7 @@ from pathlib import Path
 import time
 
 from .core import (DIFFICULTIES, advantages, atomic_json, capture_rng, code_hash, digest,
-                   ordered_problems, packages, read_json, restore_rng, seed_all, seed_plan)
+                   ordered_problems, packages, read_json, restore_rng, seed_all, seed_plan, training_evaluation_splits)
 from .data import load_prepared, origin_metadata
 from .evaluation import evaluate
 from .freeze import verify_freeze
@@ -15,7 +15,7 @@ from .integrity import validate_completion
 from .preflight import dependency_errors, gpu_errors, hardware, resolve_model
 from .presmoke import select_one
 from .storage import (checkpoints, exclusive_lock, load_checkpoint, reconcile_event,
-                      run_path, save_checkpoint)
+                      run_path, save_checkpoint, rebuild_training_exports, append_training_exports)
 from poc_Test.protocol import select_splits as select_poc_splits, validate_config as validate_poc_config
 
 
@@ -55,6 +55,8 @@ def train(c, role, order, seed, mode="pilot", resume=False, stop_after=None):
     if int(os.getenv("WORLD_SIZE", "1")) != 1:
         raise ValueError("DDP is not supported: launch one independent process per physical GPU")
     if mode == "full":
+        if seed not in c["seeds"]["training"]:
+            raise ValueError("Full-run seed must belong to the frozen training seed list")
         verify_freeze(c)
     root = run_path(c, mode, role, order, seed)
     if root.exists() and not resume:
@@ -219,11 +221,12 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
         if step in ([0, len(rows)] if mode == "smoke" else c["evaluation"]["diagnostic_steps"]):
             evaluate(model, tok, c, splits["diagnostic"], "diagnostic", step, root, contract,
                      subset=3 if mode == "smoke" else None)
-        if mode == "full" and step in c["evaluation"]["math500_steps"]:
+        if mode == "full" and "math500" in training_evaluation_splits(c) and step in c["evaluation"]["math500_steps"]:
             evaluate(model, tok, c, splits["math500"], "math500", step, root, contract)
 
     if not saved:
         commit()
+    rebuild_training_exports(root, state["cursor"])
     evaluate_due(state["cursor"])
     for index in range(state["cursor"], len(rows)):
         row = rows[index]
@@ -273,6 +276,7 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
                                 "cumulative_training_seconds": state["training_seconds"],
                                 "cumulative_generated_tokens": state["generated_tokens"]}
         commit()
+        append_training_exports(root, state["last_record"])
         tokens = sum(r["generated_tokens"] for r in responses)
         print(f"{role}/{order}/seed{seed}: exposure {index + 1}/{len(rows)}, reward={mean:.2f}, "
               f"optimizer_steps={state['optimizer_steps']}, {elapsed:.1f}s/update, "
@@ -288,7 +292,8 @@ def _train(c, role, order, seed, mode, resume, root, h, stop_after=None):
     assert state["optimizer_steps"] + state["skipped_steps"] == len(rows)
     result = {k: state[k] for k in ("cursor", "optimizer_steps", "skipped_steps", "generated_responses", "generated_tokens", "training_seconds", "group_counts")}
     result.update(contract=contract, expected_updates=len(rows), mode=mode,
-                  valid_without_step_skips=state["skipped_steps"] == 0)
+                  valid_without_step_skips=state["skipped_steps"] == 0,
+                  math500_deferred=bool(c["evaluation"].get("defer_math500", False)))
     if mode == "smoke":
         # Real serialization/reload path, including optimizer/RNG/cursor, on GPU.
         restored = load_checkpoint(checkpoints(root)[-1], contract)

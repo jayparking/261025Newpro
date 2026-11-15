@@ -1,12 +1,43 @@
 """Atomic state commits. A completed checkpoint is the authoritative exposure cursor."""
 import contextlib
+import csv
 import fcntl
+import json
 import os
 from pathlib import Path
 import shutil
 import tempfile
 
 from .core import atomic_json, file_hash, read_json
+
+
+def append_training_exports(root, record):
+    """Derived logs; committed steps/checkpoints remain authoritative on restart."""
+    root = Path(root)
+    flat = {"step": record["exposure"], "problem_id": record["problem_id"],
+            "difficulty": record["difficulty"], "group_type": record["group_type"],
+            "zero_advantage": int(record["group_type"] != "mixed"),
+            "rewards": json.dumps([r["reward"] for r in record["responses"]]),
+            "reward_mean": record["reward_mean"], "loss": record["loss"],
+            "seconds": record["seconds"]}
+    path = root / "training.csv"
+    header = not path.exists() or path.stat().st_size == 0
+    with path.open("a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(flat))
+        if header:
+            writer.writeheader()
+        writer.writerow(flat)
+    with (root / "training.jsonl").open("a") as f:
+        f.write(json.dumps(record, ensure_ascii=False, allow_nan=False) + "\n")
+
+
+def rebuild_training_exports(root, cursor):
+    # Recover a missing line, truncated append or duplicate after a process crash.
+    root = Path(root)
+    for name in ("training.csv", "training.jsonl"):
+        (root / name).write_text("")
+    for step in range(1, cursor + 1):
+        append_training_exports(root, read_json(root / "steps" / f"{step:06d}.json"))
 
 
 @contextlib.contextmanager

@@ -5,10 +5,11 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 stage="${1:?stage required}"
 shift
 case "$stage" in
-  setup) entry=1.setup.sh; plan='설치 → GPU 1장 검사 → 모델/데이터 준비 → 전체 preflight. 여기서 종료.' ;;
+  setup) entry=1.setup.sh; plan='설치 → GPU 1/2장 검사 → 모델/데이터 준비 → 전체 preflight. 학습 없이 종료.' ;;
   presmoke) entry=2.1presmoke.sh; plan='setup 완료 세션 → Base 모델 하나, 학습 1문제 × 4응답으로 1 update → 별도 진단 1문제 평가(8샘플+greedy). 출력 상한 32. 선택 단계이며 SMOKE를 대체하지 않음.' ;;
   smoke) entry=2.SMOKE.sh; plan='준비된 세션 → 네 조건을 GPU 1장에서 순차 실행 → 1 update 중단/재개 → 조건당 3 updates, 출력 상한 32. 여기서 종료.' ;;
-  runreal) entry=3.runreal.sh; plan='준비/SMOKE 완료 확인 → 저장된 설정 확정·freeze → 기본 4 run 순차 실행(설정 seed 수에 따름, 각 300 updates, 설정의 실제 출력 길이) → MATH500 평가·분석·성능 보고.' ;;
+  runreal) entry=3.runreal.sh; plan='새 기본 설정: setup 확인 → 별도 SMOKE 생략 → freeze → seed 42/123/777의 12회 학습(각 300 updates) + 진단 0/100/200/300 → 진단/Zero-Advantage 분석. MATH500은 실행하지 않음. 사용자 지정 설정은 저장된 정책을 따름.' ;;
+  math500) entry=4.math500.sh; plan='12회 학습·진단 완료 확인 → 저장된 step 0/300에서 MATH500 64응답 평가(8개씩 생성·재개) → pass@1/4/16/64 및 관측 해결 문제 변화 분석. 재학습 없음.' ;;
   *) echo "알 수 없는 단계: $stage" >&2; exit 2 ;;
 esac
 usage() {
@@ -16,10 +17,11 @@ usage() {
 사용: bash $entry [--gpu GPU] [--session DIR | --resume DIR] [--dry-run]
 $plan
 
-  --gpu GPU       사용할 GPU 하나. 미지정 시 CUDA_VISIBLE_DEVICES 유지, 미설정이면 0
+  --gpu GPU       사용할 GPU 한 개 또는 두 개. 예: 0 또는 0,1. 기본 0
   --session DIR   기존 setup 세션 지정. presmoke/smoke/runreal은 생략하면 최근 setup 사용
   --resume DIR    해당 단계의 저장된 진행 상태 재개 (--session과 같은 의미)
-  --config JSON   setup 새 세션의 설정 (기본 configs/experiment.json)
+  --config FILE   setup 새 세션의 JSON/YAML 설정 (기본 configs/curriculum12.yaml)
+  --samples N     math500 단계만: 별도 평가 응답 수 (기본 64, 예: 128)
   --skip-install  setup에서만 설치 생략. PYTHON 또는 .venv-gpu/bin/python 사용
   --dry-run       실행 범위만 표시. 파일 생성·설치·GPU 실행 없음
   --help          도움말
@@ -31,6 +33,7 @@ EOF
 skip_install=0
 session_arg=''
 config_arg=''
+samples_arg=''
 dry_run=0
 gpu_arg="${CUDA_VISIBLE_DEVICES-0}"
 pipeline_args=()
@@ -39,12 +42,13 @@ while (($#)); do
     --help|-h) usage; exit 0 ;;
     --dry-run) dry_run=1; shift ;;
     --skip-install) skip_install=1; shift ;;
-    --config|--session|--resume|--gpu)
+    --config|--session|--resume|--gpu|--samples)
       (($# >= 2)) && [[ -n "$2" && "$2" != --* ]] || { echo "$1 뒤에 값이 필요합니다." >&2; exit 2; }
       case "$1" in
         --config) config_arg="$2" ;;
         --session|--resume) session_arg="$2" ;;
         --gpu) gpu_arg="$2" ;;
+        --samples) samples_arg="$2" ;;
       esac
       shift 2 ;;
     *) echo "알 수 없는 옵션: $1" >&2; usage >&2; exit 2 ;;
@@ -56,13 +60,21 @@ fi
 if ((skip_install)) && [[ "$stage" != setup ]]; then
   echo '--skip-install은 setup에서만 사용합니다.' >&2; exit 2
 fi
-if [[ -z "$gpu_arg" || "$gpu_arg" == *,* || "$gpu_arg" == -1 ]]; then
-  echo 'GPU 한 개를 지정하세요. 예: --gpu 0 또는 CUDA_VISIBLE_DEVICES=GPU-실제UUID' >&2; exit 2
+if [[ -n "$samples_arg" && ( "$stage" != math500 || ! "$samples_arg" =~ ^[1-9][0-9]*$ ) ]]; then
+  echo '--samples는 math500 단계에서 양의 정수로 지정하세요.' >&2; exit 2
+fi
+IFS=',' read -r -a selected_gpus <<< "$gpu_arg"
+if [[ -z "$gpu_arg" || "$gpu_arg" == -1 || "$gpu_arg" == ,* || "$gpu_arg" == *, || "$gpu_arg" == *,,* ]] || ((${#selected_gpus[@]} > 2)); then
+  echo 'GPU 한 개 또는 두 개를 지정하세요. 예: --gpu 0 또는 --gpu 0,1' >&2; exit 2
+fi
+if ((${#selected_gpus[@]} == 2)) && [[ "${selected_gpus[0]}" == "${selected_gpus[1]}" ]]; then
+  echo '서로 다른 GPU를 지정하세요.' >&2; exit 2
 fi
 if ((dry_run)); then
   echo "[$entry] CUDA_VISIBLE_DEVICES=$gpu_arg"
   echo "$plan"
   echo "세션: ${session_arg:-setup은 새 세션 / 나머지는 최근 setup}"
+  [[ -z "$samples_arg" ]] || echo "평가 응답 수: $samples_arg"
   exit 0
 fi
 [[ -z "$config_arg" || -f "$config_arg" ]] || { echo "설정 파일 없음: $config_arg" >&2; exit 2; }
@@ -99,4 +111,5 @@ export CUDA_DEVICE_ORDER=PCI_BUS_ID CUBLAS_WORKSPACE_CONFIG=:4096:8 CUDA_VISIBLE
 pipeline_args=("$stage")
 [[ -z "$session_arg" ]] || pipeline_args+=(--session "$session_arg")
 [[ -z "$config_arg" ]] || pipeline_args+=(--config "$config_arg")
+[[ -z "$samples_arg" ]] || pipeline_args+=(--samples "$samples_arg")
 exec "$server_python" scripts/staged_pipeline.py "${pipeline_args[@]}"

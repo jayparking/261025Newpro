@@ -6,11 +6,15 @@ from .grading import grade
 from .model import GENERATION_POLICY, adapter_hash, generate_batch, prompt_ids
 from .step0 import shared_evaluate
 from .data import origin_metadata
+from .benchmark import sampled_chunks
 
 
 def summarize(questions):
-    keys = ("avg_at_8", "pass_at_8", "greedy", "mixed_fraction", "all_wrong_fraction", "all_correct_fraction",
-            "sampled_truncation_fraction", "sampled_mean_tokens", "greedy_truncation", "greedy_tokens")
+    if not questions:
+        raise ValueError("Cannot summarize an empty evaluation")
+    keys = [k for k in questions[0] if k.startswith("pass_at_") or k in (
+        "avg_at_8", "greedy", "mixed_fraction", "all_wrong_fraction", "all_correct_fraction",
+        "sampled_truncation_fraction", "sampled_mean_tokens", "greedy_truncation", "greedy_tokens")]
     return {"questions": len(questions), **{k: sum(q[k] for q in questions) / len(questions) for k in keys}}
 
 
@@ -20,7 +24,9 @@ def evaluate(model, tok, config, rows, split, step, root, contract, *, subset=No
         if contract.get("mode") in ("poc", "presmoke", "smoke", "pilot") and split == "math500":
             raise ValueError("MATH500 is reserved for frozen full runs, never pilot tuning")
         selected = rows if subset is None else rows[:subset]
-        print(f"Evaluation {split} step={step}: {len(selected)} questions, 8 samples + greedy, "
+        e = config['evaluation']
+        print(f"Evaluation {split} step={step}: {len(selected)} questions, {e['samples']} samples"
+              f"{' + greedy' if e['greedy'] else ''}, "
               f"max_new_tokens={config['evaluation']['max_new_tokens']}", flush=True)
         dst = Path(root) / "eval" / f"{split}_step-{step:06d}.json"
         if step == 0 and config["evaluation"].get("step0_cache", False) and "model" in contract and not dst.exists():
@@ -29,8 +35,9 @@ def evaluate(model, tok, config, rows, split, step, root, contract, *, subset=No
                                      identity(config, selected, split, step, contract))
             result["wall_seconds_this_attempt"] = time.monotonic() - started
             atomic_json(dst, result)
+            metric = "pass_at_1" if "pass_k" in e else "avg_at_8"
             print(f"Evaluation {split} step={step}: cache_hit={result['cache']['hit']}, "
-                  f"avg@8={result['metrics']['avg_at_8']:.4f}, greedy={result['metrics']['greedy']:.4f}", flush=True)
+                  f"{metric}={result['metrics'][metric]:.4f}", flush=True)
             return result
         return _evaluate(model, tok, config, rows, split, step, root, contract, subset=subset)
 
@@ -82,34 +89,44 @@ def _evaluate(model, tok, config, rows, split, step, root, contract, *, subset=N
                 batch_started = time.monotonic()
                 with isolated_rng(seed), torch.inference_mode():
                     ids = [prompt_ids(tok, config, row["problem"]) for row in batch]
-                    sampled_batches = generate_batch(model, tok, ids, count=8, max_new_tokens=e["max_new_tokens"],
-                                                     temperature=e["temperature"], top_p=e["top_p"])
-                    greedy_batches = generate_batch(model, tok, ids, count=1, max_new_tokens=e["max_new_tokens"],
-                                                    temperature=1, top_p=1, greedy=True)
+                    if "pass_k" in e:
+                        sampled_batches, fresh_tokens = sampled_chunks(model, tok, ids, batch, config, split,
+                                                                       evaluation_id, qdir / "chunks")
+                        generated_this_attempt += fresh_tokens
+                    else:
+                        sampled_batches = generate_batch(model, tok, ids, count=e["samples"], max_new_tokens=e["max_new_tokens"],
+                                                         temperature=e["temperature"], top_p=e["top_p"])
+                    greedy_batches = (generate_batch(model, tok, ids, count=1, max_new_tokens=e["max_new_tokens"],
+                                                     temperature=1, top_p=1, greedy=True)
+                                      if e["greedy"] else [[] for _ in batch])
                 for j, (row, sampled, greedy_list) in enumerate(zip(batch, sampled_batches, greedy_batches)):
-                    greedy = greedy_list[0]
-                    generated_this_attempt += sum(r["generated_tokens"] for r in sampled + [greedy])
+                    greedy = greedy_list[0] if greedy_list else None
+                    if "pass_k" not in e:
+                        generated_this_attempt += sum(r["generated_tokens"] for r in sampled + greedy_list)
                     if cached[j] is not None:
-                        previous = cached[j]["sampled"] + [cached[j]["greedy_response"]]
-                        if [r["token_ids"] for r in previous] != [r["token_ids"] for r in sampled + [greedy]]:
+                        previous = cached[j]["sampled"] + ([cached[j]["greedy_response"]] if e["greedy"] else [])
+                        if [r["token_ids"] for r in previous] != [r["token_ids"] for r in sampled + greedy_list]:
                             raise ValueError("Partial evaluation batch replay changed committed outputs; refusing to mix results")
                         continue
-                    for response in sampled + [greedy]:
-                        response.update(grade(response["text"], row["answer"]))
+                    for response in sampled + greedy_list:
+                        if "pass_k" not in e or "reward" not in response:
+                            response.update(grade(response["text"], row["answer"]))
                     q = {"evaluation_id": evaluation_id, "id": row["id"], "difficulty": row["difficulty"],
                          "origin": origin_metadata(row), "evaluation_seed": seed, "batch_question_ids": batch_ids,
-                         "sampled": sampled, "greedy_response": greedy,
-                         **question_metrics([r["reward"] for r in sampled], greedy["reward"]),
-                         "sampled_truncation_fraction": sum(r["truncated"] for r in sampled) / 8,
-                         "sampled_mean_tokens": sum(r["generated_tokens"] for r in sampled) / 8,
-                         "greedy_truncation": float(greedy["truncated"]), "greedy_tokens": greedy["generated_tokens"]}
+                         "sampled": sampled,
+                         **question_metrics([r["reward"] for r in sampled], greedy["reward"] if greedy else None, e.get("pass_k")),
+                         "sampled_truncation_fraction": sum(r["truncated"] for r in sampled) / e["samples"],
+                         "sampled_mean_tokens": sum(r["generated_tokens"] for r in sampled) / e["samples"]}
+                    if greedy:
+                        q.update(greedy_response=greedy, greedy_truncation=float(greedy["truncated"]),
+                                 greedy_tokens=greedy["generated_tokens"])
                     atomic_json(paths[j], q)
                     cached[j] = q
                 print(f"  batch elapsed={time.monotonic() - batch_started:.1f}s", flush=True)
             records.extend(cached)
+            metric = "pass_at_1" if "pass_k" in e else "avg_at_8"
             print(f"  {split} step={step}: {len(records)}/{len(rows)}, "
-                  f"avg@8={sum(r['avg_at_8'] for r in records) / len(records):.4f}, "
-                  f"pass@8={sum(r['pass_at_8'] for r in records) / len(records):.4f}, "
+                  f"{metric}={sum(r[metric] for r in records) / len(records):.4f}, "
                   f"elapsed={time.monotonic() - started:.1f}s", flush=True)
     finally:
         model.train(was_training)
@@ -121,9 +138,16 @@ def _evaluate(model, tok, config, rows, split, step, root, contract, *, subset=N
               "generation_policy": GENERATION_POLICY, "eos": tok.grpo_eos,
               "adapter_hash": before, "settings": e, "metrics": summarize(records),
               "by_difficulty": by_difficulty, "questions": records,
-              "generated_tokens": sum(sum(r["generated_tokens"] for r in q["sampled"]) + q["greedy_tokens"] for q in records),
+              "generated_tokens": sum(sum(r["generated_tokens"] for r in q["sampled"]) + q.get("greedy_tokens", 0) for q in records),
               "generated_tokens_this_attempt": generated_this_attempt,
               "wall_seconds_this_attempt": time.monotonic() - started,
-              "note": "Two fixed groups per question are averaged within question, never counted as independent questions"}
+              "note": ("Finite-sample observed solution coverage; not proof of new reasoning ability. "
+                       "Chunk resumes reuse saved responses."
+                       if "pass_k" in e else
+                       "Two fixed groups per question are averaged within question, never counted as independent questions")}
+    if "pass_k" in e:
+        result["generation_policy"] = {**GENERATION_POLICY, "evaluation_samples": e["samples"],
+            "greedy_separate": False, "sample_batch_size": e["sample_batch_size"],
+            "evaluation_rng": "independent deterministic seed per question batch and sample chunk offset"}
     atomic_json(dst, result)
     return result
