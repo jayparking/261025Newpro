@@ -1,0 +1,34 @@
+{
+  "cursor": 300,
+  "contract": {
+    "config": "49c0cc5ace75516c28098c38ece1b5ea7ef368d0b81f187d358c3cb593f2e2d6",
+    "data": "92e60b117c7d34c5985785a302ec35d3a536bc41a2a6045a527bfec4f2219d43",
+    "model": "05bc74aa464a932467557d0dd1d1c62fa349334f143192361e45da4baa254621",
+    "model_revision": "c014edac2e4bbaba644d7af74dc22d4526ec51c9",
+    "tokenizer_revision": "c014edac2e4bbaba644d7af74dc22d4526ec51c9",
+    "model_card": "4bcf87ecfbbb8e07a01b21415a970c8b53a5283bf6872b657040d3f45c9241f7",
+    "code": "b4901086fd5eca95e3c53d5ece014cd2bd2a2a60ae46d468f8c3cb672a2a04fc",
+    "packages": {
+      "torch": "2.7.1+cu128",
+      "transformers": "4.52.4",
+      "peft": "0.15.2",
+      "accelerate": "1.7.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.10.3",
+      "math-verify": "0.8.0",
+      "huggingface-hub": "0.31.4",
+      "tokenizers": "0.21.4",
+      "safetensors": "0.8.0",
+      "sympy": "1.14.0",
+      "latex2sympy2_extended": "1.10.2",
+      "antlr4-python3-runtime": "4.13.2",
+      "PyYAML": "6.0.2"
+    },
+    "role": "rl",
+    "order": "curriculum",
+    "seed": 777,
+    "mode": "full",
+    "sequence": "57f0e79f54bf2fc1b4d4a527e3b1dd18eb0ae67ff73ed3b6c96ade9a814128dc"
+  },
+  "sha256": "89dbf4f6e467ca74426cc3b312db11e6af3e6c422dccdf452a860183ef5c846f"
+}

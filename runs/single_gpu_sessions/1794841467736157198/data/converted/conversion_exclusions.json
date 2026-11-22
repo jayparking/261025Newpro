@@ -1,0 +1,44 @@
+[
+  {
+    "id": "EleutherAI/hendrycks_math/train/algebra/41c42ef685f51eec5df3e5a0a40af710f73e4d10da8124bb4f397925669ec58e",
+    "split": "train",
+    "reasons": [
+      "missing_boxed_gold"
+    ]
+  },
+  {
+    "id": "EleutherAI/hendrycks_math/train/algebra/58b3559b473151ea50b29dea11959cbd333e6eb11a50c6764f5c7071b3ea96b4",
+    "split": "train",
+    "reasons": [
+      "missing_boxed_gold"
+    ]
+  },
+  {
+    "id": "EleutherAI/hendrycks_math/train/geometry/e9b6ca5f234350d6d746224b98be16c5dc8e94450bc3baf17a137477c7abe8b5",
+    "split": "train",
+    "reasons": [
+      "unknown_original_level"
+    ]
+  },
+  {
+    "id": "EleutherAI/hendrycks_math/train/geometry/1aaa94b0198b976e7e8ba448a834361833ca33c9d769dbaa0ac1984e86857e14",
+    "split": "train",
+    "reasons": [
+      "unknown_original_level"
+    ]
+  },
+  {
+    "id": "EleutherAI/hendrycks_math/train/number_theory/34fb4fd61ea11d8210135c9c0416f0d40ce496565c0b5066df0e45d2d72d7ac2",
+    "split": "train",
+    "reasons": [
+      "empty_boxed_gold"
+    ]
+  },
+  {
+    "id": "EleutherAI/hendrycks_math/train/number_theory/00dc664838608790bb71bcb339f22050075ef733bef0bdeb00b890913e27e2ea",
+    "split": "train",
+    "reasons": [
+      "empty_boxed_gold"
+    ]
+  }
+]

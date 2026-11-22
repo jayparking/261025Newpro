@@ -1,0 +1,267 @@
+{
+  "grader": {
+    "policy": "math_verify_no_fallback_v3_fail_on_grader_exception",
+    "packages": {
+      "math-verify": "0.8.0",
+      "sympy": "1.14.0",
+      "latex2sympy2_extended": "1.10.2",
+      "antlr4-python3-runtime": "4.13.2"
+    }
+  },
+  "source_hashes": {
+    "pool": "69c78aee30d4e67d34bf3f111928b90aca35646b9683b955bdd48fc30e03d824",
+    "validation": "c431f0d7e461f8b09b57a3104916848115f3b6a469640d734dc110cc56d2a918",
+    "math500": "f0c00d975d27c9725ff355a1b35b004595379374f4f45213b5108d682f9d2157"
+  },
+  "failures": [
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/algebra/4dc8699faccf29cfdfbf3cb894662f2100d1b5974aef694b3858161aa3eb6e7a",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "-\\frac{5}{3}.",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Algebra",
+        "subset": "algebra",
+        "level": "Level 4",
+        "difficulty": "Hard",
+        "original_id": null,
+        "source_file": "algebra/train-00000-of-00001.parquet",
+        "source_row": 1652
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/algebra/85ce10f72d8a5659d7d81bb1ebba4bc3e7be80201b5f770c6c8f3b204eecfc66",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\approx 8.24 \\text{ mph}",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Algebra",
+        "subset": "algebra",
+        "level": "Level 5",
+        "difficulty": "Hard",
+        "original_id": null,
+        "source_file": "algebra/train-00000-of-00001.parquet",
+        "source_row": 1556
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/counting_and_probability/f789542310ae2c1a66de14e544eb4870c112aa38671da4c5357dc178140d17bb",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\dfrac{1}{29,\\!322,\\!216}",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Counting & Probability",
+        "subset": "counting_and_probability",
+        "level": "Level 4",
+        "difficulty": "Hard",
+        "original_id": null,
+        "source_file": "counting_and_probability/train-00000-of-00001.parquet",
+        "source_row": 163
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/geometry/b7dc6fb275c046427e4e75ac86f54f21f2def1c39e9b7768d11df0c62d134e52",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "30^\\circ.",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Geometry",
+        "subset": "geometry",
+        "level": "Level 2",
+        "difficulty": "Easy",
+        "original_id": null,
+        "source_file": "geometry/train-00000-of-00001.parquet",
+        "source_row": 358
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/intermediate_algebra/dc330cc2f964e0996b583e174efb59a037fc3b53bb397f326efb55d1867aa7b0",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "a + b + c",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Intermediate Algebra",
+        "subset": "intermediate_algebra",
+        "level": "Level 5",
+        "difficulty": "Hard",
+        "original_id": null,
+        "source_file": "intermediate_algebra/train-00000-of-00001.parquet",
+        "source_row": 579
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/2c94d1743ef36d3214e8ee8cd0215740584279214cdf4e8efda37e02a1f5e0fa",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\dfrac{2469}{20,\\!000}",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Number Theory",
+        "subset": "number_theory",
+        "level": "Level 2",
+        "difficulty": "Easy",
+        "original_id": null,
+        "source_file": "number_theory/train-00000-of-00001.parquet",
+        "source_row": 737
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/9956c6eb86edb7f4084f1d4b46001d3018f936094ae681450d8973c74aba49b0",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\text{(E)},",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Number Theory",
+        "subset": "number_theory",
+        "level": "Level 3",
+        "difficulty": "Medium",
+        "original_id": null,
+        "source_file": "number_theory/train-00000-of-00001.parquet",
+        "source_row": 8
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/number_theory/a9c3c1c7be740e3d40c3ff58ef5ba225113bf383c3741073680438600dfa19ac",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "43_5.",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Number Theory",
+        "subset": "number_theory",
+        "level": "Level 4",
+        "difficulty": "Hard",
+        "original_id": null,
+        "source_file": "number_theory/train-00000-of-00001.parquet",
+        "source_row": 775
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/prealgebra/43671a2469fea42d8bd52bf5b00b4972c9d203a5fbbe233fc50b54a832207751",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "7\\text{ hours}.",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Prealgebra",
+        "subset": "prealgebra",
+        "level": "Level 3",
+        "difficulty": "Medium",
+        "original_id": null,
+        "source_file": "prealgebra/train-00000-of-00001.parquet",
+        "source_row": 928
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/46dee557151b0528cbbd2cad4408466f5db0568e0a2ff1c70ada1d4bd5ae68c9",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\sin^2 t",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Precalculus",
+        "subset": "precalculus",
+        "level": "Level 5",
+        "difficulty": "Hard",
+        "original_id": null,
+        "source_file": "precalculus/train-00000-of-00001.parquet",
+        "source_row": 189
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/536628edc7f185e51bed4e77527c14f5c8ba1d583e3202cdd7084976ba1ba3bf",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\begin{pmatrix} 1 & -1 \\\\ 1 & \\phantom -1 \\end{pmatrix}",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Precalculus",
+        "subset": "precalculus",
+        "level": "Level 3",
+        "difficulty": "Medium",
+        "original_id": null,
+        "source_file": "precalculus/train-00000-of-00001.parquet",
+        "source_row": 32
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/d0c89d9063b1717e69f5d4e6a824b86f2f8e3fdca9b3f63ed416eda6beff58c3",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "\\begin{pmatrix} -1 & 0 \\\\ 0 & -1 \\end{pmatrix}.",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Precalculus",
+        "subset": "precalculus",
+        "level": "Level 2",
+        "difficulty": "Easy",
+        "original_id": null,
+        "source_file": "precalculus/train-00000-of-00001.parquet",
+        "source_row": 185
+      }
+    },
+    {
+      "excluded_id": "EleutherAI/hendrycks_math/train/precalculus/e86fc9c237d4831acab6f9cfb3ff982f5c84a82178aef90c7efb9c1e07b136fe",
+      "split": "pool",
+      "category": "parser_limitation",
+      "reason": "no_symbolic_parse; requires review, not evidence of an invalid question",
+      "answer": "2007 + \\frac\\pi 2",
+      "origin": {
+        "source": "EleutherAI/hendrycks_math",
+        "source_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+        "split": "train",
+        "subject": "Precalculus",
+        "subset": "precalculus",
+        "level": "Level 3",
+        "difficulty": "Medium",
+        "original_id": null,
+        "source_file": "precalculus/train-00000-of-00001.parquet",
+        "source_row": 57
+      }
+    }
+  ],
+  "math500_count": 500,
+  "math500_failed_ids": []
+}

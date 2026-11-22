@@ -1,0 +1,11 @@
+# bash scripts/run.sh full --config /root/261025Newpro/runs/single_gpu_sessions/1794841467736157198/configs/real.json --resume-failed
+Report: /root/261025Newpro/runs/single_gpu_sessions/1794841467736157198/runs/real/preflight/1794963662439128838.json
+Skip completed: /root/261025Newpro/runs/single_gpu_sessions/1794841467736157198/runs/real/full/base_seed42_random
+Skip completed: /root/261025Newpro/runs/single_gpu_sessions/1794841467736157198/runs/real/full/base_seed42_curriculum
+Start rl/random/seed42 on GPU-62158126-9db0-1e0e-c118-e6864bfc1492; log: /root/261025Newpro/runs/single_gpu_sessions/1794841467736157198/runs/real/launcher_logs/train_full_rl_42_random_1794963696128873258.log
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:06<00:06,  6.23s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  3.70s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  4.08s/it]
+rl/random/seed42: exposure 112/300, reward=0.00, optimizer_steps=112, 96.4s/update, 34.0 training tok/s, peak=4.85 GiB

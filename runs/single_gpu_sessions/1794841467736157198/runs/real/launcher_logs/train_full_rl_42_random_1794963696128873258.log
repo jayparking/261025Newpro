@@ -1,0 +1,7 @@
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:06<00:06,  6.23s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  3.70s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:08<00:00,  4.08s/it]
+rl/random/seed42: exposure 112/300, reward=0.00, optimizer_steps=112, 96.4s/update, 34.0 training tok/s, peak=4.85 GiB
+rl/random/seed42: exposure 113/300, reward=0.75, optimizer_steps=113, 144.0s/update, 31.3 training tok/s, peak=4.97 GiB

@@ -1,0 +1,343 @@
+{
+  "seed_results": [
+    {
+      "metric": "avg_at_8",
+      "seed": 42,
+      "base_random": 0.6,
+      "base_curriculum": 0.6641666666666667,
+      "rl_random": 0.7241666666666666,
+      "rl_curriculum": 0.7133333333333334,
+      "delta_base": 0.06416666666666666,
+      "delta_rl": -0.010833333333333334,
+      "interaction": -0.075
+    },
+    {
+      "metric": "avg_at_8",
+      "seed": 123,
+      "base_random": 0.6516666666666666,
+      "base_curriculum": 0.6166666666666667,
+      "rl_random": 0.7083333333333334,
+      "rl_curriculum": 0.7166666666666667,
+      "delta_base": -0.035,
+      "delta_rl": 0.008333333333333333,
+      "interaction": 0.043333333333333335
+    },
+    {
+      "metric": "avg_at_8",
+      "seed": 777,
+      "base_random": 0.6675,
+      "base_curriculum": 0.6116666666666667,
+      "rl_random": 0.7233333333333334,
+      "rl_curriculum": 0.73,
+      "delta_base": -0.05583333333333333,
+      "delta_rl": 0.006666666666666667,
+      "interaction": 0.0625
+    },
+    {
+      "metric": "pass_at_8",
+      "seed": 42,
+      "base_random": 0.86,
+      "base_curriculum": 0.8733333333333333,
+      "rl_random": 0.8866666666666667,
+      "rl_curriculum": 0.88,
+      "delta_base": 0.013333333333333334,
+      "delta_rl": -0.006666666666666667,
+      "interaction": -0.02
+    },
+    {
+      "metric": "pass_at_8",
+      "seed": 123,
+      "base_random": 0.86,
+      "base_curriculum": 0.86,
+      "rl_random": 0.8733333333333333,
+      "rl_curriculum": 0.8933333333333333,
+      "delta_base": 0.0,
+      "delta_rl": 0.02,
+      "interaction": 0.02
+    },
+    {
+      "metric": "pass_at_8",
+      "seed": 777,
+      "base_random": 0.88,
+      "base_curriculum": 0.8466666666666667,
+      "rl_random": 0.8933333333333333,
+      "rl_curriculum": 0.8733333333333333,
+      "delta_base": -0.03333333333333333,
+      "delta_rl": -0.02,
+      "interaction": 0.013333333333333334
+    },
+    {
+      "metric": "greedy",
+      "seed": 42,
+      "base_random": 0.6466666666666666,
+      "base_curriculum": 0.6933333333333334,
+      "rl_random": 0.7466666666666667,
+      "rl_curriculum": 0.7533333333333333,
+      "delta_base": 0.04666666666666667,
+      "delta_rl": 0.006666666666666667,
+      "interaction": -0.04
+    },
+    {
+      "metric": "greedy",
+      "seed": 123,
+      "base_random": 0.64,
+      "base_curriculum": 0.6533333333333333,
+      "rl_random": 0.7533333333333333,
+      "rl_curriculum": 0.7466666666666667,
+      "delta_base": 0.013333333333333334,
+      "delta_rl": -0.006666666666666667,
+      "interaction": -0.02
+    },
+    {
+      "metric": "greedy",
+      "seed": 777,
+      "base_random": 0.6933333333333334,
+      "base_curriculum": 0.66,
+      "rl_random": 0.74,
+      "rl_curriculum": 0.7733333333333333,
+      "delta_base": -0.03333333333333333,
+      "delta_rl": 0.03333333333333333,
+      "interaction": 0.06666666666666667
+    }
+  ],
+  "summary": [
+    {
+      "metric": "avg_at_8",
+      "contrast": "delta_base",
+      "seeds": 3,
+      "mean": -0.00888888888888889,
+      "seed_sample_sd": 0.06411975196920675,
+      "seed_min": -0.05583333333333333,
+      "seed_max": 0.06416666666666666,
+      "question_bootstrap_ci_low": -0.021944444444444444,
+      "question_bootstrap_ci_high": 0.003888888888888889,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "avg_at_8",
+      "contrast": "delta_rl",
+      "seeds": 3,
+      "mean": 0.001388888888888889,
+      "seed_sample_sd": 0.010617508252009107,
+      "seed_min": -0.010833333333333334,
+      "seed_max": 0.008333333333333333,
+      "question_bootstrap_ci_low": -0.008333333333333333,
+      "question_bootstrap_ci_high": 0.010833333333333334,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "avg_at_8",
+      "contrast": "interaction",
+      "seeds": 3,
+      "mean": 0.01027777777777778,
+      "seed_sample_sd": 0.074471906211771,
+      "seed_min": -0.075,
+      "seed_max": 0.0625,
+      "question_bootstrap_ci_low": -0.005277777777777778,
+      "question_bootstrap_ci_high": 0.026666666666666665,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "pass_at_8",
+      "contrast": "delta_base",
+      "seeds": 3,
+      "mean": -0.006666666666666666,
+      "seed_sample_sd": 0.024037008503093264,
+      "seed_min": -0.03333333333333333,
+      "seed_max": 0.013333333333333334,
+      "question_bootstrap_ci_low": -0.026666666666666665,
+      "question_bootstrap_ci_high": 0.013333333333333332,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "pass_at_8",
+      "contrast": "delta_rl",
+      "seeds": 3,
+      "mean": -0.0022222222222222222,
+      "seed_sample_sd": 0.020367003088692624,
+      "seed_min": -0.02,
+      "seed_max": 0.02,
+      "question_bootstrap_ci_low": -0.022222222222222223,
+      "question_bootstrap_ci_high": 0.017777777777777778,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "pass_at_8",
+      "contrast": "interaction",
+      "seeds": 3,
+      "mean": 0.0044444444444444444,
+      "seed_sample_sd": 0.02143033502442879,
+      "seed_min": -0.02,
+      "seed_max": 0.02,
+      "question_bootstrap_ci_low": -0.02,
+      "question_bootstrap_ci_high": 0.028888888888888888,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "greedy",
+      "contrast": "delta_base",
+      "seeds": 3,
+      "mean": 0.00888888888888889,
+      "seed_sample_sd": 0.04018475848894472,
+      "seed_min": -0.03333333333333333,
+      "seed_max": 0.04666666666666667,
+      "question_bootstrap_ci_low": -0.02,
+      "question_bootstrap_ci_high": 0.04,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "greedy",
+      "contrast": "delta_rl",
+      "seeds": 3,
+      "mean": 0.011111111111111112,
+      "seed_sample_sd": 0.02036700308869262,
+      "seed_min": -0.006666666666666667,
+      "seed_max": 0.03333333333333333,
+      "question_bootstrap_ci_low": -0.01111111111111111,
+      "question_bootstrap_ci_high": 0.03333333333333333,
+      "bootstrap_repeats": 2000
+    },
+    {
+      "metric": "greedy",
+      "contrast": "interaction",
+      "seeds": 3,
+      "mean": 0.0022222222222222214,
+      "seed_sample_sd": 0.056699336987435886,
+      "seed_min": -0.04,
+      "seed_max": 0.06666666666666667,
+      "question_bootstrap_ci_low": -0.03111111111111111,
+      "question_bootstrap_ci_high": 0.035555555555555556,
+      "bootstrap_repeats": 2000
+    }
+  ],
+  "missing_runs": [],
+  "uncertainty": "Seed SD describes training-seed variation (3 observed seeds; unstable variance, no population claim). Bootstrap resamples evaluation questions jointly across conditions/seeds conditional on observed seeds. It excludes training-seed uncertainty. Responses to one question are NOT independent questions.",
+  "endpoint": "diagnostic",
+  "samples": 8,
+  "condition_summary": [
+    {
+      "model": "base",
+      "order": "random",
+      "metric": "avg_at_8",
+      "mean": 0.6397222222222222,
+      "seed_sample_sd": 0.03529964326752913,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.5819444444444445,
+      "question_bootstrap_ci_high": 0.6958333333333333
+    },
+    {
+      "model": "base",
+      "order": "random",
+      "metric": "pass_at_8",
+      "mean": 0.8666666666666667,
+      "seed_sample_sd": 0.011547005383792526,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.8155555555555556,
+      "question_bootstrap_ci_high": 0.9155555555555556
+    },
+    {
+      "model": "base",
+      "order": "random",
+      "metric": "greedy",
+      "mean": 0.66,
+      "seed_sample_sd": 0.02905932629027118,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.5888888888888889,
+      "question_bootstrap_ci_high": 0.7311111111111112
+    },
+    {
+      "model": "base",
+      "order": "curriculum",
+      "metric": "avg_at_8",
+      "mean": 0.6308333333333334,
+      "seed_sample_sd": 0.028975564417856176,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.5716666666666667,
+      "question_bootstrap_ci_high": 0.6866666666666666
+    },
+    {
+      "model": "base",
+      "order": "curriculum",
+      "metric": "pass_at_8",
+      "mean": 0.86,
+      "seed_sample_sd": 0.013333333333333308,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.8066666666666666,
+      "question_bootstrap_ci_high": 0.9088888888888889
+    },
+    {
+      "model": "base",
+      "order": "curriculum",
+      "metric": "greedy",
+      "mean": 0.6688888888888889,
+      "seed_sample_sd": 0.0214303350244288,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.5977777777777777,
+      "question_bootstrap_ci_high": 0.7377777777777778
+    },
+    {
+      "model": "rl",
+      "order": "random",
+      "metric": "avg_at_8",
+      "mean": 0.7186111111111111,
+      "seed_sample_sd": 0.008910563851303002,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.6608333333333334,
+      "question_bootstrap_ci_high": 0.775
+    },
+    {
+      "model": "rl",
+      "order": "random",
+      "metric": "pass_at_8",
+      "mean": 0.8844444444444445,
+      "seed_sample_sd": 0.010183501544346328,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.8311111111111111,
+      "question_bootstrap_ci_high": 0.9311111111111111
+    },
+    {
+      "model": "rl",
+      "order": "random",
+      "metric": "greedy",
+      "mean": 0.7466666666666667,
+      "seed_sample_sd": 0.006666666666666654,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.6822222222222222,
+      "question_bootstrap_ci_high": 0.8111111111111111
+    },
+    {
+      "model": "rl",
+      "order": "curriculum",
+      "metric": "avg_at_8",
+      "mean": 0.72,
+      "seed_sample_sd": 0.00881917103688194,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.6622222222222223,
+      "question_bootstrap_ci_high": 0.7755555555555556
+    },
+    {
+      "model": "rl",
+      "order": "curriculum",
+      "metric": "pass_at_8",
+      "mean": 0.8822222222222222,
+      "seed_sample_sd": 0.010183501544346316,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.8288888888888889,
+      "question_bootstrap_ci_high": 0.9288888888888889
+    },
+    {
+      "model": "rl",
+      "order": "curriculum",
+      "metric": "greedy",
+      "mean": 0.7577777777777778,
+      "seed_sample_sd": 0.0138777733297742,
+      "seeds": 3,
+      "question_bootstrap_ci_low": 0.6911111111111111,
+      "question_bootstrap_ci_high": 0.82
+    }
+  ],
+  "primary_endpoint": "diagnostic step 300; Curriculum - Random and (RL difference) - (Base difference)",
+  "coverage_claim": "Finite-sample observed solution coverage, relative to each model's own step 0; not new reasoning ability",
+  "group_claim": "All-correct also has zero advantage; association with performance is descriptive, not causal",
+  "diagnostic_claim": "Not used in this additional training; public model historical exposure unknown"
+}

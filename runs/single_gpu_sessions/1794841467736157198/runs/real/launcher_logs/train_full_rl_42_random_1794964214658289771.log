@@ -1,0 +1,422 @@
+
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
+Loading checkpoint shards:  50%|█████     | 1/2 [00:08<00:08,  8.31s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:11<00:00,  5.10s/it]
+Loading checkpoint shards: 100%|██████████| 2/2 [00:11<00:00,  5.58s/it]
+rl/random/seed42: exposure 114/300, reward=0.00, optimizer_steps=114, 157.0s/update, 32.2 training tok/s, peak=5.13 GiB
+rl/random/seed42: exposure 115/300, reward=0.75, optimizer_steps=115, 159.7s/update, 21.1 training tok/s, peak=5.19 GiB
+rl/random/seed42: exposure 116/300, reward=1.00, optimizer_steps=116, 51.4s/update, 38.3 training tok/s, peak=3.85 GiB
+rl/random/seed42: exposure 117/300, reward=0.75, optimizer_steps=117, 51.2s/update, 39.6 training tok/s, peak=3.93 GiB
+rl/random/seed42: exposure 118/300, reward=0.75, optimizer_steps=118, 60.7s/update, 36.0 training tok/s, peak=3.98 GiB
+rl/random/seed42: exposure 119/300, reward=0.75, optimizer_steps=119, 154.5s/update, 21.0 training tok/s, peak=5.17 GiB
+rl/random/seed42: exposure 120/300, reward=0.75, optimizer_steps=120, 163.5s/update, 21.2 training tok/s, peak=5.14 GiB
+rl/random/seed42: exposure 121/300, reward=0.75, optimizer_steps=121, 110.7s/update, 20.6 training tok/s, peak=4.63 GiB
+rl/random/seed42: exposure 122/300, reward=0.75, optimizer_steps=122, 34.8s/update, 36.6 training tok/s, peak=3.73 GiB
+rl/random/seed42: exposure 123/300, reward=0.00, optimizer_steps=123, 32.5s/update, 35.4 training tok/s, peak=3.74 GiB
+rl/random/seed42: exposure 124/300, reward=0.50, optimizer_steps=124, 94.8s/update, 19.4 training tok/s, peak=4.44 GiB
+rl/random/seed42: exposure 125/300, reward=0.75, optimizer_steps=125, 38.7s/update, 37.7 training tok/s, peak=3.77 GiB
+rl/random/seed42: exposure 126/300, reward=0.75, optimizer_steps=126, 55.0s/update, 37.5 training tok/s, peak=4.12 GiB
+rl/random/seed42: exposure 127/300, reward=0.50, optimizer_steps=127, 47.6s/update, 39.4 training tok/s, peak=3.89 GiB
+rl/random/seed42: exposure 128/300, reward=0.75, optimizer_steps=128, 34.4s/update, 36.2 training tok/s, peak=3.74 GiB
+rl/random/seed42: exposure 129/300, reward=0.00, optimizer_steps=129, 63.8s/update, 39.8 training tok/s, peak=4.13 GiB
+rl/random/seed42: exposure 130/300, reward=0.00, optimizer_steps=130, 81.4s/update, 46.3 training tok/s, peak=4.30 GiB
+rl/random/seed42: exposure 131/300, reward=0.75, optimizer_steps=131, 44.6s/update, 35.4 training tok/s, peak=3.84 GiB
+rl/random/seed42: exposure 132/300, reward=0.75, optimizer_steps=132, 21.1s/update, 39.7 training tok/s, peak=3.66 GiB
+rl/random/seed42: exposure 133/300, reward=0.50, optimizer_steps=133, 148.1s/update, 26.4 training tok/s, peak=5.19 GiB
+rl/random/seed42: exposure 134/300, reward=0.00, optimizer_steps=134, 157.6s/update, 25.9 training tok/s, peak=5.43 GiB
+rl/random/seed42: exposure 135/300, reward=0.75, optimizer_steps=135, 46.6s/update, 30.1 training tok/s, peak=3.86 GiB
+rl/random/seed42: exposure 136/300, reward=0.00, optimizer_steps=136, 72.7s/update, 42.0 training tok/s, peak=4.20 GiB
+rl/random/seed42: exposure 137/300, reward=1.00, optimizer_steps=137, 57.3s/update, 39.5 training tok/s, peak=3.91 GiB
+rl/random/seed42: exposure 138/300, reward=1.00, optimizer_steps=138, 27.9s/update, 33.1 training tok/s, peak=3.68 GiB
+rl/random/seed42: exposure 139/300, reward=1.00, optimizer_steps=139, 29.0s/update, 40.4 training tok/s, peak=3.70 GiB
+rl/random/seed42: exposure 140/300, reward=0.00, optimizer_steps=140, 163.8s/update, 31.8 training tok/s, peak=5.30 GiB
+rl/random/seed42: exposure 141/300, reward=0.75, optimizer_steps=141, 43.1s/update, 45.6 training tok/s, peak=3.80 GiB
+rl/random/seed42: exposure 142/300, reward=0.25, optimizer_steps=142, 87.7s/update, 23.0 training tok/s, peak=4.17 GiB
+rl/random/seed42: exposure 143/300, reward=0.00, optimizer_steps=143, 76.6s/update, 45.9 training tok/s, peak=4.19 GiB
+rl/random/seed42: exposure 144/300, reward=1.00, optimizer_steps=144, 48.1s/update, 29.8 training tok/s, peak=3.84 GiB
+rl/random/seed42: exposure 145/300, reward=0.75, optimizer_steps=145, 161.1s/update, 20.2 training tok/s, peak=5.11 GiB
+rl/random/seed42: exposure 146/300, reward=0.00, optimizer_steps=146, 159.0s/update, 24.4 training tok/s, peak=5.19 GiB
+rl/random/seed42: exposure 147/300, reward=0.50, optimizer_steps=147, 160.6s/update, 21.4 training tok/s, peak=5.14 GiB
+rl/random/seed42: exposure 148/300, reward=1.00, optimizer_steps=148, 25.5s/update, 39.6 training tok/s, peak=3.62 GiB
+rl/random/seed42: exposure 149/300, reward=1.00, optimizer_steps=149, 40.5s/update, 21.1 training tok/s, peak=3.70 GiB
+rl/random/seed42: exposure 150/300, reward=1.00, optimizer_steps=150, 30.2s/update, 31.8 training tok/s, peak=3.67 GiB
+rl/random/seed42: exposure 151/300, reward=0.75, optimizer_steps=151, 56.1s/update, 37.3 training tok/s, peak=3.88 GiB
+rl/random/seed42: exposure 152/300, reward=0.50, optimizer_steps=152, 156.3s/update, 18.6 training tok/s, peak=5.18 GiB
+rl/random/seed42: exposure 153/300, reward=0.00, optimizer_steps=153, 39.3s/update, 41.6 training tok/s, peak=3.78 GiB
+rl/random/seed42: exposure 154/300, reward=0.50, optimizer_steps=154, 46.8s/update, 40.2 training tok/s, peak=3.98 GiB
+rl/random/seed42: exposure 155/300, reward=0.75, optimizer_steps=155, 42.4s/update, 27.9 training tok/s, peak=3.83 GiB
+rl/random/seed42: exposure 156/300, reward=0.75, optimizer_steps=156, 31.6s/update, 37.1 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 157/300, reward=0.25, optimizer_steps=157, 37.4s/update, 32.0 training tok/s, peak=3.74 GiB
+rl/random/seed42: exposure 158/300, reward=0.00, optimizer_steps=158, 116.1s/update, 34.6 training tok/s, peak=4.60 GiB
+rl/random/seed42: exposure 159/300, reward=1.00, optimizer_steps=159, 24.7s/update, 33.3 training tok/s, peak=3.63 GiB
+rl/random/seed42: exposure 160/300, reward=1.00, optimizer_steps=160, 48.7s/update, 44.8 training tok/s, peak=3.85 GiB
+rl/random/seed42: exposure 161/300, reward=0.75, optimizer_steps=161, 160.5s/update, 24.7 training tok/s, peak=5.24 GiB
+rl/random/seed42: exposure 162/300, reward=0.75, optimizer_steps=162, 38.6s/update, 41.4 training tok/s, peak=3.79 GiB
+rl/random/seed42: exposure 163/300, reward=1.00, optimizer_steps=163, 25.1s/update, 38.0 training tok/s, peak=3.67 GiB
+rl/random/seed42: exposure 164/300, reward=0.00, optimizer_steps=164, 24.8s/update, 48.5 training tok/s, peak=3.69 GiB
+rl/random/seed42: exposure 165/300, reward=0.00, optimizer_steps=165, 38.0s/update, 29.5 training tok/s, peak=3.86 GiB
+rl/random/seed42: exposure 166/300, reward=0.75, optimizer_steps=166, 50.1s/update, 33.3 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 167/300, reward=0.25, optimizer_steps=167, 156.0s/update, 32.0 training tok/s, peak=5.16 GiB
+rl/random/seed42: exposure 168/300, reward=1.00, optimizer_steps=168, 21.9s/update, 30.3 training tok/s, peak=3.62 GiB
+rl/random/seed42: exposure 169/300, reward=0.00, optimizer_steps=169, 161.3s/update, 31.4 training tok/s, peak=5.27 GiB
+rl/random/seed42: exposure 170/300, reward=0.25, optimizer_steps=170, 155.6s/update, 23.8 training tok/s, peak=5.32 GiB
+rl/random/seed42: exposure 171/300, reward=0.00, optimizer_steps=171, 64.7s/update, 44.4 training tok/s, peak=4.24 GiB
+rl/random/seed42: exposure 172/300, reward=1.00, optimizer_steps=172, 36.4s/update, 47.9 training tok/s, peak=3.77 GiB
+rl/random/seed42: exposure 173/300, reward=0.25, optimizer_steps=173, 59.9s/update, 26.5 training tok/s, peak=4.02 GiB
+rl/random/seed42: exposure 174/300, reward=1.00, optimizer_steps=174, 43.2s/update, 46.2 training tok/s, peak=3.83 GiB
+rl/random/seed42: exposure 175/300, reward=0.00, optimizer_steps=175, 81.0s/update, 35.1 training tok/s, peak=4.23 GiB
+rl/random/seed42: exposure 176/300, reward=0.00, optimizer_steps=176, 150.6s/update, 23.3 training tok/s, peak=5.20 GiB
+rl/random/seed42: exposure 177/300, reward=1.00, optimizer_steps=177, 26.0s/update, 26.8 training tok/s, peak=3.60 GiB
+rl/random/seed42: exposure 178/300, reward=0.75, optimizer_steps=178, 30.7s/update, 44.1 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 179/300, reward=0.75, optimizer_steps=179, 157.7s/update, 20.2 training tok/s, peak=5.12 GiB
+rl/random/seed42: exposure 180/300, reward=0.00, optimizer_steps=180, 47.7s/update, 43.9 training tok/s, peak=3.86 GiB
+rl/random/seed42: exposure 181/300, reward=1.00, optimizer_steps=181, 32.0s/update, 36.5 training tok/s, peak=3.73 GiB
+rl/random/seed42: exposure 182/300, reward=1.00, optimizer_steps=182, 41.1s/update, 39.6 training tok/s, peak=3.74 GiB
+rl/random/seed42: exposure 183/300, reward=1.00, optimizer_steps=183, 42.8s/update, 43.0 training tok/s, peak=3.75 GiB
+rl/random/seed42: exposure 184/300, reward=0.75, optimizer_steps=184, 29.4s/update, 45.7 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 185/300, reward=1.00, optimizer_steps=185, 29.9s/update, 43.5 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 186/300, reward=0.00, optimizer_steps=186, 37.8s/update, 45.8 training tok/s, peak=3.75 GiB
+rl/random/seed42: exposure 187/300, reward=0.00, optimizer_steps=187, 145.3s/update, 23.6 training tok/s, peak=5.13 GiB
+rl/random/seed42: exposure 188/300, reward=0.75, optimizer_steps=188, 22.4s/update, 37.8 training tok/s, peak=3.67 GiB
+rl/random/seed42: exposure 189/300, reward=1.00, optimizer_steps=189, 21.9s/update, 28.9 training tok/s, peak=3.57 GiB
+rl/random/seed42: exposure 190/300, reward=0.25, optimizer_steps=190, 148.0s/update, 26.2 training tok/s, peak=5.18 GiB
+rl/random/seed42: exposure 191/300, reward=0.75, optimizer_steps=191, 41.4s/update, 28.1 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 192/300, reward=0.75, optimizer_steps=192, 45.8s/update, 44.2 training tok/s, peak=3.85 GiB
+rl/random/seed42: exposure 193/300, reward=1.00, optimizer_steps=193, 51.9s/update, 40.1 training tok/s, peak=3.84 GiB
+rl/random/seed42: exposure 194/300, reward=0.00, optimizer_steps=194, 86.6s/update, 38.5 training tok/s, peak=4.32 GiB
+rl/random/seed42: exposure 195/300, reward=1.00, optimizer_steps=195, 25.4s/update, 43.5 training tok/s, peak=3.68 GiB
+rl/random/seed42: exposure 196/300, reward=0.25, optimizer_steps=196, 59.1s/update, 38.9 training tok/s, peak=4.03 GiB
+rl/random/seed42: exposure 197/300, reward=0.00, optimizer_steps=197, 120.7s/update, 29.2 training tok/s, peak=4.87 GiB
+rl/random/seed42: exposure 198/300, reward=0.75, optimizer_steps=198, 65.2s/update, 37.6 training tok/s, peak=4.03 GiB
+rl/random/seed42: exposure 199/300, reward=1.00, optimizer_steps=199, 28.9s/update, 35.2 training tok/s, peak=3.70 GiB
+rl/random/seed42: exposure 200/300, reward=0.75, optimizer_steps=200, 31.9s/update, 45.1 training tok/s, peak=3.73 GiB
+Evaluation diagnostic step=200: 150 questions, 8 samples + greedy, max_new_tokens=2048
+  diagnostic step=200: generating questions 1-4/150
+  batch elapsed=95.3s
+  diagnostic step=200: 4/150, avg_at_8=0.9688, elapsed=95.3s
+  diagnostic step=200: generating questions 5-8/150
+  batch elapsed=220.2s
+  diagnostic step=200: 8/150, avg_at_8=0.9062, elapsed=315.5s
+  diagnostic step=200: generating questions 9-12/150
+  batch elapsed=133.2s
+  diagnostic step=200: 12/150, avg_at_8=0.9271, elapsed=448.7s
+  diagnostic step=200: generating questions 13-16/150
+  batch elapsed=85.0s
+  diagnostic step=200: 16/150, avg_at_8=0.9375, elapsed=533.8s
+  diagnostic step=200: generating questions 17-20/150
+  batch elapsed=98.2s
+  diagnostic step=200: 20/150, avg_at_8=0.9313, elapsed=631.9s
+  diagnostic step=200: generating questions 21-24/150
+  batch elapsed=74.1s
+  diagnostic step=200: 24/150, avg_at_8=0.9167, elapsed=706.0s
+  diagnostic step=200: generating questions 25-28/150
+  batch elapsed=197.1s
+  diagnostic step=200: 28/150, avg_at_8=0.8884, elapsed=903.1s
+  diagnostic step=200: generating questions 29-32/150
+  batch elapsed=207.2s
+  diagnostic step=200: 32/150, avg_at_8=0.8750, elapsed=1110.3s
+  diagnostic step=200: generating questions 33-36/150
+  batch elapsed=224.5s
+  diagnostic step=200: 36/150, avg_at_8=0.8785, elapsed=1334.7s
+  diagnostic step=200: generating questions 37-40/150
+  batch elapsed=169.4s
+  diagnostic step=200: 40/150, avg_at_8=0.8844, elapsed=1504.2s
+  diagnostic step=200: generating questions 41-44/150
+  batch elapsed=248.6s
+  diagnostic step=200: 44/150, avg_at_8=0.8722, elapsed=1752.7s
+  diagnostic step=200: generating questions 45-48/150
+  batch elapsed=211.8s
+  diagnostic step=200: 48/150, avg_at_8=0.8620, elapsed=1964.5s
+  diagnostic step=200: generating questions 49-52/150
+  batch elapsed=135.4s
+  diagnostic step=200: 52/150, avg_at_8=0.8245, elapsed=2099.9s
+  diagnostic step=200: generating questions 53-56/150
+  batch elapsed=148.7s
+  diagnostic step=200: 56/150, avg_at_8=0.8013, elapsed=2248.6s
+  diagnostic step=200: generating questions 57-60/150
+  batch elapsed=164.0s
+  diagnostic step=200: 60/150, avg_at_8=0.7833, elapsed=2412.6s
+  diagnostic step=200: generating questions 61-64/150
+  batch elapsed=262.6s
+  diagnostic step=200: 64/150, avg_at_8=0.7676, elapsed=2675.1s
+  diagnostic step=200: generating questions 65-68/150
+  batch elapsed=241.1s
+  diagnostic step=200: 68/150, avg_at_8=0.7390, elapsed=2916.2s
+  diagnostic step=200: generating questions 69-72/150
+  batch elapsed=259.3s
+  diagnostic step=200: 72/150, avg_at_8=0.7031, elapsed=3175.5s
+  diagnostic step=200: generating questions 73-76/150
+  batch elapsed=120.4s
+  diagnostic step=200: 76/150, avg_at_8=0.7072, elapsed=3295.9s
+  diagnostic step=200: generating questions 77-80/150
+  batch elapsed=155.4s
+  diagnostic step=200: 80/150, avg_at_8=0.6969, elapsed=3451.3s
+  diagnostic step=200: generating questions 81-84/150
+  batch elapsed=177.1s
+  diagnostic step=200: 84/150, avg_at_8=0.7039, elapsed=3628.4s
+  diagnostic step=200: generating questions 85-88/150
+  batch elapsed=286.9s
+  diagnostic step=200: 88/150, avg_at_8=0.6861, elapsed=3915.3s
+  diagnostic step=200: generating questions 89-92/150
+  batch elapsed=196.0s
+  diagnostic step=200: 92/150, avg_at_8=0.6861, elapsed=4111.3s
+  diagnostic step=200: generating questions 93-96/150
+  batch elapsed=111.9s
+  diagnostic step=200: 96/150, avg_at_8=0.6888, elapsed=4223.2s
+  diagnostic step=200: generating questions 97-100/150
+  batch elapsed=330.7s
+  diagnostic step=200: 100/150, avg_at_8=0.6925, elapsed=4553.9s
+  diagnostic step=200: generating questions 101-104/150
+  batch elapsed=203.8s
+  diagnostic step=200: 104/150, avg_at_8=0.7007, elapsed=4757.7s
+  diagnostic step=200: generating questions 105-108/150
+  batch elapsed=192.7s
+  diagnostic step=200: 108/150, avg_at_8=0.7095, elapsed=4950.4s
+  diagnostic step=200: generating questions 109-112/150
+  batch elapsed=206.3s
+  diagnostic step=200: 112/150, avg_at_8=0.7087, elapsed=5156.7s
+  diagnostic step=200: generating questions 113-116/150
+  batch elapsed=82.7s
+  diagnostic step=200: 116/150, avg_at_8=0.7134, elapsed=5239.4s
+  diagnostic step=200: generating questions 117-120/150
+  batch elapsed=70.2s
+  diagnostic step=200: 120/150, avg_at_8=0.7219, elapsed=5309.6s
+  diagnostic step=200: generating questions 121-124/150
+  batch elapsed=55.7s
+  diagnostic step=200: 124/150, avg_at_8=0.7308, elapsed=5365.2s
+  diagnostic step=200: generating questions 125-128/150
+  batch elapsed=149.6s
+  diagnostic step=200: 128/150, avg_at_8=0.7314, elapsed=5514.8s
+  diagnostic step=200: generating questions 129-132/150
+  batch elapsed=72.5s
+  diagnostic step=200: 132/150, avg_at_8=0.7301, elapsed=5587.3s
+  diagnostic step=200: generating questions 133-136/150
+  batch elapsed=196.7s
+  diagnostic step=200: 136/150, avg_at_8=0.7233, elapsed=5784.0s
+  diagnostic step=200: generating questions 137-140/150
+  batch elapsed=77.3s
+  diagnostic step=200: 140/150, avg_at_8=0.7277, elapsed=5861.3s
+  diagnostic step=200: generating questions 141-144/150
+  batch elapsed=225.5s
+  diagnostic step=200: 144/150, avg_at_8=0.7205, elapsed=6086.8s
+  diagnostic step=200: generating questions 145-148/150
+  batch elapsed=177.3s
+  diagnostic step=200: 148/150, avg_at_8=0.7196, elapsed=6264.0s
+  diagnostic step=200: generating questions 149-150/150
+  batch elapsed=181.3s
+  diagnostic step=200: 150/150, avg_at_8=0.7217, elapsed=6445.3s
+rl/random/seed42: exposure 201/300, reward=0.50, optimizer_steps=201, 49.7s/update, 41.1 training tok/s, peak=3.94 GiB
+rl/random/seed42: exposure 202/300, reward=0.50, optimizer_steps=202, 36.8s/update, 39.0 training tok/s, peak=3.77 GiB
+rl/random/seed42: exposure 203/300, reward=1.00, optimizer_steps=203, 69.3s/update, 28.5 training tok/s, peak=4.09 GiB
+rl/random/seed42: exposure 204/300, reward=0.00, optimizer_steps=204, 94.6s/update, 45.0 training tok/s, peak=4.53 GiB
+rl/random/seed42: exposure 205/300, reward=1.00, optimizer_steps=205, 34.1s/update, 38.5 training tok/s, peak=3.73 GiB
+rl/random/seed42: exposure 206/300, reward=1.00, optimizer_steps=206, 33.8s/update, 38.3 training tok/s, peak=3.75 GiB
+rl/random/seed42: exposure 207/300, reward=0.50, optimizer_steps=207, 37.7s/update, 40.6 training tok/s, peak=3.79 GiB
+rl/random/seed42: exposure 208/300, reward=1.00, optimizer_steps=208, 15.5s/update, 40.5 training tok/s, peak=3.58 GiB
+rl/random/seed42: exposure 209/300, reward=0.50, optimizer_steps=209, 59.6s/update, 44.5 training tok/s, peak=4.05 GiB
+rl/random/seed42: exposure 210/300, reward=0.75, optimizer_steps=210, 109.7s/update, 40.9 training tok/s, peak=4.70 GiB
+rl/random/seed42: exposure 211/300, reward=1.00, optimizer_steps=211, 35.5s/update, 35.2 training tok/s, peak=3.77 GiB
+rl/random/seed42: exposure 212/300, reward=0.50, optimizer_steps=212, 85.2s/update, 37.7 training tok/s, peak=4.40 GiB
+rl/random/seed42: exposure 213/300, reward=0.75, optimizer_steps=213, 39.8s/update, 44.6 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 214/300, reward=1.00, optimizer_steps=214, 28.3s/update, 47.2 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 215/300, reward=1.00, optimizer_steps=215, 40.2s/update, 47.8 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 216/300, reward=0.25, optimizer_steps=216, 127.4s/update, 42.7 training tok/s, peak=4.87 GiB
+rl/random/seed42: exposure 217/300, reward=0.25, optimizer_steps=217, 155.6s/update, 25.0 training tok/s, peak=5.20 GiB
+rl/random/seed42: exposure 218/300, reward=0.75, optimizer_steps=218, 150.0s/update, 20.7 training tok/s, peak=5.12 GiB
+rl/random/seed42: exposure 219/300, reward=1.00, optimizer_steps=219, 24.5s/update, 37.9 training tok/s, peak=3.67 GiB
+rl/random/seed42: exposure 220/300, reward=1.00, optimizer_steps=220, 29.3s/update, 48.9 training tok/s, peak=3.73 GiB
+rl/random/seed42: exposure 221/300, reward=0.75, optimizer_steps=221, 37.2s/update, 44.2 training tok/s, peak=3.78 GiB
+rl/random/seed42: exposure 222/300, reward=1.00, optimizer_steps=222, 42.9s/update, 43.3 training tok/s, peak=3.83 GiB
+rl/random/seed42: exposure 223/300, reward=0.75, optimizer_steps=223, 44.3s/update, 40.2 training tok/s, peak=3.83 GiB
+rl/random/seed42: exposure 224/300, reward=0.00, optimizer_steps=224, 155.6s/update, 29.7 training tok/s, peak=5.19 GiB
+rl/random/seed42: exposure 225/300, reward=0.75, optimizer_steps=225, 53.9s/update, 44.7 training tok/s, peak=3.96 GiB
+rl/random/seed42: exposure 226/300, reward=1.00, optimizer_steps=226, 17.3s/update, 47.2 training tok/s, peak=3.59 GiB
+rl/random/seed42: exposure 227/300, reward=0.00, optimizer_steps=227, 152.0s/update, 27.7 training tok/s, peak=5.29 GiB
+rl/random/seed42: exposure 228/300, reward=0.00, optimizer_steps=228, 87.4s/update, 39.0 training tok/s, peak=4.30 GiB
+rl/random/seed42: exposure 229/300, reward=0.25, optimizer_steps=229, 46.8s/update, 44.0 training tok/s, peak=3.87 GiB
+rl/random/seed42: exposure 230/300, reward=1.00, optimizer_steps=230, 42.4s/update, 41.9 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 231/300, reward=0.00, optimizer_steps=231, 55.8s/update, 47.6 training tok/s, peak=4.19 GiB
+rl/random/seed42: exposure 232/300, reward=0.25, optimizer_steps=232, 69.7s/update, 35.3 training tok/s, peak=4.19 GiB
+rl/random/seed42: exposure 233/300, reward=0.00, optimizer_steps=233, 92.0s/update, 44.6 training tok/s, peak=4.47 GiB
+rl/random/seed42: exposure 234/300, reward=0.75, optimizer_steps=234, 152.9s/update, 17.8 training tok/s, peak=5.22 GiB
+rl/random/seed42: exposure 235/300, reward=1.00, optimizer_steps=235, 39.0s/update, 41.8 training tok/s, peak=3.74 GiB
+rl/random/seed42: exposure 236/300, reward=0.50, optimizer_steps=236, 124.2s/update, 30.7 training tok/s, peak=4.79 GiB
+rl/random/seed42: exposure 237/300, reward=0.75, optimizer_steps=237, 153.6s/update, 28.5 training tok/s, peak=5.12 GiB
+rl/random/seed42: exposure 238/300, reward=1.00, optimizer_steps=238, 46.7s/update, 34.5 training tok/s, peak=3.88 GiB
+rl/random/seed42: exposure 239/300, reward=1.00, optimizer_steps=239, 40.3s/update, 40.0 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 240/300, reward=0.50, optimizer_steps=240, 35.6s/update, 43.6 training tok/s, peak=3.77 GiB
+rl/random/seed42: exposure 241/300, reward=0.50, optimizer_steps=241, 74.5s/update, 30.4 training tok/s, peak=4.14 GiB
+rl/random/seed42: exposure 242/300, reward=0.75, optimizer_steps=242, 79.7s/update, 43.5 training tok/s, peak=4.26 GiB
+rl/random/seed42: exposure 243/300, reward=0.75, optimizer_steps=243, 40.7s/update, 44.9 training tok/s, peak=3.81 GiB
+rl/random/seed42: exposure 244/300, reward=0.00, optimizer_steps=244, 152.5s/update, 30.4 training tok/s, peak=5.23 GiB
+rl/random/seed42: exposure 245/300, reward=0.00, optimizer_steps=245, 157.4s/update, 30.9 training tok/s, peak=5.20 GiB
+rl/random/seed42: exposure 246/300, reward=1.00, optimizer_steps=246, 52.0s/update, 40.1 training tok/s, peak=3.92 GiB
+rl/random/seed42: exposure 247/300, reward=0.50, optimizer_steps=247, 96.3s/update, 48.2 training tok/s, peak=4.45 GiB
+rl/random/seed42: exposure 248/300, reward=0.50, optimizer_steps=248, 27.6s/update, 33.6 training tok/s, peak=3.70 GiB
+rl/random/seed42: exposure 249/300, reward=1.00, optimizer_steps=249, 48.8s/update, 50.2 training tok/s, peak=3.89 GiB
+rl/random/seed42: exposure 250/300, reward=0.25, optimizer_steps=250, 50.0s/update, 51.9 training tok/s, peak=3.92 GiB
+rl/random/seed42: exposure 251/300, reward=1.00, optimizer_steps=251, 33.8s/update, 45.8 training tok/s, peak=3.76 GiB
+rl/random/seed42: exposure 252/300, reward=1.00, optimizer_steps=252, 15.7s/update, 36.7 training tok/s, peak=3.58 GiB
+rl/random/seed42: exposure 253/300, reward=1.00, optimizer_steps=253, 73.0s/update, 48.2 training tok/s, peak=4.25 GiB
+rl/random/seed42: exposure 254/300, reward=1.00, optimizer_steps=254, 26.3s/update, 37.9 training tok/s, peak=3.69 GiB
+rl/random/seed42: exposure 255/300, reward=0.00, optimizer_steps=255, 149.1s/update, 27.4 training tok/s, peak=5.69 GiB
+rl/random/seed42: exposure 256/300, reward=1.00, optimizer_steps=256, 23.4s/update, 30.7 training tok/s, peak=3.64 GiB
+rl/random/seed42: exposure 257/300, reward=0.75, optimizer_steps=257, 154.3s/update, 35.0 training tok/s, peak=5.20 GiB
+rl/random/seed42: exposure 258/300, reward=0.50, optimizer_steps=258, 82.5s/update, 39.2 training tok/s, peak=4.29 GiB
+rl/random/seed42: exposure 259/300, reward=1.00, optimizer_steps=259, 34.3s/update, 38.9 training tok/s, peak=3.76 GiB
+rl/random/seed42: exposure 260/300, reward=0.75, optimizer_steps=260, 30.3s/update, 39.3 training tok/s, peak=3.78 GiB
+rl/random/seed42: exposure 261/300, reward=0.50, optimizer_steps=261, 142.5s/update, 43.6 training tok/s, peak=5.18 GiB
+rl/random/seed42: exposure 262/300, reward=1.00, optimizer_steps=262, 36.7s/update, 40.6 training tok/s, peak=3.75 GiB
+rl/random/seed42: exposure 263/300, reward=0.75, optimizer_steps=263, 68.0s/update, 41.6 training tok/s, peak=4.09 GiB
+rl/random/seed42: exposure 264/300, reward=0.75, optimizer_steps=264, 29.7s/update, 39.7 training tok/s, peak=3.71 GiB
+rl/random/seed42: exposure 265/300, reward=0.50, optimizer_steps=265, 39.4s/update, 35.7 training tok/s, peak=3.77 GiB
+rl/random/seed42: exposure 266/300, reward=0.00, optimizer_steps=266, 83.6s/update, 39.5 training tok/s, peak=4.22 GiB
+rl/random/seed42: exposure 267/300, reward=1.00, optimizer_steps=267, 38.6s/update, 37.8 training tok/s, peak=3.76 GiB
+rl/random/seed42: exposure 268/300, reward=0.00, optimizer_steps=268, 62.0s/update, 44.1 training tok/s, peak=4.14 GiB
+rl/random/seed42: exposure 269/300, reward=1.00, optimizer_steps=269, 32.6s/update, 37.3 training tok/s, peak=3.75 GiB
+rl/random/seed42: exposure 270/300, reward=0.75, optimizer_steps=270, 69.2s/update, 31.1 training tok/s, peak=4.07 GiB
+rl/random/seed42: exposure 271/300, reward=1.00, optimizer_steps=271, 23.3s/update, 46.1 training tok/s, peak=3.64 GiB
+rl/random/seed42: exposure 272/300, reward=0.25, optimizer_steps=272, 61.6s/update, 34.3 training tok/s, peak=4.07 GiB
+rl/random/seed42: exposure 273/300, reward=1.00, optimizer_steps=273, 45.9s/update, 39.5 training tok/s, peak=3.79 GiB
+rl/random/seed42: exposure 274/300, reward=1.00, optimizer_steps=274, 30.8s/update, 48.2 training tok/s, peak=3.73 GiB
+rl/random/seed42: exposure 275/300, reward=0.75, optimizer_steps=275, 52.1s/update, 49.8 training tok/s, peak=3.94 GiB
+rl/random/seed42: exposure 276/300, reward=0.00, optimizer_steps=276, 109.4s/update, 38.1 training tok/s, peak=4.57 GiB
+rl/random/seed42: exposure 277/300, reward=0.00, optimizer_steps=277, 108.6s/update, 41.2 training tok/s, peak=4.42 GiB
+rl/random/seed42: exposure 278/300, reward=0.50, optimizer_steps=278, 165.3s/update, 26.6 training tok/s, peak=5.18 GiB
+rl/random/seed42: exposure 279/300, reward=0.00, optimizer_steps=279, 153.9s/update, 33.8 training tok/s, peak=5.21 GiB
+rl/random/seed42: exposure 280/300, reward=0.50, optimizer_steps=280, 24.8s/update, 38.5 training tok/s, peak=3.68 GiB
+rl/random/seed42: exposure 281/300, reward=0.25, optimizer_steps=281, 95.6s/update, 37.0 training tok/s, peak=4.51 GiB
+rl/random/seed42: exposure 282/300, reward=0.75, optimizer_steps=282, 38.9s/update, 40.2 training tok/s, peak=3.78 GiB
+rl/random/seed42: exposure 283/300, reward=0.75, optimizer_steps=283, 159.6s/update, 26.7 training tok/s, peak=5.12 GiB
+rl/random/seed42: exposure 284/300, reward=1.00, optimizer_steps=284, 38.5s/update, 39.9 training tok/s, peak=3.79 GiB
+rl/random/seed42: exposure 285/300, reward=0.75, optimizer_steps=285, 43.8s/update, 48.9 training tok/s, peak=3.84 GiB
+rl/random/seed42: exposure 286/300, reward=0.00, optimizer_steps=286, 32.9s/update, 34.3 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 287/300, reward=0.50, optimizer_steps=287, 160.2s/update, 17.9 training tok/s, peak=5.12 GiB
+rl/random/seed42: exposure 288/300, reward=0.50, optimizer_steps=288, 55.0s/update, 41.0 training tok/s, peak=4.00 GiB
+rl/random/seed42: exposure 289/300, reward=0.25, optimizer_steps=289, 137.0s/update, 34.5 training tok/s, peak=4.99 GiB
+rl/random/seed42: exposure 290/300, reward=0.50, optimizer_steps=290, 34.6s/update, 40.7 training tok/s, peak=3.72 GiB
+rl/random/seed42: exposure 291/300, reward=1.00, optimizer_steps=291, 51.6s/update, 50.1 training tok/s, peak=3.92 GiB
+rl/random/seed42: exposure 292/300, reward=1.00, optimizer_steps=292, 30.9s/update, 47.4 training tok/s, peak=3.73 GiB
+rl/random/seed42: exposure 293/300, reward=0.75, optimizer_steps=293, 57.2s/update, 36.5 training tok/s, peak=4.00 GiB
+rl/random/seed42: exposure 294/300, reward=1.00, optimizer_steps=294, 48.0s/update, 44.2 training tok/s, peak=3.95 GiB
+rl/random/seed42: exposure 295/300, reward=1.00, optimizer_steps=295, 50.8s/update, 46.4 training tok/s, peak=3.88 GiB
+rl/random/seed42: exposure 296/300, reward=0.75, optimizer_steps=296, 39.7s/update, 48.2 training tok/s, peak=3.79 GiB
+rl/random/seed42: exposure 297/300, reward=0.25, optimizer_steps=297, 82.3s/update, 38.3 training tok/s, peak=4.31 GiB
+rl/random/seed42: exposure 298/300, reward=0.75, optimizer_steps=298, 59.3s/update, 41.3 training tok/s, peak=3.97 GiB
+rl/random/seed42: exposure 299/300, reward=0.25, optimizer_steps=299, 68.5s/update, 28.8 training tok/s, peak=4.10 GiB
+rl/random/seed42: exposure 300/300, reward=0.25, optimizer_steps=300, 157.7s/update, 21.5 training tok/s, peak=5.12 GiB
+Evaluation diagnostic step=300: 150 questions, 8 samples + greedy, max_new_tokens=2048
+  diagnostic step=300: generating questions 1-4/150
+  batch elapsed=98.6s
+  diagnostic step=300: 4/150, avg_at_8=0.9688, elapsed=98.6s
+  diagnostic step=300: generating questions 5-8/150
+  batch elapsed=272.3s
+  diagnostic step=300: 8/150, avg_at_8=0.8906, elapsed=370.9s
+  diagnostic step=300: generating questions 9-12/150
+  batch elapsed=115.7s
+  diagnostic step=300: 12/150, avg_at_8=0.9167, elapsed=486.6s
+  diagnostic step=300: generating questions 13-16/150
+  batch elapsed=87.7s
+  diagnostic step=300: 16/150, avg_at_8=0.9375, elapsed=574.3s
+  diagnostic step=300: generating questions 17-20/150
+  batch elapsed=97.8s
+  diagnostic step=300: 20/150, avg_at_8=0.9250, elapsed=672.1s
+  diagnostic step=300: generating questions 21-24/150
+  batch elapsed=108.4s
+  diagnostic step=300: 24/150, avg_at_8=0.9010, elapsed=780.4s
+  diagnostic step=300: generating questions 25-28/150
+  batch elapsed=222.7s
+  diagnostic step=300: 28/150, avg_at_8=0.8750, elapsed=1003.1s
+  diagnostic step=300: generating questions 29-32/150
+  batch elapsed=102.6s
+  diagnostic step=300: 32/150, avg_at_8=0.8672, elapsed=1105.8s
+  diagnostic step=300: generating questions 33-36/150
+  batch elapsed=111.7s
+  diagnostic step=300: 36/150, avg_at_8=0.8750, elapsed=1217.5s
+  diagnostic step=300: generating questions 37-40/150
+  batch elapsed=138.1s
+  diagnostic step=300: 40/150, avg_at_8=0.8844, elapsed=1355.6s
+  diagnostic step=300: generating questions 41-44/150
+  batch elapsed=133.8s
+  diagnostic step=300: 44/150, avg_at_8=0.8722, elapsed=1489.4s
+  diagnostic step=300: generating questions 45-48/150
+  batch elapsed=130.7s
+  diagnostic step=300: 48/150, avg_at_8=0.8542, elapsed=1620.1s
+  diagnostic step=300: generating questions 49-52/150
+  batch elapsed=233.8s
+  diagnostic step=300: 52/150, avg_at_8=0.8245, elapsed=1853.8s
+  diagnostic step=300: generating questions 53-56/150
+  batch elapsed=255.0s
+  diagnostic step=300: 56/150, avg_at_8=0.7969, elapsed=2108.8s
+  diagnostic step=300: generating questions 57-60/150
+  batch elapsed=232.2s
+  diagnostic step=300: 60/150, avg_at_8=0.7812, elapsed=2341.0s
+  diagnostic step=300: generating questions 61-64/150
+  batch elapsed=217.3s
+  diagnostic step=300: 64/150, avg_at_8=0.7637, elapsed=2558.3s
+  diagnostic step=300: generating questions 65-68/150
+  batch elapsed=296.5s
+  diagnostic step=300: 68/150, avg_at_8=0.7335, elapsed=2854.8s
+  diagnostic step=300: generating questions 69-72/150
+  batch elapsed=352.7s
+  diagnostic step=300: 72/150, avg_at_8=0.7083, elapsed=3207.5s
+  diagnostic step=300: generating questions 73-76/150
+  batch elapsed=120.6s
+  diagnostic step=300: 76/150, avg_at_8=0.7105, elapsed=3328.1s
+  diagnostic step=300: generating questions 77-80/150
+  batch elapsed=158.5s
+  diagnostic step=300: 80/150, avg_at_8=0.7000, elapsed=3486.6s
+  diagnostic step=300: generating questions 81-84/150
+  batch elapsed=185.5s
+  diagnostic step=300: 84/150, avg_at_8=0.7083, elapsed=3672.0s
+  diagnostic step=300: generating questions 85-88/150
+  batch elapsed=260.0s
+  diagnostic step=300: 88/150, avg_at_8=0.6918, elapsed=3932.1s
+  diagnostic step=300: generating questions 89-92/150
+  batch elapsed=167.0s
+  diagnostic step=300: 92/150, avg_at_8=0.6970, elapsed=4099.0s
+  diagnostic step=300: generating questions 93-96/150
+  batch elapsed=93.6s
+  diagnostic step=300: 96/150, avg_at_8=0.6992, elapsed=4192.6s
+  diagnostic step=300: generating questions 97-100/150
+  batch elapsed=226.1s
+  diagnostic step=300: 100/150, avg_at_8=0.7037, elapsed=4418.6s
+  diagnostic step=300: generating questions 101-104/150
+  batch elapsed=247.0s
+  diagnostic step=300: 104/150, avg_at_8=0.7079, elapsed=4665.6s
+  diagnostic step=300: generating questions 105-108/150
+  batch elapsed=107.4s
+  diagnostic step=300: 108/150, avg_at_8=0.7176, elapsed=4773.0s
+  diagnostic step=300: generating questions 109-112/150
+  batch elapsed=331.1s
+  diagnostic step=300: 112/150, avg_at_8=0.7165, elapsed=5104.1s
+  diagnostic step=300: generating questions 113-116/150
+  batch elapsed=83.1s
+  diagnostic step=300: 116/150, avg_at_8=0.7198, elapsed=5187.2s
+  diagnostic step=300: generating questions 117-120/150
+  batch elapsed=63.5s
+  diagnostic step=300: 120/150, avg_at_8=0.7271, elapsed=5250.6s
+  diagnostic step=300: generating questions 121-124/150
+  batch elapsed=64.2s
+  diagnostic step=300: 124/150, avg_at_8=0.7359, elapsed=5314.8s
+  diagnostic step=300: generating questions 125-128/150
+  batch elapsed=198.8s
+  diagnostic step=300: 128/150, avg_at_8=0.7383, elapsed=5513.6s
+  diagnostic step=300: generating questions 129-132/150
+  batch elapsed=60.4s
+  diagnostic step=300: 132/150, avg_at_8=0.7358, elapsed=5574.0s
+  diagnostic step=300: generating questions 133-136/150
+  batch elapsed=207.0s
+  diagnostic step=300: 136/150, avg_at_8=0.7289, elapsed=5781.0s
+  diagnostic step=300: generating questions 137-140/150
+  batch elapsed=75.0s
+  diagnostic step=300: 140/150, avg_at_8=0.7321, elapsed=5856.0s
+  diagnostic step=300: generating questions 141-144/150
+  batch elapsed=238.0s
+  diagnostic step=300: 144/150, avg_at_8=0.7240, elapsed=6094.1s
+  diagnostic step=300: generating questions 145-148/150
+  batch elapsed=172.8s
+  diagnostic step=300: 148/150, avg_at_8=0.7230, elapsed=6266.9s
+  diagnostic step=300: generating questions 149-150/150
+  batch elapsed=155.0s
+  diagnostic step=300: 150/150, avg_at_8=0.7242, elapsed=6421.8s
